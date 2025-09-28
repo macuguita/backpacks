@@ -1,0 +1,17 @@
+{
+  "backpack.gbackpacks.backpack": "Backpack",
+  "backpack.gbackpacks.big_backpack": "Big backpack",
+  "block.gbackpacks.backpack": "Backpack",
+  "gui.gbackpacks.backpack": "Backpack",
+  "gui.gbackpacks.customization": "Backpack Customization",
+  "item.gbackpacks.backpack.tooltip.cosmetic": "Backpack cosmetic: ",
+  "item.gbackpacks.backpack.tooltip.hidden": "Hidden",
+  "item.gbackpacks.backpack.tooltip.uuid": "UUID of backpack: %s",
+  "item.gbackpacks.backpack.tooltip.uuid.hidden": "Press [SHIFT] to show",
+  "itemGroup.gbackpacks.gbackpacks": "guita's Backpack",
+  "key.categories.gbackpacks": "guita's Backpacks",
+  "key.gbackpacks.open_backpack": "Open backpack",
+  "key.gbackpacks.open_equipment": "Open equipment inventory",
+  "narration.gbackpacks.customization_widget": "Backpack customization widget",
+  "narration.gbackpacks.scroll_bar": "Scroll bar widget"
+}

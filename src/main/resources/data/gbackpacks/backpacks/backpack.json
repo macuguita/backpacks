@@ -1,0 +1,8 @@
+{
+  "id": "gbackpacks:backpacks/backpack",
+  "translation_key": "backpack.gbackpacks.backpack",
+  "block_collision_shape": [
+    [5, 0, 6],
+    [11, 9, 10]
+  ]
+}

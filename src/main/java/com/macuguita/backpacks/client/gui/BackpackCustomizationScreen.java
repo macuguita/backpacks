@@ -1,0 +1,259 @@
+/*
+ * Copyright (c) 2025 macuguita
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+package com.macuguita.backpacks.client.gui;
+
+import com.macuguita.backpacks.GuitaBackpacks;
+import com.macuguita.backpacks.client.GuitaBackpacksClient;
+import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
+import com.macuguita.backpacks.client.render.BakedModelRenderer;
+import com.macuguita.backpacks.network.BackpacksResourceReloadListener;
+import com.macuguita.backpacks.network.payload.BackpackCosmeticSyncPayload;
+import com.macuguita.backpacks.reg.GBComponents;
+import org.joml.Matrix4f;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+
+@Environment(EnvType.CLIENT)
+public class BackpackCustomizationScreen extends Screen {
+
+	public static final Identifier BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
+
+	private static final int BACKGROUND_WIDTH = 176;
+	private static final int BACKGROUND_HEIGHT = 166;
+	private static final int ITEM_LIST_GAP = 2;
+	private static final int DEFAULT_ITEM_TEXT_COLOR = 0xCCCCCC;
+	private static final int SELECTED_ITEM_TEXT_COLOR = 0xFFFFFFFF;
+	private static final int HOVERED_ITEM_TEXT_COLOR = 0xE6E6E6;
+	private static final int ITEM_WIDTH = 133;
+	private static final int ITEM_HEIGHT = 24;
+
+	final ItemStack backpack;
+	private final Identifier currentModelId;
+	public final Screen parent;
+	private Identifier selectedModelId;
+	private int scrollOffset = 0;
+	private ScrollBarWidget scrollBar;
+
+	public BackpackCustomizationScreen(Text title, Screen parent, ItemStack backpack) {
+		super(title);
+		this.parent = parent;
+		this.backpack = backpack;
+		this.currentModelId = backpack.get(GBComponents.BACKPACK_MODEL_ID.get());
+		this.selectedModelId = this.currentModelId;
+	}
+
+	public static void drawModelInGui(DrawContext context, BakedModel model, float x, float y, float scale) {
+		MatrixStack matrices = context.getMatrices();
+		matrices.push();
+
+		// Move the model to the correct screen location
+		matrices.translate(x, y, 150);
+
+		// Flip Y axis (required for GUI rendering)
+		matrices.multiplyPositionMatrix(new Matrix4f().scaling(1.0F, -1.0F, 1.0F));
+
+		// Scale the model to fit in GUI
+		matrices.scale(25.0F, 25.0F, 25.0F);
+		matrices.scale(scale, scale, scale);
+
+		// Apply isometric-style rotation
+		matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(30)); // Tilt from above (X-axis)
+		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(45)); // Rotate right (Y-axis)
+
+		// Render the model
+		BakedModelRenderer.drawBakedModel(model, matrices, context.getVertexConsumers(), 0xF000F0, OverlayTexture.DEFAULT_UV);
+		context.getVertexConsumers().draw();
+
+		matrices.pop();
+	}
+
+	@Override
+	protected void init() {
+		super.init();
+
+		int i = (this.width - BACKGROUND_WIDTH) / 2;
+		int j = (this.height - BACKGROUND_HEIGHT) / 2;
+
+		int scrollBarX = i + BACKGROUND_WIDTH - ScrollBarWidget.BACKGROUND_WIDTH - 10;
+		int scrollBarY = j + 10;
+		this.scrollBar = this.addDrawableChild(
+				new ScrollBarWidget(scrollBarX, scrollBarY, BACKGROUND_HEIGHT - 45, new ScrollBarWidget.ScrollCallback() {
+					@Override
+					public void onScroll(int delta) {
+						scrollOffset += delta * 10;
+						scrollOffset = Math.max(0, Math.min(scrollOffset, getMaxScrollOffset()));
+					}
+
+					@Override
+					public void scrollTo(int offset) {
+						scrollOffset = Math.max(0, Math.min(offset, getMaxScrollOffset()));
+					}
+
+					@Override
+					public int getMaxScrollOffset() {
+						return Math.max(0, GuitaBackpacksClient.BACKPACKS.size() * (ITEM_HEIGHT + ITEM_LIST_GAP) - (scrollBar.getHeight() - 30));
+					}
+
+					@Override
+					public int getCurrentScrollOffset() {
+						return scrollOffset;
+					}
+
+					@Override
+					public boolean canScroll() {
+						return getMaxScrollOffset() > 0;
+					}
+				})
+		);
+
+		this.addDrawableChild(
+				ButtonWidget.builder(Text.translatable("gui.done"), button -> {
+							if (!this.selectedModelId.equals(this.currentModelId)) {
+								ClientPlayNetworking.send(new BackpackCosmeticSyncPayload(backpack, this.selectedModelId));
+							}
+							this.close();
+						})
+						.dimensions(i + 10, j + BACKGROUND_HEIGHT - 30, BACKGROUND_WIDTH - 20, 20)
+						.build()
+		);
+	}
+
+	@Override
+	public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+		super.renderBackground(context, mouseX, mouseY, delta);
+		int i = (this.width - BACKGROUND_WIDTH) / 2;
+		int j = (this.height - BACKGROUND_HEIGHT) / 2;
+
+		context.drawGuiTexture(BACKGROUND_TEXTURE, i, j, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+
+		int listBgX = i + 10;
+		int listBgY = j + 10;
+		int listBgWidth = BACKGROUND_WIDTH - ScrollBarWidget.BACKGROUND_WIDTH - 23;
+		int listBgHeight = scrollBar.getHeight();
+		context.fill(listBgX, listBgY, listBgX + listBgWidth, listBgY + listBgHeight, 0xFF373737);
+
+		context.enableScissor(listBgX, listBgY, listBgX + listBgWidth, listBgY + listBgHeight);
+
+		int padding = 2;
+		int slotWidth = listBgWidth - (padding * 2);
+		int startX = listBgX + padding;
+		int startY = listBgY + padding;
+
+		for (int index = 0; index < GuitaBackpacksClient.BACKPACKS.size(); index++) {
+			BackpacksResourceReloadListener.Backpack backpackItem = GuitaBackpacksClient.BACKPACKS.get(index);
+			int y = startY + index * (ITEM_HEIGHT + ITEM_LIST_GAP) - scrollOffset;
+
+			if (y + ITEM_HEIGHT < listBgY || y > listBgY + listBgHeight) continue;
+
+			boolean isSelected = backpackItem.id().equals(this.selectedModelId);
+			boolean isHovered = mouseX >= startX && mouseX <= startX + slotWidth &&
+					mouseY >= y && mouseY <= y + ITEM_HEIGHT;
+
+			int bgColor = isSelected ? 0xFF4A90E2 :
+					isHovered ? 0xFF5A5A5A :
+							0xFF454545;
+			context.fill(startX, y, startX + slotWidth, y + ITEM_HEIGHT, bgColor);
+
+			if (isSelected) {
+				context.fill(startX, y, startX + slotWidth, y + 1, 0xFF6AB0FF);
+				context.fill(startX, y + ITEM_HEIGHT - 1, startX + slotWidth, y + ITEM_HEIGHT, 0xFF2A70C2);
+			}
+
+			BakedModel model = MinecraftClient.getInstance().getItemRenderer()
+					.getModels().getModelManager().getModel(backpackItem.id());
+			drawModelInGui(context, model, startX + 12 + backpackItem.guiDisplacement().x, y + 6 + backpackItem.guiDisplacement().y,
+					backpackItem.guiScale());
+
+			int textColor = isSelected ? SELECTED_ITEM_TEXT_COLOR :
+					isHovered ? HOVERED_ITEM_TEXT_COLOR :
+							DEFAULT_ITEM_TEXT_COLOR;
+			context.drawText(this.textRenderer, Text.translatable(backpackItem.translationKey()),
+					startX + 28, y + 8, textColor, isSelected);
+		}
+
+		context.disableScissor();
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+		if (scrollBar != null && scrollBar.getCallback().canScroll()) {
+			int scrollDirection = verticalAmount > 0 ? -1 : 1;
+			scrollOffset += scrollDirection * 10;
+			scrollOffset = Math.max(0, Math.min(scrollOffset, scrollBar.getCallback().getMaxScrollOffset()));
+			scrollBar.updateScrollPercent();
+			return true;
+		}
+		return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+	}
+
+	@Override
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		int i = (this.width - BACKGROUND_WIDTH) / 2;
+		int j = (this.height - BACKGROUND_HEIGHT) / 2;
+
+		int startX = i + 12;
+		int startY = j + 7;
+		int listHeight = scrollBar.getHeight() - 30;
+
+		for (int index = 0; index < GuitaBackpacksClient.BACKPACKS.size(); index++) {
+			int y = startY + index * (ITEM_HEIGHT + ITEM_LIST_GAP) - scrollOffset;
+
+			if (mouseX >= startX && mouseX <= startX + ITEM_WIDTH &&
+					mouseY >= y && mouseY <= y + ITEM_HEIGHT &&
+					y >= j + 5 && y + ITEM_HEIGHT <= j + 5 + listHeight) {
+				BackpacksResourceReloadListener.Backpack clicked = GuitaBackpacksClient.BACKPACKS.get(index);
+
+				this.selectedModelId = clicked.id();
+				this.scrollBar.updateScrollPercent();
+				return true;
+			}
+		}
+
+		return super.mouseClicked(mouseX, mouseY, button);
+	}
+
+	@Override
+	public boolean shouldPause() {
+		return false;
+	}
+
+	@Override
+	public void close() {
+		if (this.client == null) return;
+		this.client.setScreen(this.parent);
+	}
+}
