@@ -24,6 +24,8 @@ package com.macuguita.backpacks.client.gui.widgets;
 
 import com.macuguita.backpacks.GuitaBackpacks;
 
+import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
@@ -66,7 +68,7 @@ public class ScrollBarWidget extends ClickableWidget {
 		int x = getX();
 		int y = getY();
 
-		context.drawGuiTexture(SCROLLER_BACK_TEXTURE, x, y, this.width, this.height);
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SCROLLER_BACK_TEXTURE, x, y, this.width, this.height);
 
 		int scrollerX = x + (this.width - SCROLLER_WIDTH) / 2;
 
@@ -78,16 +80,16 @@ public class ScrollBarWidget extends ClickableWidget {
 		}
 
 		Identifier scrollerTexture = callback.canScroll() ? SCROLLER_TEXTURE : SCROLLER_DISABLED_TEXTURE;
-		context.drawGuiTexture(scrollerTexture, scrollerX, scrollerY, SCROLLER_WIDTH, SCROLLER_HEIGHT);
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, scrollerTexture, scrollerX, scrollerY, SCROLLER_WIDTH, SCROLLER_HEIGHT);
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (!callback.canScroll() || button != 0) {
-			return super.mouseClicked(mouseX, mouseY, button);
+	public boolean mouseClicked(Click click, boolean doubled) {
+		if (!callback.canScroll() || click.button() != 0) {
+			return super.mouseClicked(click, doubled);
 		}
 
-		if (this.clicked(mouseX, mouseY)) {
+		if (!doubled) {
 			this.scrolling = true;
 
 			int currentScrollerY;
@@ -97,32 +99,32 @@ public class ScrollBarWidget extends ClickableWidget {
 				currentScrollerY = getY() + 1 + (int) (scrollPercent * (innerHeight - SCROLLER_HEIGHT));
 			}
 
-			if (mouseY >= currentScrollerY && mouseY <= currentScrollerY + SCROLLER_HEIGHT) {
+			if (click.y() >= currentScrollerY && click.y() <= currentScrollerY + SCROLLER_HEIGHT) {
 				return true;
 			}
 
-			updateScroll(mouseY, true);
+			updateScroll(click.y(), true);
 			return true;
 		}
 
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(click, doubled);
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+	public boolean mouseDragged(Click click, double offsetX, double offsetY) {
 		if (this.scrolling && callback.canScroll()) {
-			updateScroll(mouseY, false);
+			updateScroll(click.y(), false);
 			return true;
 		}
-		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+		return super.mouseDragged(click, offsetX, offsetY);
 	}
 
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		if (button == 0) {
+	public boolean mouseReleased(Click click) {
+		if (click.button() == 0) {
 			this.scrolling = false;
 		}
-		return super.mouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(click);
 	}
 
 	@Override

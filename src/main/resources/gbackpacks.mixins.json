@@ -13,5 +13,8 @@
   },
   "overwrites": {
     "requireAnnotations": true
-  }
+  },
+  "client": [
+    "PlayerEntityRendererMixin"
+  ]
 }

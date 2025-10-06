@@ -34,7 +34,7 @@ public record OpenBackpackPayload(boolean buf) implements CustomPayload {
 	public static final CustomPayload.Id<OpenBackpackPayload> ID = new CustomPayload.Id<>(GBNetworking.OPEN_BACKPACK_PACKET);
 
 	public static final PacketCodec<RegistryByteBuf, OpenBackpackPayload> CODEC = PacketCodec.tuple(
-			PacketCodecs.BOOL,
+			PacketCodecs.BOOLEAN,
 			OpenBackpackPayload::buf,
 			OpenBackpackPayload::new
 	);

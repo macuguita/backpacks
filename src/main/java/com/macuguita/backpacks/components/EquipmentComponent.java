@@ -29,8 +29,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 
 public class EquipmentComponent implements Component, AutoSyncedComponent {
 
@@ -39,7 +39,7 @@ public class EquipmentComponent implements Component, AutoSyncedComponent {
 		@Override
 		public void markDirty() {
 			super.markDirty();
-			if (!player.getWorld().isClient) {
+			if (!player.getEntityWorld().isClient()) {
 				GuitaBackpacksComponents.EQUIPMENT_COMPONENT.sync(player);
 			}
 		}
@@ -64,13 +64,13 @@ public class EquipmentComponent implements Component, AutoSyncedComponent {
 	}
 
 	@Override
-	public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
+	public void readData(ReadView readView) {
 		this.inventory.clear();
-		Inventories.readNbt(nbtCompound, this.inventory.heldStacks, wrapperLookup);
+		Inventories.readData(readView, this.inventory.heldStacks);
 	}
 
 	@Override
-	public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
-		Inventories.writeNbt(nbtCompound, this.inventory.heldStacks, wrapperLookup);
+	public void writeData(WriteView writeView) {
+		Inventories.writeData(writeView, this.inventory.heldStacks);
 	}
 }

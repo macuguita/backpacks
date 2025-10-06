@@ -26,6 +26,8 @@ import com.macuguita.backpacks.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.BackpackCustomizationScreen;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -37,8 +39,6 @@ import net.minecraft.util.Identifier;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class CustomizationWidget extends ClickableWidget {
@@ -56,7 +56,7 @@ public class CustomizationWidget extends ClickableWidget {
 	@Override
 	protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
 		if (backpack.isEmpty()) return;
-		context.drawTexture(WIDGET_ICON, getX(), getY(), 0, 0,
+		context.drawTexture(RenderPipelines.GUI_TEXTURED, WIDGET_ICON, getX(), getY(), 0, 0,
 				this.width, this.height, 10, 10);
 	}
 
@@ -67,9 +67,9 @@ public class CustomizationWidget extends ClickableWidget {
 	}
 
 	@Override
-	public void onClick(double mouseX, double mouseY) {
+	public void onClick(Click click, boolean doubled) {
 		if (backpack.isEmpty()) return;
-		super.onClick(mouseX, mouseY);
+		super.onClick(click, doubled);
 		MinecraftClient client = MinecraftClient.getInstance();
 		client.setScreen(new BackpackCustomizationScreen(Text.translatable("gui.gbackpacks.customization"), parent, backpack));
 	}

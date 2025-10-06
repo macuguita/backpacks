@@ -24,6 +24,7 @@ package com.macuguita.backpacks.components;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.macuguita.backpacks.config.GBConfig;
@@ -32,12 +33,11 @@ import org.ladysnake.cca.api.v3.component.Component;
 
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
+import net.minecraft.util.Uuids;
 
 public class BackpacksComponent implements Component {
 
@@ -87,37 +87,34 @@ public class BackpacksComponent implements Component {
 	}
 
 	@Override
-	public void readFromNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
+	public void readData(ReadView readView) {
 		backpacks.clear();
-		NbtList backpacksNbtList = nbtCompound.getList("Backpacks", NbtElement.COMPOUND_TYPE);
+		ReadView.ListReadView backpacksList = readView.getListReadView("Backpacks");
 
-		for (int i = 0; i < backpacksNbtList.size(); i++) {
-			NbtCompound backpackTag = backpacksNbtList.getCompound(i);
-			UUID uuid = backpackTag.getUuid("UUID");
-			int size = backpackTag.getInt("Size");
+		for (ReadView backpackReadView : backpacksList) {
+			Optional<UUID> uuid = backpackReadView.read("UUID", Uuids.CODEC);
+			int size = backpackReadView.getInt("Size", 0);
 
 			SimpleInventory inventory = new SimpleInventory(size);
-			Inventories.readNbt(backpackTag, inventory.heldStacks, wrapperLookup);
-			backpacks.put(uuid, inventory);
+			Inventories.readData(backpackReadView, inventory.heldStacks);
+			backpacks.put(uuid.orElse(null), inventory);
 		}
 	}
 
 	@Override
-	public void writeToNbt(NbtCompound nbtCompound, RegistryWrapper.WrapperLookup wrapperLookup) {
-		NbtList backpacksNbtList = new NbtList();
+	public void writeData(WriteView writeView) {
+		WriteView.ListView backpacksList = writeView.getList("Backpacks");
 
 		for (Map.Entry<UUID, SimpleInventory> entry : backpacks.entrySet()) {
 			UUID uuid = entry.getKey();
 			SimpleInventory inventory = entry.getValue();
 
-			NbtCompound backpackTag = new NbtCompound();
-			backpackTag.putUuid("UUID", uuid);
-			backpackTag.putInt("Size", inventory.size());
+			WriteView backpackView = backpacksList.add();
 
-			Inventories.writeNbt(backpackTag, inventory.heldStacks, wrapperLookup);
-			backpacksNbtList.add(backpackTag);
+			backpackView.put("UUID", Uuids.CODEC, uuid);
+			backpackView.putInt("Size", inventory.size());
+
+			Inventories.writeData(backpackView, inventory.heldStacks);
 		}
-
-		nbtCompound.put("Backpacks", backpacksNbtList);
 	}
 }

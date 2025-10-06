@@ -1,5 +1,5 @@
 plugins {
-    id("fabric-loom").version("1.9-SNAPSHOT")
+    id("fabric-loom").version("1.11-SNAPSHOT")
     id("maven-publish")
 }
 
@@ -29,6 +29,7 @@ loom {
             }
         }
     }
+    accessWidenerPath.set(file(project.file("src/main/resources/${BuildConfig.modId}.accesswidener")))
 }
 
 sourceSets {
@@ -86,20 +87,20 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:${BuildConfig.modMenuVersion}"){
         exclude("net.fabricmc.fabric-api")
     }
-    modLocalRuntime("dev.emi:emi-fabric:${BuildConfig.emiVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
-    if (true) {
-        modImplementation("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
-            exclude("net.fabricmc.fabric-api")
-            exclude("org.ladysnake.cardinal-components-api")
-        }
-    } else {
-        modCompileOnly("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
-            exclude("net.fabricmc.fabric-api")
-            exclude("org.ladysnake.cardinal-components-api")
-        }
-    }
+//    modLocalRuntime("dev.emi:emi-fabric:${BuildConfig.emiVersion}"){
+//        exclude("net.fabricmc.fabric-api")
+//    }
+//    if (true) {
+//        modImplementation("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
+//            exclude("net.fabricmc.fabric-api")
+//            exclude("org.ladysnake.cardinal-components-api")
+//        }
+//    } else {
+//        modCompileOnly("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
+//            exclude("net.fabricmc.fabric-api")
+//            exclude("org.ladysnake.cardinal-components-api")
+//        }
+//    }
 
     modImplementation("org.ladysnake.cardinal-components-api:cardinal-components-base:${BuildConfig.ccaVersion}"){
         exclude("net.fabricmc.fabric-api")
@@ -118,13 +119,6 @@ dependencies {
         exclude("net.fabricmc.fabric-api")
     }
     include("org.ladysnake.cardinal-components-api:cardinal-components-entity:${BuildConfig.ccaVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
-
-    modRuntimeOnly("me.shedaniel.cloth:cloth-config-fabric:15.0.140") {
-        exclude("net.fabricmc.fabric-api")
-    }
-    modRuntimeOnly("maven.modrinth:freecam:1.3.0+mc1.21.1"){
         exclude("net.fabricmc.fabric-api")
     }
 }

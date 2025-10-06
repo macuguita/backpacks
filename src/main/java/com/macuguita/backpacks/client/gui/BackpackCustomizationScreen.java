@@ -25,23 +25,21 @@ package com.macuguita.backpacks.client.gui;
 import com.macuguita.backpacks.GuitaBackpacks;
 import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
-import com.macuguita.backpacks.client.render.BakedModelRenderer;
+import com.macuguita.backpacks.client.render.state.BlockStateGuiElementRenderState;
 import com.macuguita.backpacks.network.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.network.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.reg.GBComponents;
-import org.joml.Matrix4f;
+import org.joml.Matrix3x2f;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.ScreenRect;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -55,9 +53,9 @@ public class BackpackCustomizationScreen extends Screen {
 	private static final int BACKGROUND_WIDTH = 176;
 	private static final int BACKGROUND_HEIGHT = 166;
 	private static final int ITEM_LIST_GAP = 2;
-	private static final int DEFAULT_ITEM_TEXT_COLOR = 0xCCCCCC;
+	private static final int DEFAULT_ITEM_TEXT_COLOR = 0xFFCCCCCC;
 	private static final int SELECTED_ITEM_TEXT_COLOR = 0xFFFFFFFF;
-	private static final int HOVERED_ITEM_TEXT_COLOR = 0xE6E6E6;
+	private static final int HOVERED_ITEM_TEXT_COLOR = 0xFFE6E6E6;
 	private static final int ITEM_WIDTH = 133;
 	private static final int ITEM_HEIGHT = 24;
 
@@ -76,29 +74,28 @@ public class BackpackCustomizationScreen extends Screen {
 		this.selectedModelId = this.currentModelId;
 	}
 
-	public static void drawModelInGui(DrawContext context, BakedModel model, float x, float y, float scale) {
-		MatrixStack matrices = context.getMatrices();
-		matrices.push();
+	public static void drawModelInGui(DrawContext context, Identifier modelId, int x, int y, float scale) {
+		int size = 27;
 
-		// Move the model to the correct screen location
-		matrices.translate(x, y, 150);
+		float centerX = x + size / 2f;
+		float centerY = y + size / 2f;
 
-		// Flip Y axis (required for GUI rendering)
-		matrices.multiplyPositionMatrix(new Matrix4f().scaling(1.0F, -1.0F, 1.0F));
+		Matrix3x2f pose = new Matrix3x2f()
+				.translate(centerX, centerY)
+				.scale(scale)
+				.translate(-centerX, -centerY);
 
-		// Scale the model to fit in GUI
-		matrices.scale(25.0F, 25.0F, 25.0F);
-		matrices.scale(scale, scale, scale);
+		ScreenRect rect = new ScreenRect(x, y, size, size).transformEachVertex(pose);
 
-		// Apply isometric-style rotation
-		matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(30)); // Tilt from above (X-axis)
-		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(45)); // Rotate right (Y-axis)
+		BlockStateGuiElementRenderState renderState = new BlockStateGuiElementRenderState(
+				pose,
+				modelId,
+				x,
+				y,
+				rect
+		);
 
-		// Render the model
-		BakedModelRenderer.drawBakedModel(model, matrices, context.getVertexConsumers(), 0xF000F0, OverlayTexture.DEFAULT_UV);
-		context.getVertexConsumers().draw();
-
-		matrices.pop();
+		context.state.addSpecialElement(renderState);
 	}
 
 	@Override
@@ -158,7 +155,7 @@ public class BackpackCustomizationScreen extends Screen {
 		int i = (this.width - BACKGROUND_WIDTH) / 2;
 		int j = (this.height - BACKGROUND_HEIGHT) / 2;
 
-		context.drawGuiTexture(BACKGROUND_TEXTURE, i, j, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i, j, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
 
 		int listBgX = i + 10;
 		int listBgY = j + 10;
@@ -193,14 +190,16 @@ public class BackpackCustomizationScreen extends Screen {
 				context.fill(startX, y + ITEM_HEIGHT - 1, startX + slotWidth, y + ITEM_HEIGHT, 0xFF2A70C2);
 			}
 
-			BakedModel model = MinecraftClient.getInstance().getItemRenderer()
-					.getModels().getModelManager().getModel(backpackItem.id());
-			drawModelInGui(context, model, startX + 12 + backpackItem.guiDisplacement().x, y + 6 + backpackItem.guiDisplacement().y,
-					backpackItem.guiScale());
+			int modelX = startX + backpackItem.guiDisplacement().x;
+			int modelY = y + backpackItem.guiDisplacement().y - 2;
+
+			drawModelInGui(context, backpackItem.id(), modelX,
+					modelY, backpackItem.guiScale());
 
 			int textColor = isSelected ? SELECTED_ITEM_TEXT_COLOR :
 					isHovered ? HOVERED_ITEM_TEXT_COLOR :
 							DEFAULT_ITEM_TEXT_COLOR;
+
 			context.drawText(this.textRenderer, Text.translatable(backpackItem.translationKey()),
 					startX + 28, y + 8, textColor, isSelected);
 		}
@@ -221,7 +220,7 @@ public class BackpackCustomizationScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(Click click, boolean doubled) {
 		int i = (this.width - BACKGROUND_WIDTH) / 2;
 		int j = (this.height - BACKGROUND_HEIGHT) / 2;
 
@@ -232,8 +231,8 @@ public class BackpackCustomizationScreen extends Screen {
 		for (int index = 0; index < GuitaBackpacksClient.BACKPACKS.size(); index++) {
 			int y = startY + index * (ITEM_HEIGHT + ITEM_LIST_GAP) - scrollOffset;
 
-			if (mouseX >= startX && mouseX <= startX + ITEM_WIDTH &&
-					mouseY >= y && mouseY <= y + ITEM_HEIGHT &&
+			if (click.x() >= startX && click.x() <= startX + ITEM_WIDTH &&
+					click.y() >= y && click.y() <= y + ITEM_HEIGHT &&
 					y >= j + 5 && y + ITEM_HEIGHT <= j + 5 + listHeight) {
 				BackpacksResourceReloadListener.Backpack clicked = GuitaBackpacksClient.BACKPACKS.get(index);
 
@@ -243,7 +242,7 @@ public class BackpackCustomizationScreen extends Screen {
 			}
 		}
 
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(click, doubled);
 	}
 
 	@Override

@@ -27,7 +27,6 @@ import com.macuguita.backpacks.client.gui.slots.BackpackSlot;
 import com.macuguita.backpacks.client.gui.slots.CustomSlot;
 import com.macuguita.backpacks.network.payload.BackpackInventoryPayload;
 import com.macuguita.backpacks.reg.GBItemTags;
-
 import com.macuguita.backpacks.utils.EquipmentUtils;
 
 import net.minecraft.entity.player.PlayerEntity;

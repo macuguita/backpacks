@@ -24,6 +24,7 @@ package com.macuguita.backpacks.client.gui;
 
 import com.macuguita.backpacks.GuitaBackpacks;
 
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -50,11 +51,10 @@ public class EquipmentScreen extends HandledScreen<EquipmentScreenHandler> {
 		int guiY = (this.height - this.backgroundHeight) / 2;
 
 		int yDisplacement = 66;
-
-		context.drawGuiTexture(BACKGROUND_TEXTURE, guiX, guiY + yDisplacement, this.backgroundWidth, this.backgroundHeight - yDisplacement);
-		context.drawGuiTexture(BACKGROUND_TEXTURE, guiX + 75, guiY + 38, 26, 26);
-		context.drawGuiTexture(INVENTORY_AND_HOTBAR_TEXTURE, guiX + 7, guiY + 83, 162, 76);
-		context.drawGuiTexture(SLOT_TEXTURE, guiX + 79, guiY + 42, 18, 18);
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY + yDisplacement, this.backgroundWidth, this.backgroundHeight - yDisplacement);
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX + 75, guiY + 38, 26, 26);
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, guiX + 7, guiY + 83, 162, 76);
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, guiX + 79, guiY + 42, 18, 18);
 	}
 
 	@Override

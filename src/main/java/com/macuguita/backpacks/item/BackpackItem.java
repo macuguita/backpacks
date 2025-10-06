@@ -22,11 +22,9 @@
 
 package com.macuguita.backpacks.item;
 
-import java.util.List;
 import java.util.UUID;
 
 import com.macuguita.backpacks.block.entity.BackpackBlockEntity;
-import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.client.gui.BackpackScreenHandler;
 import com.macuguita.backpacks.components.BackpacksComponent;
 import com.macuguita.backpacks.components.GuitaBackpacksComponents;
@@ -41,9 +39,9 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -52,7 +50,6 @@ import net.minecraft.inventory.StackReference;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsage;
-import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -60,11 +57,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.ClickType;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -91,14 +87,14 @@ public class BackpackItem extends BlockItem {
 		}
 
 		UUID uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
-		if (uuid == null && player.getWorld() instanceof ServerWorld) {
+		if (uuid == null && player.getEntityWorld() instanceof ServerWorld) {
 			if (!backpack.contains(GBComponents.BACKPACK_UUID.get())) {
 				backpack.set(GBComponents.BACKPACK_UUID.get(), UUID.randomUUID());
 			}
 			uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
 		}
 
-		BackpacksComponent backpacksComponent = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(player.getWorld().getScoreboard());
+		BackpacksComponent backpacksComponent = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(player.getEntityWorld().getScoreboard());
 		SimpleInventory inventory = backpacksComponent.getInventory(uuid);
 		if (inventory == null) {
 			backpacksComponent.addInventory(uuid);
@@ -132,8 +128,8 @@ public class BackpackItem extends BlockItem {
 	}
 
 	@Override
-	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-		super.inventoryTick(stack, world, entity, slot, selected);
+	public void inventoryTick(ItemStack stack, ServerWorld world, Entity entity, @Nullable EquipmentSlot slot) {
+		super.inventoryTick(stack, world, entity, slot);
 		if (world instanceof ServerWorld) {
 			if (!stack.isEmpty() && !stack.contains(GBComponents.BACKPACK_UUID.get())) {
 				stack.set(GBComponents.BACKPACK_UUID.get(), UUID.randomUUID());
@@ -144,7 +140,7 @@ public class BackpackItem extends BlockItem {
 	}
 
 	@Override
-	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+	public ActionResult use(World world, PlayerEntity user, Hand hand) {
 		ItemStack stack = user.getStackInHand(hand);
 		if (stack.contains(GBComponents.BACKPACK_UUID.get())) {
 			if (world instanceof ServerWorld) {
@@ -154,18 +150,17 @@ public class BackpackItem extends BlockItem {
 					openOrCreateBackpackIfNotExists(user, slotIndex);
 				}
 			} else if (world instanceof ClientWorld clientWorld) {
-				Vec3d pos = user.getPos();
-				clientWorld.playSound(
+				Vec3d pos = user.getEntityPos();
+				clientWorld.playSoundClient(
 						pos.x, pos.y, pos.z,
 						SoundEvents.ITEM_BUNDLE_INSERT,
 						SoundCategory.PLAYERS,
-						1.0f,
-						1.0f,
+						1.0f, 1.0f,
 						false
 				);
 			}
 		} else {
-			return TypedActionResult.fail(stack);
+			return ActionResult.FAIL;
 		}
 		return super.use(world, user, hand);
 	}
@@ -195,26 +190,6 @@ public class BackpackItem extends BlockItem {
 	}
 
 	@Override
-	public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-		super.appendTooltip(stack, context, tooltip, type);
-		if (stack.contains(GBComponents.VISIBLE.get())) {
-			if (Boolean.FALSE.equals(stack.get(GBComponents.VISIBLE.get())))
-				tooltip.add(Text.translatable("item.gbackpacks.backpack.tooltip.hidden").formatted(Formatting.DARK_GRAY));
-		}
-		if (stack.contains(GBComponents.BACKPACK_MODEL_ID.get())) {
-			tooltip.add(Text.translatable("item.gbackpacks.backpack.tooltip.cosmetic").append(Text.translatable(GuitaBackpacksClient.BACKPACKS.stream().filter(backpack -> backpack.id().equals(stack.get(GBComponents.BACKPACK_MODEL_ID.get()))).toList().getFirst().translationKey())).formatted(Formatting.DARK_GRAY));
-		}
-		if (stack.contains(GBComponents.BACKPACK_UUID.get())) {
-			if (!Screen.hasShiftDown()) {
-				tooltip.add(Text.translatable("item.gbackpacks.backpack.tooltip.uuid.hidden").formatted(Formatting.DARK_GRAY));
-			} else {
-				UUID uuid = stack.get(GBComponents.BACKPACK_UUID.get());
-				tooltip.add(Text.translatable("item.gbackpacks.backpack.tooltip.uuid", uuid).formatted(Formatting.GOLD));
-			}
-		}
-	}
-
-	@Override
 	public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
 		if (clickType == ClickType.RIGHT && otherStack.isEmpty()) {
 			toggleVisibility(stack);
@@ -230,11 +205,11 @@ public class BackpackItem extends BlockItem {
 		if (stack.contains(GBComponents.BACKPACK_UUID.get())) {
 			UUID uuid = stack.get(GBComponents.BACKPACK_UUID.get());
 			if (Boolean.TRUE.equals(GBConfig.getBackpackDropItemsOnDestroyed())) {
-				SimpleInventory inv = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.getWorld().getScoreboard()).getInventory(uuid);
+				SimpleInventory inv = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.getEntityWorld().getScoreboard()).getInventory(uuid);
 				ItemUsage.spawnItemContents(entity, inv.heldStacks);
 			}
 			if (Boolean.TRUE.equals(GBConfig.getBackpackEntriesGetRemoved())) {
-				GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.getWorld().getScoreboard()).removeBackpack(uuid);
+				GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.getEntityWorld().getScoreboard()).removeBackpack(uuid);
 			}
 		}
 	}

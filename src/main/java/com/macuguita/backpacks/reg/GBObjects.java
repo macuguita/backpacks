@@ -22,6 +22,8 @@
 
 package com.macuguita.backpacks.reg;
 
+import java.util.function.Function;
+
 import com.macuguita.backpacks.GuitaBackpacks;
 import com.macuguita.backpacks.block.BackpackBlock;
 import com.macuguita.backpacks.item.BackpackItem;
@@ -31,21 +33,38 @@ import com.macuguita.lib.platform.registry.GuitaRegistryEntry;
 
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 
 public class GBObjects {
 
 	static final GuitaRegistry<Block> BLOCKS = GuitaRegistries.create(Registries.BLOCK, GuitaBackpacks.MOD_ID);
 	static final GuitaRegistry<Item> ITEMS = GuitaRegistries.create(Registries.ITEM, GuitaBackpacks.MOD_ID);
 
-	public static final GuitaRegistryEntry<BackpackBlock> BACKPACK_BLOCK = BLOCKS.register("backpack", () -> new BackpackBlock(AbstractBlock.Settings.create()
+	public static final GuitaRegistryEntry<BackpackBlock> BACKPACK_BLOCK = registerBlock("backpack", BackpackBlock::new, AbstractBlock.Settings.create()
 			.nonOpaque()
-			.noBlockBreakParticles()));
+			.noBlockBreakParticles());
 
-	public static final GuitaRegistryEntry<BackpackItem> BACKPACK = ITEMS.register("backpack", () -> new BackpackItem(BACKPACK_BLOCK.get(), new Item.Settings()
-			.maxCount(1).component(GBComponents.VISIBLE.get(), true).component(GBComponents.BACKPACK_MODEL_ID.get(), GuitaBackpacks.DEFAULT_BACKPACK_MODEL_ID)));
+	public static final GuitaRegistryEntry<BackpackItem> BACKPACK = registerItem("backpack", setting -> new BackpackItem(GBObjects.BACKPACK_BLOCK.get(), setting), new Item.Settings()
+			.maxCount(1).component(GBComponents.VISIBLE.get(), true).component(GBComponents.BACKPACK_MODEL_ID.get(), GuitaBackpacks.DEFAULT_BACKPACK_MODEL_ID));
+
+	public static <T extends Block> GuitaRegistryEntry<T> registerBlock(String name, Function<AbstractBlock.Settings, T> blockFactory, AbstractBlock.Settings settings) {
+		return BLOCKS.register(name, () -> blockFactory.apply(settings.registryKey(keyOfBlock(name))));
+	}
+
+	public static <T extends Item> GuitaRegistryEntry<T> registerItem(String name, Function<Item.Settings, T> itemFactory, Item.Settings settings) {
+		return ITEMS.register(name, () -> itemFactory.apply(settings.registryKey(keyOfItem(name))));
+	}
+
+	private static RegistryKey<Block> keyOfBlock(String name) {
+		return RegistryKey.of(RegistryKeys.BLOCK, GuitaBackpacks.id(name));
+	}
+
+	private static RegistryKey<Item> keyOfItem(String name) {
+		return RegistryKey.of(RegistryKeys.ITEM, GuitaBackpacks.id(name));
+	}
 
 	public static void init() {
 		BLOCKS.init();

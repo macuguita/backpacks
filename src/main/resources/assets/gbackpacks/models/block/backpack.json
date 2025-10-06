@@ -1,0 +1,6 @@
+{
+	"format_version": "1.21.6",
+  "textures": {
+    "particle": "gbackpacks:item/backpack"
+  }
+}

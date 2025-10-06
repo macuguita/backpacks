@@ -22,42 +22,48 @@
 
 package com.macuguita.backpacks.client.render;
 
-import com.macuguita.backpacks.utils.EquipmentUtils;
+import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
+import com.macuguita.backpacks.client.render.state.BackpackRenderState;
 import com.macuguita.backpacks.reg.GBComponents;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.TexturedRenderLayers;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
-import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.state.BipedEntityRenderState;
+import net.minecraft.client.render.model.BlockStateModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
-public class BackpackFeatureRenderer<T extends PlayerEntity, M extends PlayerEntityModel<T>> extends FeatureRenderer<T, M> {
+public class BackpackFeatureRenderer<S extends BipedEntityRenderState, M extends BipedEntityModel<S>> extends FeatureRenderer<S, M> {
 
-	public BackpackFeatureRenderer(FeatureRendererContext<T, M> context) {
+	public BackpackFeatureRenderer(FeatureRendererContext<S, M> context) {
 		super(context);
 	}
 
-	// README: Item syncing is UNREALIABLE in CREATIVE mode do NOT try to fix it
 	@Override
-	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T player, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
+	public void render(MatrixStack matrices, OrderedRenderCommandQueue queue, int light, S state, float limbAngle, float limbDistance) {
 
-		ItemStack chestStack = player.getEquippedStack(EquipmentSlot.CHEST);
+		@Nullable BackpackRenderState backpackRenderState = state.getData(BackpackRenderState.KEY);
+
+		if (backpackRenderState == null)
+			return;
+
+		ItemStack chestStack = backpackRenderState.chest;
 		if (chestStack.getItem() == Items.ELYTRA)
 			return;
 
-		ItemStack backpack = EquipmentUtils.getEquippedBackpack(player);
+		ItemStack backpack = backpackRenderState.backpack;
 		if (backpack.isEmpty()) return;
 
 		if (!backpack.contains(GBComponents.VISIBLE.get()) || !backpack.contains(GBComponents.BACKPACK_MODEL_ID.get()))
@@ -66,24 +72,38 @@ public class BackpackFeatureRenderer<T extends PlayerEntity, M extends PlayerEnt
 		if (Boolean.FALSE.equals(backpack.get(GBComponents.VISIBLE.get())))
 			return;
 
-		BakedModel model = getModel(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
+		BlockStateModel model = GBModelLoadingPlugin.getBlockstateModel(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
+
 		matrices.push();
 
-		// Transforms the pose to player's body
-		this.getContextModel().body.rotate(matrices);
+		var playerModel = this.getContextModel();
 
-		// Apply transforms to fix rotation and inverted model
+		// Align with body
+		matrices.multiply(new Quaternionf()
+				.rotationZYX(playerModel.body.roll, playerModel.body.yaw, playerModel.body.pitch));
+
+		// Fix model placement
 		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0F));
 		matrices.scale(1.1F, -1.1F, -1.1F);
-		int offset = !chestStack.isEmpty() ? 3 : 2;
-		matrices.translate(0, -0.06, offset * 0.0625);
+		matrices.translate(0, -0.06, 0.125);
 
-		BakedModelRenderer.drawBakedModel(model, matrices, vertexConsumers, light, 0xF000F0);
+		matrices.translate(-0.5F, -0.5F, -0.5F);
+
+		// FIXME 1.21.9
+		// Fabric had this in their example leaving this to remind me later of when it is fixed
+		// https://github.com/FabricMC/fabric/blob/0.134.1%2B1.21.10/fabric-model-loading-api-v1/src/testmodClient/java/net/fabricmc/fabric/test/model/loading/BakedModelFeatureRenderer.java
+		// FabricBlockModelRenderer.render(matrices.peek(), RenderLayerHelper.entityDelegate(vertexConsumers), model, 1, 1, 1, light, OverlayTexture.DEFAULT_UV, EmptyBlockRenderView.INSTANCE, BlockPos.ORIGIN, Blocks.AIR.getDefaultState());
+
+		queue.getBatchingQueue(0).submitBlockStateModel(
+				matrices,
+				TexturedRenderLayers.getEntityCutout(),
+				model,
+				1, 1, 1,
+				light,
+				OverlayTexture.DEFAULT_UV,
+				0
+		);
 
 		matrices.pop();
-	}
-
-	private BakedModel getModel(Identifier id) {
-		return MinecraftClient.getInstance().getItemRenderer().getModels().getModelManager().getModel(id);
 	}
 }

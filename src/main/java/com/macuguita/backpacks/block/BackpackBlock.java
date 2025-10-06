@@ -22,6 +22,8 @@
 
 package com.macuguita.backpacks.block;
 
+import java.util.UUID;
+
 import com.macuguita.backpacks.block.entity.BackpackBlockEntity;
 import com.macuguita.backpacks.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.item.BackpackItem;
@@ -29,32 +31,24 @@ import com.macuguita.backpacks.network.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.reg.GBComponents;
 import com.macuguita.backpacks.reg.GBObjects;
 import com.mojang.serialization.MapCodec;
-
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.screen.ScreenHandler;
-
-import net.minecraft.server.MinecraftServer;
-
-import net.minecraft.server.world.ServerWorld;
-
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockMirror;
@@ -69,11 +63,9 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-import java.util.UUID;
-
 public class BackpackBlock extends BlockWithEntity implements BlockEntityProvider {
 
-	public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+	public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
 
 	public BackpackBlock(Settings settings) {
 		super(settings);
@@ -112,7 +104,7 @@ public class BackpackBlock extends BlockWithEntity implements BlockEntityProvide
 	}
 
 	@Override
-	public boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {
+	protected boolean isTransparent(BlockState state) {
 		return true;
 	}
 
@@ -127,7 +119,7 @@ public class BackpackBlock extends BlockWithEntity implements BlockEntityProvide
 	}
 
 	@Override
-	protected int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+	protected int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
 		return ScreenHandler.calculateComparatorOutput(getInventory(world, pos, world.getServer()));
 	}
 
@@ -159,17 +151,17 @@ public class BackpackBlock extends BlockWithEntity implements BlockEntityProvide
 			if (be instanceof BackpackBlockEntity backpackBe) {
 				UUID uuid = backpackBe.getUuid();
 				if (uuid != null) {
-					SimpleInventory inventory = getInventory(world, pos, player.getServer());
+					SimpleInventory inventory = getInventory(world, pos, player.getEntityWorld().getServer());
 					if (inventory == null) {
 						GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(serverWorld.getScoreboard()).addInventory(uuid);
-						inventory = getInventory(world, pos, player.getServer());
+						inventory = getInventory(world, pos, player.getEntityWorld().getServer());
 					}
 					BackpackItem.openBackpack(player, inventory, -1);
-					return ActionResult.SUCCESS;
+					return ActionResult.SUCCESS_SERVER;
 				}
 			}
 		}
-		return ActionResult.success(world.isClient);
+		return ActionResult.SUCCESS;
 	}
 
 	@Override

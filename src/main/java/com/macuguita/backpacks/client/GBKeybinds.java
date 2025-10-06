@@ -24,15 +24,14 @@ package com.macuguita.backpacks.client;
 
 import java.util.Optional;
 
-import com.macuguita.backpacks.utils.EquipmentUtils;
-import com.macuguita.backpacks.item.BackpackItem;
+import com.macuguita.backpacks.GuitaBackpacks;
 import com.macuguita.backpacks.network.payload.OpenBackpackPayload;
 import com.macuguita.backpacks.network.payload.OpenEquipmentPayload;
+import com.macuguita.backpacks.utils.EquipmentUtils;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
@@ -44,11 +43,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 public class GBKeybinds {
 
 	public static void init() {
+		var category = KeyBinding.Category.create(GuitaBackpacks.id("backpacks"));
+
 		KeyBinding openBackpackKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 				"key.gbackpacks.open_backpack",
 				InputUtil.Type.KEYSYM,
 				GLFW.GLFW_KEY_B,
-				"key.categories.gbackpacks"
+				category
 		));
 		Optional<KeyBinding> maybeOpenEquipmentKey = Optional.empty();
 		if (!EquipmentUtils.isTrinketsLoaded()) {
@@ -56,7 +57,7 @@ public class GBKeybinds {
 					"key.gbackpacks.open_equipment",
 					InputUtil.Type.KEYSYM,
 					GLFW.GLFW_KEY_G,
-					"key.categories.gbackpacks"
+					category
 			)));
 		}
 		Optional<KeyBinding> finalMaybeOpenEquipmentKey = maybeOpenEquipmentKey;
@@ -67,13 +68,12 @@ public class GBKeybinds {
 				if (client.player != null && client.world != null) {
 					int backpackSlot = EquipmentUtils.getBackpackSlotIndex(client.player);
 					if (backpackSlot != -1) {
-						Vec3d pos = client.player.getPos();
-						client.world.playSound(
+						Vec3d pos = client.player.getEntityPos();
+						client.world.playSoundClient(
 								pos.x, pos.y, pos.z,
 								SoundEvents.ITEM_BUNDLE_INSERT,
 								SoundCategory.PLAYERS,
-								1.0f,
-								1.0f,
+								1.0f, 1.0f,
 								false
 						);
 					}

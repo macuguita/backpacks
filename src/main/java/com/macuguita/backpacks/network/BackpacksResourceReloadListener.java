@@ -31,28 +31,22 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Util;
 import net.minecraft.util.dynamic.Codecs;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec2f;
 
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-
-public class BackpacksResourceReloadListener implements SimpleSynchronousResourceReloadListener {
+public class BackpacksResourceReloadListener implements SynchronousResourceReloader {
 
 	public static final List<Backpack> BACKPACKS = new ArrayList<>();
-	private static final Identifier ID = GuitaBackpacks.id("backpacks_resource_reload_listener");
 	private static final Identifier BACKPACKS_DIR = GuitaBackpacks.id("backpacks");
-
-	@Override
-	public Identifier getFabricId() {
-		return ID;
-	}
+	public static final Identifier ID = GuitaBackpacks.id("backpacks_resource_reload_listener");
 
 	@Override
 	public void reload(ResourceManager manager) {
@@ -74,13 +68,13 @@ public class BackpacksResourceReloadListener implements SimpleSynchronousResourc
 		}
 	}
 
-	public record Backpack(Identifier id, String translationKey, Vec2f guiDisplacement, float guiScale, Box blockCollisionShape) {
+	public record Backpack(Identifier id, String translationKey, Vector2i guiDisplacement, float guiScale, Box blockCollisionShape) {
 
-		public static final Codec<Vec2f> VECTOR2F_CODEC =
-				Codec.FLOAT.listOf().comapFlatMap(
+		public static final Codec<Vector2i> VECTOR2I_CODEC =
+				Codec.INT.listOf().comapFlatMap(
 						list -> Util.decodeFixedLengthList(list, 2)
-								.map(listf -> new Vec2f(listf.getFirst(), listf.get(1))),
-						vector2f -> List.of(vector2f.x, vector2f.y)
+								.map(listi -> new Vector2i(listi.getFirst(), listi.get(1))),
+						vector2i -> List.of(vector2i.x, vector2i.y)
 				);
 
 		public static final Codec<Box> BOX_CODEC =
@@ -103,7 +97,7 @@ public class BackpacksResourceReloadListener implements SimpleSynchronousResourc
 		public static final Codec<Backpack> CODEC = RecordCodecBuilder.create(i -> i.group(
 				Identifier.CODEC.fieldOf("id").forGetter(Backpack::id),
 				Codec.STRING.fieldOf("translation_key").forGetter(Backpack::translationKey),
-				VECTOR2F_CODEC.optionalFieldOf("gui_displacement", new Vec2f(0.0f, 0.0f))
+				VECTOR2I_CODEC.optionalFieldOf("gui_displacement", new Vector2i(0, 0))
 						.forGetter(Backpack::guiDisplacement),
 				Codec.FLOAT.optionalFieldOf("gui_scale", 1.0f).flatXmap(
 						scale -> scale > 0

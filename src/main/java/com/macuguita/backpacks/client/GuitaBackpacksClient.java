@@ -24,26 +24,36 @@ package com.macuguita.backpacks.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.macuguita.backpacks.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.BackpackScreen;
 import com.macuguita.backpacks.client.gui.EquipmentScreen;
+import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
 import com.macuguita.backpacks.client.render.BackpackBlockEntityRenderer;
 import com.macuguita.backpacks.client.render.BackpackFeatureRenderer;
-import com.macuguita.backpacks.client.render.GuitaBackpacksModelLoadingPlugin;
-import com.macuguita.backpacks.utils.EquipmentUtils;
+import com.macuguita.backpacks.client.render.BlockStateGuiRenderer;
+import com.macuguita.backpacks.item.BackpackItem;
 import com.macuguita.backpacks.network.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.network.payload.BackpackListSyncPayload;
 import com.macuguita.backpacks.reg.GBBlockEntities;
+import com.macuguita.backpacks.reg.GBComponents;
+import com.macuguita.backpacks.utils.EquipmentUtils;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry;
 
 public class GuitaBackpacksClient implements ClientModInitializer {
 
@@ -54,15 +64,23 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 
 		GBKeybinds.init();
 
-		BlockEntityRendererFactories.register(GBBlockEntities.BACKPACK.get(), BackpackBlockEntityRenderer::new);
+		// Sources: https://github.com/FabricMC/fabric/tree/0.134.1%2B1.21.10/fabric-model-loading-api-v1/src/testmodClient/java/net/fabricmc/fabric/test/model/loading
+		ModelLoadingPlugin.register(new GBModelLoadingPlugin());
 
-		ModelLoadingPlugin.register(new GuitaBackpacksModelLoadingPlugin());
+		// Might have to do something with this, look at the link above
+//		ResourceLoader resourceLoader = ResourceLoader.get(ResourceType.CLIENT_RESOURCES);
+//		resourceLoader.registerReloader(GBModelReloadListener.ID, GBModelReloadListener.INSTANCE);
+//		resourceLoader.addReloaderOrdering(ResourceReloaderKeys.Client.MODELS, GBModelReloadListener.ID);
+
+		BlockEntityRendererFactories.register(GBBlockEntities.BACKPACK, BackpackBlockEntityRenderer::new);
+
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
-			if (entityRenderer instanceof PlayerEntityRenderer playerEntityRenderer) {
-				registrationHelper.register(new BackpackFeatureRenderer<>(playerEntityRenderer));
+			if (entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
+				registrationHelper.register(new BackpackFeatureRenderer<>(playerRenderer));
 			}
 		});
 
+		SpecialGuiElementRegistry.register(ctx -> new BlockStateGuiRenderer(ctx.vertexConsumers()));
 		HandledScreens.register(GuitaBackpacks.BACKPACK_SCREEN_HANDLER, BackpackScreen::new);
 		if (!EquipmentUtils.isTrinketsLoaded())
 			HandledScreens.register(GuitaBackpacks.EQUIPMENT_SCREEN_HANDLER, EquipmentScreen::new);
@@ -73,6 +91,45 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 				BACKPACKS.clear();
 				BACKPACKS.addAll(payload.list());
 			});
+		});
+
+		ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, list) -> {
+			if (!(itemStack.getItem() instanceof BackpackItem)) return;
+
+			if (itemStack.contains(GBComponents.VISIBLE.get())) {
+				Boolean visible = itemStack.get(GBComponents.VISIBLE.get());
+				if (Boolean.FALSE.equals(visible)) {
+					list.add(Text.translatable("item.gbackpacks.backpack.tooltip.hidden")
+							.formatted(Formatting.DARK_GRAY));
+				}
+			}
+
+			if (itemStack.contains(GBComponents.BACKPACK_MODEL_ID.get())) {
+				var modelId = itemStack.get(GBComponents.BACKPACK_MODEL_ID.get());
+				if (modelId != null) {
+					GuitaBackpacksClient.BACKPACKS.stream()
+							.filter(backpack -> backpack.id().equals(modelId))
+							.findFirst()
+							.ifPresent(backpack -> list.add(
+									Text.translatable("item.gbackpacks.backpack.tooltip.cosmetic")
+											.append(Text.translatable(backpack.translationKey()))
+											.formatted(Formatting.DARK_GRAY)
+							));
+				}
+			}
+
+			if (itemStack.contains(GBComponents.BACKPACK_UUID.get())) {
+				if (!InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow(), InputUtil.GLFW_KEY_LEFT_SHIFT)) {
+					list.add(Text.translatable("item.gbackpacks.backpack.tooltip.uuid.hidden")
+							.formatted(Formatting.DARK_GRAY));
+				} else {
+					UUID uuid = itemStack.get(GBComponents.BACKPACK_UUID.get());
+					if (uuid != null) {
+						list.add(Text.translatable("item.gbackpacks.backpack.tooltip.uuid", uuid)
+								.formatted(Formatting.GOLD));
+					}
+				}
+			}
 		});
 	}
 }

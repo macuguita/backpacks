@@ -22,23 +22,31 @@
 
 package com.macuguita.backpacks.client.render;
 
-import com.macuguita.backpacks.block.BackpackBlock;
 import com.macuguita.backpacks.block.entity.BackpackBlockEntity;
+import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
+import com.macuguita.backpacks.client.render.state.BackpackBlockEntityRenderState;
+import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.block.LecternBlock;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.TexturedRenderLayers;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.command.ModelCommandRenderer;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
+import net.minecraft.client.render.model.BlockStateModel;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 @SuppressWarnings("ClassCanBeRecord")
 @Environment(EnvType.CLIENT)
-public class BackpackBlockEntityRenderer implements BlockEntityRenderer<BackpackBlockEntity> {
+public class BackpackBlockEntityRenderer implements BlockEntityRenderer<BackpackBlockEntity, BackpackBlockEntityRenderState> {
 
 	private final BlockEntityRendererFactory.Context context;
 
@@ -47,15 +55,27 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
 	}
 
 	@Override
-	public void render(BackpackBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		BakedModel model = context.getItemRenderer().getModels().getModelManager().getModel(entity.getBlockModelId());
-		Direction direction = entity.getCachedState().get(BackpackBlock.FACING);
+	public void updateRenderState(BackpackBlockEntity blockEntity, BackpackBlockEntityRenderState state, float tickProgress, Vec3d cameraPos, @Nullable ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
+		BlockEntityRenderer.super.updateRenderState(blockEntity, state, tickProgress, cameraPos, crumblingOverlay);
+		state.modelId = blockEntity.getBlockModelId();
+		state.direction = blockEntity.getCachedState().get(LecternBlock.FACING);
+	}
 
-		if (model == null) return;
+	@Override
+	public BackpackBlockEntityRenderState createRenderState() {
+		return new BackpackBlockEntityRenderState();
+	}
+
+	@Override
+	public void render(BackpackBlockEntityRenderState state, MatrixStack matrices, OrderedRenderCommandQueue queue, CameraRenderState cameraState) {
+		BlockStateModel model = GBModelLoadingPlugin.getBlockstateModel(state.modelId);
+		Direction direction = state.direction;
+
+		if (model == null)
+			return;
 
 		matrices.push();
 
-		// Move to block center
 		matrices.translate(0.5, 0.5, 0.5);
 
 		// Rotate according to block direction
@@ -66,11 +86,20 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
 			case EAST  -> -90f;
 			default    -> 0f;
 		};
+
 		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
 
-		BakedModelRenderer.drawBakedModel(model, matrices, vertexConsumers, light, overlay);
+		matrices.translate(-0.5, -0.5, -0.5);
 
+		queue.getBatchingQueue(0).submitBlockStateModel(
+				matrices,
+				TexturedRenderLayers.getEntityCutout(),
+				model,
+				1, 1, 1,
+				state.lightmapCoordinates,
+				OverlayTexture.DEFAULT_UV,
+				0
+		);
 		matrices.pop();
 	}
-
 }

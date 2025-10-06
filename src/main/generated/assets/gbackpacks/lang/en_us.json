@@ -4,6 +4,7 @@
   "block.gbackpacks.backpack": "Backpack",
   "gui.gbackpacks.backpack": "Backpack",
   "gui.gbackpacks.customization": "Backpack Customization",
+  "item.gbackpacks.backpack": "Backpack",
   "item.gbackpacks.backpack.tooltip.cosmetic": "Backpack cosmetic: ",
   "item.gbackpacks.backpack.tooltip.hidden": "Hidden",
   "item.gbackpacks.backpack.tooltip.uuid": "UUID of backpack: %s",

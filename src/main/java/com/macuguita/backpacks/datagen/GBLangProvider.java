@@ -44,6 +44,7 @@ public class GBLangProvider extends FabricLanguageProvider {
 	@Override
 	public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
 		generateBlockTranslations(translationBuilder, GBObjects.BACKPACK_BLOCK.get());
+		generateItemTranslations(translationBuilder, GBObjects.BACKPACK.get());
 		translationBuilder.add("itemGroup.gbackpacks.gbackpacks", "guita's Backpack");
 		translationBuilder.add("gui.gbackpacks.backpack", "Backpack");
 		translationBuilder.add("gui.gbackpacks.customization", "Backpack Customization");

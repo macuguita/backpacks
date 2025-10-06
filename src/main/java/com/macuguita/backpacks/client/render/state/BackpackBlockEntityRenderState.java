@@ -20,40 +20,31 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.reg;
+package com.macuguita.backpacks.client.render.state;
 
-import com.macuguita.backpacks.GuitaBackpacks;
+import com.macuguita.backpacks.block.BackpackBlock;
 import com.macuguita.backpacks.block.entity.BackpackBlockEntity;
-import com.macuguita.lib.platform.registry.GuitaRegistries;
-import com.macuguita.lib.platform.registry.GuitaRegistry;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Direction;
 
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 
-public class GBBlockEntities {
+public class BackpackBlockEntityRenderState extends BlockEntityRenderState {
 
-	static final GuitaRegistry<BlockEntityType<?>> BLOCK_ENTITIES = GuitaRegistries.create(Registries.BLOCK_ENTITY_TYPE, GuitaBackpacks.MOD_ID);
+	public static final RenderStateDataKey<BackpackBlockEntityRenderState> KEY = RenderStateDataKey.create(() -> "backpack_block");
 
-	public static final BlockEntityType<BackpackBlockEntity> BACKPACK = register(
-			"backpack", BackpackBlockEntity::new, GBObjects.BACKPACK_BLOCK.get()
-	);
+	public Identifier modelId = null;
+	public Direction direction = Direction.NORTH;
 
-	private static <T extends BlockEntity> BlockEntityType<T> register(
-			String name,
-			FabricBlockEntityTypeBuilder.Factory<? extends T> entityFactory,
-			Block... blocks
-	) {
-		Identifier id = GuitaBackpacks.id(name);
-		return Registry.register(Registries.BLOCK_ENTITY_TYPE, id, FabricBlockEntityTypeBuilder.<T>create(entityFactory, blocks).build());
-	}
-
-	public static void init() {
-		BLOCK_ENTITIES.init();
+	public static <E extends BlockEntity, S extends BlockEntityRenderState> void updateRenderState(E blockEntity, S state) {
+		BackpackBlockEntityRenderState backpackRenderState = new BackpackBlockEntityRenderState();
+		if (!(blockEntity instanceof BackpackBlockEntity backpackBlock))
+			return;
+		backpackRenderState.direction = blockEntity.getCachedState().get(BackpackBlock.FACING);
+		backpackRenderState.modelId = backpackBlock.getBlockModelId();
+		state.setData(KEY, backpackRenderState);
 	}
 }

@@ -20,31 +20,33 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.client.render;
+package com.macuguita.backpacks.client.render.state;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
+import com.macuguita.backpacks.components.GuitaBackpacksComponents;
+
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 
 @Environment(EnvType.CLIENT)
-public class GuitaBackpacksModelLoadingPlugin implements ModelLoadingPlugin {
+public class BackpackRenderState {
 
-	@Override
-	public void onInitializeModelLoader(Context context) {
-		ResourceManager manager = MinecraftClient.getInstance().getResourceManager();
+	public static final RenderStateDataKey<BackpackRenderState> KEY = RenderStateDataKey.create(() -> "backpack");
 
-		var resources = manager.findResources("models/backpacks", path -> path.getPath().endsWith(".json"));
+	public ItemStack backpack = ItemStack.EMPTY;
+	public ItemStack chest = ItemStack.EMPTY;
 
-		resources.forEach((key, resource) -> {
-			String relPath = key.getPath()
-					.substring("models/".length(), key.getPath().length() - ".json".length());
-			Identifier id = Identifier.of(key.getNamespace(), relPath);
-
-			context.addModels(id);
-		});
+	public static <E extends LivingEntity, S extends LivingEntityRenderState> void updateRenderState(E entity, S state) {
+		BackpackRenderState backpackRenderState = new BackpackRenderState();
+		if (!(entity instanceof PlayerEntity)) return;
+		backpackRenderState.backpack = GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(entity).getBackpack();
+		backpackRenderState.chest = entity.getEquippedStack(EquipmentSlot.CHEST);
+		state.setData(KEY, backpackRenderState);
 	}
 }

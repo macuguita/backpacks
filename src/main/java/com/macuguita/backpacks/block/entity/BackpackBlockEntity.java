@@ -29,8 +29,12 @@ import com.macuguita.backpacks.reg.GBBlockEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
 import net.minecraft.util.math.BlockPos;
 
 public class BackpackBlockEntity extends BlockEntity {
@@ -40,7 +44,7 @@ public class BackpackBlockEntity extends BlockEntity {
 	private UUID uuid;
 
 	public BackpackBlockEntity(BlockPos pos, BlockState state) {
-		super(GBBlockEntities.BACKPACK.get(), pos, state);
+		super(GBBlockEntities.BACKPACK, pos, state);
 	}
 
 	public Identifier getBlockModelId() {
@@ -68,23 +72,27 @@ public class BackpackBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-		super.writeNbt(nbt, registryLookup);
-		nbt.putUuid("UUID", uuid);
-		nbt.putString("Model", blockModelId.toString());
-		nbt.putString("ItemModel", itemModelId.toString());
+	protected void writeData(WriteView view) {
+		super.writeData(view);
+		view.put("UUID", Uuids.CODEC, this.uuid);
+		view.putString("Model", this.blockModelId.toString());
+		view.putString("ItemModel", this.itemModelId.toString());
 	}
 
 	@Override
-	protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-		super.readNbt(nbt, registryLookup);
-		this.uuid = nbt.getUuid("UUID");
-		this.blockModelId = Identifier.of(nbt.getString("Model"));
-		this.itemModelId = Identifier.of(nbt.getString("ItemModel"));
+	protected void readData(ReadView view) {
+		super.readData(view);
+		this.uuid = view.read("UUID", Uuids.CODEC).orElse(null);
+		this.blockModelId = Identifier.of(view.getString("Model", ""));
+		this.itemModelId = Identifier.of(view.getString("ItemModel", ""));
+	}
+
+	public BlockEntityUpdateS2CPacket toUpdatePacket() {
+		return BlockEntityUpdateS2CPacket.create(this);
 	}
 
 	@Override
 	public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-		return createNbt(registryLookup);
+		return this.createNbt(registryLookup);
 	}
 }

@@ -24,7 +24,6 @@ package com.macuguita.backpacks.network;
 
 import com.macuguita.backpacks.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.EquipmentScreenHandler;
-import com.macuguita.backpacks.utils.EquipmentUtils;
 import com.macuguita.backpacks.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.item.BackpackItem;
 import com.macuguita.backpacks.network.payload.BackpackCosmeticSyncPayload;
@@ -33,8 +32,8 @@ import com.macuguita.backpacks.network.payload.BackpackListSyncPayload;
 import com.macuguita.backpacks.network.payload.OpenBackpackPayload;
 import com.macuguita.backpacks.network.payload.OpenEquipmentPayload;
 import com.macuguita.backpacks.reg.GBComponents;
-import com.macuguita.backpacks.reg.GBObjects;
 import com.macuguita.backpacks.utils.BackpackUtils;
+import com.macuguita.backpacks.utils.EquipmentUtils;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.entity.ItemEntity;
@@ -47,14 +46,13 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 public class GBNetworking {
 
@@ -70,8 +68,8 @@ public class GBNetworking {
 		PayloadTypeRegistry.playC2S().register(OpenBackpackPayload.ID, OpenBackpackPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(OpenEquipmentPayload.ID, OpenEquipmentPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(BackpackCosmeticSyncPayload.ID, BackpackCosmeticSyncPayload.CODEC);
-		ResourceManagerHelper.get(ResourceType.SERVER_DATA)
-				.registerReloadListener(new BackpacksResourceReloadListener());
+		ResourceLoader.get(ResourceType.SERVER_DATA)
+						.registerReloader(BackpacksResourceReloadListener.ID, new BackpacksResourceReloadListener());
 	}
 
 	public static void initEvents() {

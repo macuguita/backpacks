@@ -55,7 +55,7 @@ public class BackpackUtils {
 
 		UUID newUuid = newStack.get(GBComponents.BACKPACK_UUID.get());
 
-		List<ItemEntity> nearby = newEntity.getWorld().getEntitiesByClass(
+		List<ItemEntity> nearby = newEntity.getEntityWorld().getEntitiesByClass(
 				ItemEntity.class,
 				newEntity.getBoundingBox().expand(10),
 				Entity::isAlive

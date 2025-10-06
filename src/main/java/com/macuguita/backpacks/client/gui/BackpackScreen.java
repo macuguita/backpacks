@@ -26,6 +26,7 @@ import com.macuguita.backpacks.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.widgets.CustomizationWidget;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -111,12 +112,12 @@ public class BackpackScreen extends HandledScreen<BackpackScreenHandler> {
 
 		int backpackRows = Math.min(handler.getTotalRows(), VISIBLE_ROWS);
 
-		context.drawGuiTexture(BACKGROUND_TEXTURE, guiX, guiY - 2, this.backgroundWidth, this.backgroundHeight + 2);
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY - 2, this.backgroundWidth, this.backgroundHeight + 2);
 
 		if (handler.needsScrolling()) {
 			int scrollAddonX = guiX + SIDE_PADDING + 9 * SLOT_SIZE + 4;
 			int scrollAddonY = guiY + backpackStartY - 4;
-			context.drawGuiTexture(SCROLL_ADDON_TEXTURE, scrollAddonX, scrollAddonY,
+			context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SCROLL_ADDON_TEXTURE, scrollAddonX, scrollAddonY,
 					ScrollBarWidget.BACKGROUND_WIDTH + 5, backpackRows * SLOT_SIZE + 8);
 		}
 
@@ -134,19 +135,19 @@ public class BackpackScreen extends HandledScreen<BackpackScreenHandler> {
 			int rowTextureIndex = Math.min(fullRows - 1, SLOTS_ROW.length - 1);
 			int rowsInTexture = rowTextureIndex + 1;
 
-			context.drawGuiTexture(SLOTS_ROW[rowTextureIndex], rowX, rowY, 9 * SLOT_SIZE, rowsInTexture * SLOT_SIZE);
+			context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SLOTS_ROW[rowTextureIndex], rowX, rowY, 9 * SLOT_SIZE, rowsInTexture * SLOT_SIZE);
 
 			rowY += rowsInTexture * SLOT_SIZE;
 		}
 
 		for (int col = 0; col < leftoverSlots; col++) {
 			int slotX = rowX + col * SLOT_SIZE;
-			context.drawGuiTexture(SLOT_TEXTURE, slotX, rowY, SLOT_SIZE, SLOT_SIZE);
+			context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, slotX, rowY, SLOT_SIZE, SLOT_SIZE);
 		}
 
 		int inventoryX = guiX + SIDE_PADDING - 1;
 		int inventoryY = guiY + playerInventoryStartY - 1;
-		context.drawGuiTexture(INVENTORY_AND_HOTBAR_TEXTURE, inventoryX, inventoryY, 162, 76);
+		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, inventoryX, inventoryY, 162, 76);
 	}
 
 	@Override

@@ -3,7 +3,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [32, 32],
 	"textures": {
-		"0": "gbackpacks:backpacks/big_backpack"
+		"0": "gbackpacks:backpacks/big_backpack",
+    "particle": "gbackpacks:item/backpack"
 	},
 	"elements": [
 		{

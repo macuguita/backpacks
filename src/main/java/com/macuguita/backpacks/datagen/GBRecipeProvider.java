@@ -26,10 +26,12 @@ import java.util.concurrent.CompletableFuture;
 
 import com.macuguita.backpacks.reg.GBObjects;
 
-import net.minecraft.data.server.recipe.RecipeExporter;
-import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;
+import net.minecraft.data.recipe.RecipeExporter;
+import net.minecraft.data.recipe.RecipeGenerator;
+import net.minecraft.data.recipe.ShapedRecipeJsonBuilder;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.book.RecipeCategory;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -42,15 +44,26 @@ public class GBRecipeProvider extends FabricRecipeProvider {
 	}
 
 	@Override
-	public void generate(RecipeExporter recipeExporter) {
-		ShapedRecipeJsonBuilder.create(RecipeCategory.TOOLS, GBObjects.BACKPACK.get(), 1)
-				.pattern(" # ")
-				.pattern("#$#")
-				.pattern(" # ")
-				.input('#', Items.LEATHER)
-				.input('$', Items.CHEST)
-				.criterion(hasItem(Items.LEATHER), conditionsFromItem(Items.LEATHER))
-				.criterion(hasItem(Items.CHEST), conditionsFromItem(Items.CHEST))
-				.offerTo(recipeExporter);
+	protected RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup wrapperLookup, RecipeExporter recipeExporter) {
+		return new RecipeGenerator(wrapperLookup, recipeExporter) {
+
+			@Override
+			public void generate() {
+				ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.TOOLS, GBObjects.BACKPACK.get(), 1)
+						.pattern(" # ")
+						.pattern("#$#")
+						.pattern(" # ")
+						.input('#', Items.LEATHER)
+						.input('$', Items.CHEST)
+						.criterion(hasItem(Items.LEATHER), conditionsFromItem(Items.LEATHER))
+						.criterion(hasItem(Items.CHEST), conditionsFromItem(Items.CHEST))
+						.offerTo(recipeExporter);
+			}
+		};
+	}
+
+	@Override
+	public String getName() {
+		return "guita's Backpacks";
 	}
 }

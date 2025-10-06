@@ -34,7 +34,7 @@ public record OpenEquipmentPayload(boolean buf) implements CustomPayload {
 	public static final Id<OpenEquipmentPayload> ID = new Id<>(GBNetworking.OPEN_EQUIPMENT_PACKET);
 
 	public static final PacketCodec<RegistryByteBuf, OpenEquipmentPayload> CODEC = PacketCodec.tuple(
-			PacketCodecs.BOOL,
+			PacketCodecs.BOOLEAN,
 			OpenEquipmentPayload::buf,
 			OpenEquipmentPayload::new
 	);
