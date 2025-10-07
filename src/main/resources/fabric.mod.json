@@ -16,6 +16,7 @@
   "mixins": [
     "${modId}.mixins.json"
   ],
+  "accessWidener": "${modId}.accesswidener",
   "environment": "*",
   "entrypoints": {
     "main": [
