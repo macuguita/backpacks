@@ -20,30 +20,25 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.datagen;
+package com.macuguita.backpacks.common.reg;
 
-import com.macuguita.backpacks.common.reg.GBObjects;
+import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
+import com.macuguita.lib.platform.registry.GuitaRegistries;
+import com.macuguita.lib.platform.registry.GuitaRegistry;
+import com.macuguita.lib.platform.registry.GuitaRegistryEntry;
 
-import net.minecraft.data.client.BlockStateModelGenerator;
-import net.minecraft.data.client.ItemModelGenerator;
-import net.minecraft.data.client.Models;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.registry.Registries;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
+public class GBBlockEntities {
 
-public class GBModelProvider extends FabricModelProvider {
+	static final GuitaRegistry<BlockEntityType<?>> BLOCK_ENTITIES = GuitaRegistries.create(Registries.BLOCK_ENTITY_TYPE, GuitaBackpacks.MOD_ID);
 
-	public GBModelProvider(FabricDataOutput output) {
-		super(output);
-	}
+	public static final GuitaRegistryEntry<BlockEntityType<BackpackBlockEntity>> BACKPACK = BLOCK_ENTITIES.register(
+			"backpack", () -> BlockEntityType.Builder.create(BackpackBlockEntity::new, GBObjects.BACKPACK_BLOCK.get()).build());
 
-	@Override
-	public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
-		blockStateModelGenerator.registerNorthDefaultHorizontalRotation(GBObjects.BACKPACK_BLOCK.get());
-	}
-
-	@Override
-	public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-		itemModelGenerator.register(GBObjects.BACKPACK.get(), Models.GENERATED);
+	public static void init() {
+		BLOCK_ENTITIES.init();
 	}
 }

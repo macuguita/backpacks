@@ -22,10 +22,9 @@
 
 package com.macuguita.backpacks.mixin;
 
-import com.macuguita.backpacks.GuitaBackpacks;
-import com.macuguita.backpacks.config.GBConfig;
-import com.macuguita.backpacks.utils.EquipmentUtils;
-import com.macuguita.backpacks.components.GuitaBackpacksComponents;
+import com.macuguita.backpacks.GBConfig;
+import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

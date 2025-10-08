@@ -22,8 +22,8 @@
 
 package com.macuguita.backpacks.client.gui.widgets;
 
-import com.macuguita.backpacks.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.BackpackCustomizationScreen;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -37,8 +37,6 @@ import net.minecraft.util.Identifier;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public class CustomizationWidget extends ClickableWidget {

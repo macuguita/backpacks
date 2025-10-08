@@ -19,7 +19,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.macuguita.backpacks.GuitaBackpacks"
+      "com.macuguita.backpacks.common.GuitaBackpacks"
     ],
     "client": [
       "com.macuguita.backpacks.client.GuitaBackpacksClient"
@@ -28,7 +28,7 @@
       "com.macuguita.backpacks.datagen.GuitaBackpacksDatagen"
     ],
     "cardinal-components": [
-      "com.macuguita.backpacks.components.GuitaBackpacksComponents"
+      "com.macuguita.backpacks.common.components.GuitaBackpacksComponents"
     ]
   },
   "depends": {

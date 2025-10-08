@@ -20,30 +20,31 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.datagen;
+package com.macuguita.backpacks.client.model;
 
-import com.macuguita.backpacks.common.reg.GBObjects;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
 
-import net.minecraft.data.client.BlockStateModelGenerator;
-import net.minecraft.data.client.ItemModelGenerator;
-import net.minecraft.data.client.Models;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
-
-public class GBModelProvider extends FabricModelProvider {
-
-	public GBModelProvider(FabricDataOutput output) {
-		super(output);
-	}
+@Environment(EnvType.CLIENT)
+public class GBModelLoadingPlugin implements ModelLoadingPlugin {
 
 	@Override
-	public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
-		blockStateModelGenerator.registerNorthDefaultHorizontalRotation(GBObjects.BACKPACK_BLOCK.get());
-	}
+	public void onInitializeModelLoader(Context context) {
+		ResourceManager manager = MinecraftClient.getInstance().getResourceManager();
 
-	@Override
-	public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-		itemModelGenerator.register(GBObjects.BACKPACK.get(), Models.GENERATED);
+		var resources = manager.findResources("models/backpacks", path -> path.getPath().endsWith(".json"));
+
+		resources.forEach((key, resource) -> {
+			String relPath = key.getPath()
+					.substring("models/".length(), key.getPath().length() - ".json".length());
+			Identifier id = Identifier.of(key.getNamespace(), relPath);
+
+			context.addModels(id);
+		});
 	}
 }

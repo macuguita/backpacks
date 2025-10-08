@@ -22,8 +22,8 @@
 
 package com.macuguita.backpacks.client.render;
 
-import com.macuguita.backpacks.utils.EquipmentUtils;
-import com.macuguita.backpacks.reg.GBComponents;
+import com.macuguita.backpacks.common.reg.GBComponents;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;

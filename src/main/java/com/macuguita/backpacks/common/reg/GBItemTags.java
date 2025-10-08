@@ -20,30 +20,21 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.datagen;
+package com.macuguita.backpacks.common.reg;
 
-import com.macuguita.backpacks.common.reg.GBObjects;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 
-import net.minecraft.data.client.BlockStateModelGenerator;
-import net.minecraft.data.client.ItemModelGenerator;
-import net.minecraft.data.client.Models;
+import net.minecraft.item.Item;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.util.Identifier;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
+public class GBItemTags {
 
-public class GBModelProvider extends FabricModelProvider {
+	public static final TagKey<Item> BACKPACK_BLACKLIST = createTag(GuitaBackpacks.id("backpack_blacklist"));
+	public static final TagKey<Item> TRINKETS_CHEST = createTag(Identifier.of("trinkets", "chest/back"));
 
-	public GBModelProvider(FabricDataOutput output) {
-		super(output);
-	}
-
-	@Override
-	public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
-		blockStateModelGenerator.registerNorthDefaultHorizontalRotation(GBObjects.BACKPACK_BLOCK.get());
-	}
-
-	@Override
-	public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-		itemModelGenerator.register(GBObjects.BACKPACK.get(), Models.GENERATED);
+	private static TagKey<Item> createTag(Identifier id) {
+		return TagKey.of(RegistryKeys.ITEM, id);
 	}
 }

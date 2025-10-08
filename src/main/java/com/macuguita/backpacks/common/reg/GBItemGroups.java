@@ -20,30 +20,31 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.datagen;
+package com.macuguita.backpacks.common.reg;
 
-import com.macuguita.backpacks.common.reg.GBObjects;
+import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.lib.platform.registry.GuitaRegistries;
+import com.macuguita.lib.platform.registry.GuitaRegistry;
+import com.macuguita.lib.platform.registry.GuitaRegistryEntry;
 
-import net.minecraft.data.client.BlockStateModelGenerator;
-import net.minecraft.data.client.ItemModelGenerator;
-import net.minecraft.data.client.Models;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.text.Text;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
+public class GBItemGroups {
 
-public class GBModelProvider extends FabricModelProvider {
+	static final GuitaRegistry<ItemGroup> ITEM_GROUPS = GuitaRegistries.create(Registries.ITEM_GROUP, GuitaBackpacks.MOD_ID);
 
-	public GBModelProvider(FabricDataOutput output) {
-		super(output);
-	}
+	public static final GuitaRegistryEntry<ItemGroup> GW_TAB = ITEM_GROUPS.register("gbackpacks", () ->
+			ItemGroup.create(ItemGroup.Row.TOP, 0)
+					.displayName(Text.translatable("itemGroup." + GuitaBackpacks.MOD_ID + ".gbackpacks"))
+					.icon(() -> new ItemStack(GBObjects.BACKPACK.get().asItem()))
+					.entries((itemDisplayParameters, output) ->
+							GBObjects.ITEMS.stream().map(item -> item.get().getDefaultStack()).forEach(output::add)
+					).build());
 
-	@Override
-	public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
-		blockStateModelGenerator.registerNorthDefaultHorizontalRotation(GBObjects.BACKPACK_BLOCK.get());
-	}
-
-	@Override
-	public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-		itemModelGenerator.register(GBObjects.BACKPACK.get(), Models.GENERATED);
+	public static void init() {
+		ITEM_GROUPS.init();
 	}
 }

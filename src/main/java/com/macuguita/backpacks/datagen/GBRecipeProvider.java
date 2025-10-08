@@ -24,7 +24,7 @@ package com.macuguita.backpacks.datagen;
 
 import java.util.concurrent.CompletableFuture;
 
-import com.macuguita.backpacks.reg.GBObjects;
+import com.macuguita.backpacks.common.reg.GBObjects;
 
 import net.minecraft.data.server.recipe.RecipeExporter;
 import net.minecraft.data.server.recipe.ShapedRecipeJsonBuilder;

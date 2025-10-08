@@ -20,30 +20,29 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.datagen;
+package com.macuguita.backpacks.client.gui.payload;
 
-import com.macuguita.backpacks.common.reg.GBObjects;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 
-import net.minecraft.data.client.BlockStateModelGenerator;
-import net.minecraft.data.client.ItemModelGenerator;
-import net.minecraft.data.client.Models;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.packet.CustomPayload;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
+public record BackpackInventoryPayload(int backpackSize, int slotIndex) implements CustomPayload {
 
-public class GBModelProvider extends FabricModelProvider {
+	public static final CustomPayload.Id<BackpackInventoryPayload> ID = new CustomPayload.Id<>(GuitaBackpacks.id("backpack_inventory_size"));
 
-	public GBModelProvider(FabricDataOutput output) {
-		super(output);
-	}
+	public static final PacketCodec<RegistryByteBuf, BackpackInventoryPayload> CODEC = PacketCodec.tuple(
+			PacketCodecs.INTEGER,
+			BackpackInventoryPayload::backpackSize,
+			PacketCodecs.INTEGER,
+			BackpackInventoryPayload::slotIndex,
+			BackpackInventoryPayload::new
+	);
 
 	@Override
-	public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
-		blockStateModelGenerator.registerNorthDefaultHorizontalRotation(GBObjects.BACKPACK_BLOCK.get());
-	}
-
-	@Override
-	public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-		itemModelGenerator.register(GBObjects.BACKPACK.get(), Models.GENERATED);
+	public Id<? extends CustomPayload> getId() {
+		return ID;
 	}
 }

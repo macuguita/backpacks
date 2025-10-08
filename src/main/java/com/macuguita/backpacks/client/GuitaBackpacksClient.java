@@ -25,16 +25,16 @@ package com.macuguita.backpacks.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.macuguita.backpacks.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.BackpackScreen;
 import com.macuguita.backpacks.client.gui.EquipmentScreen;
+import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
+import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
 import com.macuguita.backpacks.client.render.BackpackBlockEntityRenderer;
 import com.macuguita.backpacks.client.render.BackpackFeatureRenderer;
-import com.macuguita.backpacks.client.render.GuitaBackpacksModelLoadingPlugin;
-import com.macuguita.backpacks.utils.EquipmentUtils;
-import com.macuguita.backpacks.network.BackpacksResourceReloadListener;
-import com.macuguita.backpacks.network.payload.BackpackListSyncPayload;
-import com.macuguita.backpacks.reg.GBBlockEntities;
+import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.reg.GBBlockEntities;
+import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
@@ -56,7 +56,7 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 
 		BlockEntityRendererFactories.register(GBBlockEntities.BACKPACK.get(), BackpackBlockEntityRenderer::new);
 
-		ModelLoadingPlugin.register(new GuitaBackpacksModelLoadingPlugin());
+		ModelLoadingPlugin.register(new GBModelLoadingPlugin());
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
 			if (entityRenderer instanceof PlayerEntityRenderer playerEntityRenderer) {
 				registrationHelper.register(new BackpackFeatureRenderer<>(playerEntityRenderer));
