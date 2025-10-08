@@ -24,7 +24,6 @@ package com.macuguita.backpacks.common.utils;
 
 import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.common.item.BackpackItem;
-import com.macuguita.backpacks.common.reg.GBComponents;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketInventory;
 import dev.emi.trinkets.api.TrinketsApi;
@@ -78,7 +77,7 @@ public class EquipmentUtils {
 
 		for (int i = 0; i < player.getInventory().size(); i++) {
 			ItemStack stack = player.getInventory().getStack(i);
-			if (stack.getItem() instanceof BackpackItem && stack.contains(GBComponents.BACKPACK_UUID.get())) {
+			if (stack.getItem() instanceof BackpackItem) {
 				return i;
 			}
 		}
@@ -103,7 +102,7 @@ public class EquipmentUtils {
 
 				for (int i = 0; i < trinketInv.size(); i++) {
 					ItemStack stack = trinketInv.getStack(i);
-					if (stack.getItem() instanceof BackpackItem && stack.contains(GBComponents.BACKPACK_UUID.get())) {
+					if (stack.getItem() instanceof BackpackItem) {
 						return TRINKET_SLOT_OFFSET + (groupIndex * 1000) + (slotTypeIndex * 100) + i;
 					}
 				}
