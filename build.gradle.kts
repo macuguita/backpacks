@@ -1,13 +1,7 @@
-import com.matthewprenger.cursegradle.CurseArtifact
-import com.matthewprenger.cursegradle.CurseProject
-import com.matthewprenger.cursegradle.CurseRelation
-import com.matthewprenger.cursegradle.Options
-
 plugins {
     id("fabric-loom").version("1.11-SNAPSHOT")
     id("maven-publish")
-    id("com.modrinth.minotaur").version("2.+")
-    id("com.matthewprenger.cursegradle").version("1.4.0")
+    id("me.modmuss50.mod-publish-plugin").version("1.0.0")
 }
 
 loom {
@@ -168,70 +162,52 @@ tasks.jar {
 
 val changelogText: String = rootProject.file("CHANGELOG.md").readText()
 
-modrinth {
-    token.set(System.getenv("MODRINTH_TOKEN"))
-    projectId.set("MjD9CI06")
-    versionNumber.set(BuildConfig.modVersion)
-    versionName.set("guita's Backpacks ${BuildConfig.modVersion}")
+publishMods {
+    changelog = changelogText
+    file.set(tasks.remapJar.get().archiveFile)
+    additionalFiles.from(tasks.remapSourcesJar.get().archiveFile)
+    displayName = BuildConfig.modName
+    version = BuildConfig.modVersion
     if (BuildConfig.modVersion.contains("beta")) {
-        versionType.set("beta")
+        type = BETA
     } else {
-        versionType.set("release")
+        type = STABLE
     }
-    uploadFile.set(tasks.named("remapJar").get())
-    additionalFiles.add(tasks.named("remapSourcesJar").get())
-    changelog.set(changelogText)
-    for (version in BuildConfig.supportedVersions)
-        gameVersions.add(version)
-    loaders.addAll("fabric", "quilt")
-
-    dependencies {
-        required.project("fabric-api")
-        required.project("macu-lib")
-        optional.project("trinkets-canary")
-        embedded.project("cardinal-components-api")
-    }
-}
-
-curseforge {
-    options(closureOf<Options> {
-        forgeGradleIntegration = false
-    })
-
-    project(closureOf<CurseProject> {
-        apiKey = System.getenv("CURSEFORGE_TOKEN")
-        id = "1361094"
-        if (BuildConfig.modVersion.contains("beta")) {
-            releaseType = ("beta")
-        } else {
-            releaseType = ("release")
-        }
+    modLoaders.add("fabric")
+    modLoaders.add("quilt")
+    dryRun = providers.environmentVariable("MODRINTH_TOKEN").getOrNull() == null || providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null
+    modrinth {
+        projectId = "MjD9CI06"
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         for (version in BuildConfig.supportedVersions)
-            addGameVersion(version)
-        addGameVersion("Fabric")
-        addGameVersion("Quilt")
-        addGameVersion("Java 21")
-
+            minecraftVersions.add(version)
+        requires("fabric-api")
+        requires("macu-lib")
+        optional("trinkets-canary")
+        embeds("cardinal-components-api")
+    }
+    curseforge {
+        projectId = "1361094"
         changelogType = "markdown"
-        changelog = changelogText
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        for (version in BuildConfig.supportedVersions)
+            minecraftVersions.add(version)
+        javaVersions.add(JavaVersion.VERSION_21)
+        clientRequired = true
+        serverRequired = true
+        projectSlug = "guitas-backpacks"
+        requires("fabric-api")
+        requires("macu-lib")
+        embeds("cardinal-components-api")
+    }
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        repository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("macuguita/dryRun")
+        commitish = providers.environmentVariable("GITHUB_REF_NAME").getOrElse("dryrun")
 
-        mainArtifact(tasks.named("remapJar").get(), closureOf<CurseArtifact> {
-            displayName = "guita's Backpacks ${BuildConfig.modVersion}"
-        })
-
-        addArtifact(tasks.named("remapSourcesJar").get())
-
-        relations(closureOf<CurseRelation> {
-            requiredDependency("fabric-api")
-            requiredDependency("macu-lib")
-            embeddedLibrary("cardinal-components-api")
-        })
-    })
-}
-
-tasks.register("publishToModSites") {
-    dependsOn(tasks.named("modrinth"))
-    dependsOn(tasks.named("curseforge"))
+        tagName = "release/${BuildConfig.modVersion}"
+        allowEmptyFiles = true
+    }
 }
 
 // configure the maven publication
