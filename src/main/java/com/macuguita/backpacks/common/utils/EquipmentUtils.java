@@ -24,7 +24,6 @@ package com.macuguita.backpacks.common.utils;
 
 import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.common.item.BackpackItem;
-import com.macuguita.backpacks.common.reg.GBComponents;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketInventory;
 import dev.emi.trinkets.api.TrinketsApi;

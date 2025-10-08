@@ -59,10 +59,6 @@ public class GBModelLoadingPlugin implements ModelLoadingPlugin {
 		});
 	}
 
-	public static Map<Identifier, ExtraModelKey<BlockStateModel>> getBlockStateModels() {
-		return blockStateModels;
-	}
-
 	public static ExtraModelKey<BlockStateModel> getModelKey(Identifier id) {
 		return blockStateModels.get(id);
 	}
