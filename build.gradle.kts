@@ -1,3 +1,8 @@
+import com.matthewprenger.cursegradle.CurseArtifact
+import com.matthewprenger.cursegradle.CurseProject
+import com.matthewprenger.cursegradle.CurseRelation
+import com.matthewprenger.cursegradle.Options
+
 plugins {
     id("fabric-loom").version("1.11-SNAPSHOT")
     id("maven-publish")
@@ -157,6 +162,67 @@ tasks.jar {
     from("LICENSE") {
         rename { "${it}_${BuildConfig.modId}"}
     }
+}
+
+val changelogText: String = rootProject.file("CHANGELOG.md").readText()
+
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set("MjD9CI06")
+    versionNumber.set(BuildConfig.modVersion)
+    versionName.set("guita's Backpacks ${BuildConfig.modVersion}")
+    if (BuildConfig.modVersion.contains("beta")) {
+        versionType.set("beta")
+    } else {
+        versionType.set("release")
+    }
+    uploadFile.set(tasks.named("remapJar").get())
+    additionalFiles.add(tasks.named("remapSourcesJar").get())
+    changelog.set(changelogText)
+    gameVersions.add(BuildConfig.minecraftVersion)
+    loaders.addAll("fabric", "quilt")
+
+    dependencies {
+        required.project("fabric-api")
+        required.project("macu-lib")
+        //optional.project("trinkets-canary")
+        embedded.project("cardinal-components-api")
+    }
+}
+
+curseforge {
+    options(closureOf<Options> {
+        forgeGradleIntegration = false
+    })
+
+    project(closureOf<CurseProject> {
+        apiKey = System.getenv("CURSEFORGE_TOKEN")
+        id = "1308420"
+        if (BuildConfig.modVersion.contains("beta")) {
+            releaseType = ("beta")
+        } else {
+            releaseType = ("release")
+        }
+        addGameVersion(BuildConfig.minecraftVersion)
+        addGameVersion("Fabric")
+        addGameVersion("Quilt")
+        addGameVersion("Java 21")
+
+        changelogType = "markdown"
+        changelog = changelogText
+
+        mainArtifact(tasks.named("remapJar").get(), closureOf<CurseArtifact> {
+            displayName = "guita's Backpacks ${BuildConfig.modVersion}"
+        })
+
+        addArtifact(tasks.named("remapSourcesJar").get())
+
+        relations(closureOf<CurseRelation> {
+            requiredDependency("fabric-api")
+            requiredDependency("macu-lib")
+            embeddedLibrary("cardinal-components-api")
+        })
+    })
 }
 
 // configure the maven publication
