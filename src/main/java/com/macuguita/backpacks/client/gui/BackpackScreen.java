@@ -31,6 +31,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
+import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 
 import net.fabricmc.api.EnvType;
@@ -99,10 +100,10 @@ public class BackpackScreen extends HandledScreen<BackpackScreenHandler> {
 	@Override
 	protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
 		int backpackTitleY = 3;
-		context.drawText(this.textRenderer, this.title, SIDE_PADDING, backpackTitleY, 4210752, false);
+		context.drawText(this.textRenderer, this.title, SIDE_PADDING, backpackTitleY, Colors.DARK_GRAY, false);
 
 		int playerTitleY = backpackStartY + visibleBackpackRows * SLOT_SIZE + GAP_BETWEEN_BACKPACK_AND_PLAYER / 2 - (this.textRenderer.fontHeight / 2);
-		context.drawText(this.textRenderer, this.playerInventoryTitle, SIDE_PADDING, playerTitleY, 4210752, false);
+		context.drawText(this.textRenderer, this.playerInventoryTitle, SIDE_PADDING, playerTitleY, Colors.DARK_GRAY, false);
 	}
 
 	@Override

@@ -1,1 +1,2 @@
-- added support for trinkets canary
+- Added support for trinkets canary
+- Fixed missing screen title

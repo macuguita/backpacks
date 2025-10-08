@@ -181,7 +181,8 @@ modrinth {
     uploadFile.set(tasks.named("remapJar").get())
     additionalFiles.add(tasks.named("remapSourcesJar").get())
     changelog.set(changelogText)
-    gameVersions.add(BuildConfig.minecraftVersion)
+    for (version in BuildConfig.supportedVersions)
+        gameVersions.add(version)
     loaders.addAll("fabric", "quilt")
 
     dependencies {
@@ -199,13 +200,14 @@ curseforge {
 
     project(closureOf<CurseProject> {
         apiKey = System.getenv("CURSEFORGE_TOKEN")
-        id = "1308420"
+        id = "1361094"
         if (BuildConfig.modVersion.contains("beta")) {
             releaseType = ("beta")
         } else {
             releaseType = ("release")
         }
-        addGameVersion(BuildConfig.minecraftVersion)
+        for (version in BuildConfig.supportedVersions)
+            addGameVersion(version)
         addGameVersion("Fabric")
         addGameVersion("Quilt")
         addGameVersion("Java 21")
@@ -225,6 +227,11 @@ curseforge {
             embeddedLibrary("cardinal-components-api")
         })
     })
+}
+
+tasks.register("publishToModSites") {
+    dependsOn(tasks.named("modrinth"))
+    dependsOn(tasks.named("curseforge"))
 }
 
 // configure the maven publication
