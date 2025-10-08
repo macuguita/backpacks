@@ -24,12 +24,12 @@ package com.macuguita.backpacks.common.item;
 
 import java.util.UUID;
 
-import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
+import com.macuguita.backpacks.GBConfig;
 import com.macuguita.backpacks.client.gui.BackpackScreenHandler;
 import com.macuguita.backpacks.client.gui.payload.BackpackInventoryPayload;
+import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.macuguita.backpacks.common.components.BackpacksComponent;
 import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
-import com.macuguita.backpacks.GBConfig;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;

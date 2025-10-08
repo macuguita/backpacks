@@ -26,21 +26,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
-import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.BackpackScreen;
 import com.macuguita.backpacks.client.gui.EquipmentScreen;
 import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
+import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
 import com.macuguita.backpacks.client.render.BackpackBlockEntityRenderer;
 import com.macuguita.backpacks.client.render.BackpackFeatureRenderer;
 import com.macuguita.backpacks.client.render.BlockStateGuiRenderer;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.reg.GBBlockEntities;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
@@ -53,6 +51,7 @@ import net.minecraft.util.Formatting;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry;
 

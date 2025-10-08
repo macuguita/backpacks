@@ -22,10 +22,10 @@
 
 package com.macuguita.backpacks.client.gui;
 
-import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.payload.BackpackInventoryPayload;
 import com.macuguita.backpacks.client.gui.slots.BackpackSlot;
 import com.macuguita.backpacks.client.gui.slots.CustomSlot;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.reg.GBItemTags;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 

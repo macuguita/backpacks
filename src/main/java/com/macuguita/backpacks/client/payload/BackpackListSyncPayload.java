@@ -24,8 +24,8 @@ package com.macuguita.backpacks.client.payload;
 
 import java.util.List;
 
-import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.GuitaBackpacksClient;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 
 import net.minecraft.network.RegistryByteBuf;

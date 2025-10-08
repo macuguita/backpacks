@@ -22,8 +22,8 @@
 
 package com.macuguita.backpacks.common.payload;
 
-import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.EquipmentScreenHandler;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import org.jetbrains.annotations.NotNull;

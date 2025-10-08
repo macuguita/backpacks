@@ -22,10 +22,10 @@
 
 package com.macuguita.backpacks.client.gui;
 
-import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 import com.macuguita.backpacks.client.render.state.BlockStateGuiElementRenderState;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;

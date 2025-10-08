@@ -22,8 +22,8 @@
 
 package com.macuguita.backpacks.client.gui.widgets;
 
-import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.BackpackCustomizationScreen;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;

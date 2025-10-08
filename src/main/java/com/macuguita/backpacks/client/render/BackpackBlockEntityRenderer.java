@@ -22,9 +22,9 @@
 
 package com.macuguita.backpacks.client.render;
 
-import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
 import com.macuguita.backpacks.client.render.state.BackpackBlockEntityRenderState;
+import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.LecternBlock;

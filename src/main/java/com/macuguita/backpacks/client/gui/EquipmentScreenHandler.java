@@ -22,8 +22,8 @@
 
 package com.macuguita.backpacks.client.gui;
 
-import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.slots.BackpackSlot;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.item.BackpackItem;
 
 import net.minecraft.entity.player.PlayerEntity;
