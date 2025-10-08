@@ -20,31 +20,21 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.reg;
+package com.macuguita.backpacks.common.reg;
 
-import com.macuguita.backpacks.GuitaBackpacks;
-import com.macuguita.lib.platform.registry.GuitaRegistries;
-import com.macuguita.lib.platform.registry.GuitaRegistry;
-import com.macuguita.lib.platform.registry.GuitaRegistryEntry;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
+import net.minecraft.item.Item;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.util.Identifier;
 
-public class GBItemGroups {
+public class GBItemTags {
 
-	static final GuitaRegistry<ItemGroup> ITEM_GROUPS = GuitaRegistries.create(Registries.ITEM_GROUP, GuitaBackpacks.MOD_ID);
+	public static final TagKey<Item> BACKPACK_BLACKLIST = createTag(GuitaBackpacks.id("backpack_blacklist"));
+	public static final TagKey<Item> TRINKETS_CHEST = createTag(Identifier.of("trinkets", "chest/back"));
 
-	public static final GuitaRegistryEntry<ItemGroup> GW_TAB = ITEM_GROUPS.register("gbackpacks", () ->
-			ItemGroup.create(ItemGroup.Row.TOP, 0)
-					.displayName(Text.translatable("itemGroup." + GuitaBackpacks.MOD_ID + ".gbackpacks"))
-					.icon(() -> new ItemStack(GBObjects.BACKPACK.get().asItem()))
-					.entries((itemDisplayParameters, output) ->
-							GBObjects.ITEMS.stream().map(item -> item.get().getDefaultStack()).forEach(output::add)
-					).build());
-
-	public static void init() {
-		ITEM_GROUPS.init();
+	private static TagKey<Item> createTag(Identifier id) {
+		return TagKey.of(RegistryKeys.ITEM, id);
 	}
 }

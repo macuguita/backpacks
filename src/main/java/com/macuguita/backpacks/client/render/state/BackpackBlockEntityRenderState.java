@@ -22,8 +22,8 @@
 
 package com.macuguita.backpacks.client.render.state;
 
-import com.macuguita.backpacks.block.BackpackBlock;
-import com.macuguita.backpacks.block.entity.BackpackBlockEntity;
+import com.macuguita.backpacks.common.block.BackpackBlock;
+import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;

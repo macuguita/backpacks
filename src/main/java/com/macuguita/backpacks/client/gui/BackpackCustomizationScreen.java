@@ -22,13 +22,13 @@
 
 package com.macuguita.backpacks.client.gui;
 
-import com.macuguita.backpacks.GuitaBackpacks;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 import com.macuguita.backpacks.client.render.state.BlockStateGuiElementRenderState;
-import com.macuguita.backpacks.network.BackpacksResourceReloadListener;
-import com.macuguita.backpacks.network.payload.BackpackCosmeticSyncPayload;
-import com.macuguita.backpacks.reg.GBComponents;
+import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
+import com.macuguita.backpacks.common.reg.GBComponents;
+import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import org.joml.Matrix3x2f;
 
 import net.minecraft.client.gl.RenderPipelines;
@@ -43,7 +43,6 @@ import net.minecraft.util.Identifier;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 @Environment(EnvType.CLIENT)
 public class BackpackCustomizationScreen extends Screen {
@@ -140,7 +139,7 @@ public class BackpackCustomizationScreen extends Screen {
 		this.addDrawableChild(
 				ButtonWidget.builder(Text.translatable("gui.done"), button -> {
 							if (!this.selectedModelId.equals(this.currentModelId)) {
-								ClientPlayNetworking.send(new BackpackCosmeticSyncPayload(backpack, this.selectedModelId));
+								BackpackCosmeticSyncPayload.send(backpack, this.selectedModelId);
 							}
 							this.close();
 						})

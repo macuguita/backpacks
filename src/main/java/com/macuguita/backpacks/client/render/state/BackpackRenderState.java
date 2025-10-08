@@ -22,9 +22,7 @@
 
 package com.macuguita.backpacks.client.render.state;
 
-import com.macuguita.backpacks.components.GuitaBackpacksComponents;
-
-import com.macuguita.backpacks.utils.EquipmentUtils;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.entity.EquipmentSlot;

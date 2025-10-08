@@ -20,21 +20,20 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.utils;
+package com.macuguita.backpacks.common.utils;
 
-import com.macuguita.backpacks.components.GuitaBackpacksComponents;
-import com.macuguita.backpacks.item.BackpackItem;
-import com.macuguita.backpacks.reg.GBComponents;
-
+import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
+import com.macuguita.backpacks.common.item.BackpackItem;
+import com.macuguita.backpacks.common.reg.GBComponents;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketInventory;
 import dev.emi.trinkets.api.TrinketsApi;
 
-import net.fabricmc.loader.api.FabricLoader;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Pair;
+
+import net.fabricmc.loader.api.FabricLoader;
 
 public class EquipmentUtils {
 
@@ -68,14 +67,19 @@ public class EquipmentUtils {
 	 */
 	public static int getBackpackSlotIndex(PlayerEntity player) {
 
+		int result = -1;
+
 		if (isTrinketsLoaded()) {
-			return getTrinketBackpackSlotIndex(player);
+			result = getTrinketBackpackSlotIndex(player);
+		} else {
+
+			ItemStack customBackpack = GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getBackpack();
+			if (!customBackpack.isEmpty() && customBackpack.getItem() instanceof BackpackItem) {
+				result = CUSTOM_EQUIPMENT_SLOT_OFFSET;
+			}
 		}
 
-		ItemStack customBackpack = GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getBackpack();
-		if (!customBackpack.isEmpty() && customBackpack.getItem() instanceof BackpackItem) {
-			return CUSTOM_EQUIPMENT_SLOT_OFFSET;
-		}
+		if (result != -1) return result;
 
 		for (int i = 0; i < player.getInventory().size(); i++) {
 			ItemStack stack = player.getInventory().getStack(i);
@@ -83,7 +87,6 @@ public class EquipmentUtils {
 				return i;
 			}
 		}
-
 		return -1;
 	}
 

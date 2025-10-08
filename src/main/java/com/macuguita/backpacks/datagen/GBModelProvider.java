@@ -22,7 +22,7 @@
 
 package com.macuguita.backpacks.datagen;
 
-import com.macuguita.backpacks.reg.GBObjects;
+import com.macuguita.backpacks.common.reg.GBObjects;
 
 import net.minecraft.client.data.BlockStateModelGenerator;
 import net.minecraft.client.data.ItemModelGenerator;

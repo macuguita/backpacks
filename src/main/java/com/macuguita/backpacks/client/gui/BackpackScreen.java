@@ -22,7 +22,7 @@
 
 package com.macuguita.backpacks.client.gui;
 
-import com.macuguita.backpacks.GuitaBackpacks;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.widgets.CustomizationWidget;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 

@@ -20,16 +20,16 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.block;
+package com.macuguita.backpacks.common.block;
 
 import java.util.UUID;
 
-import com.macuguita.backpacks.block.entity.BackpackBlockEntity;
-import com.macuguita.backpacks.components.GuitaBackpacksComponents;
-import com.macuguita.backpacks.item.BackpackItem;
-import com.macuguita.backpacks.network.BackpacksResourceReloadListener;
-import com.macuguita.backpacks.reg.GBComponents;
-import com.macuguita.backpacks.reg.GBObjects;
+import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
+import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
+import com.macuguita.backpacks.common.item.BackpackItem;
+import com.macuguita.backpacks.common.reg.GBComponents;
+import com.macuguita.backpacks.common.reg.GBObjects;
+import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 

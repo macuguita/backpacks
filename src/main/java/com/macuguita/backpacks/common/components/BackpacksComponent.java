@@ -20,14 +20,14 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.components;
+package com.macuguita.backpacks.common.components;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.macuguita.backpacks.config.GBConfig;
+import com.macuguita.backpacks.GBConfig;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.Component;
 

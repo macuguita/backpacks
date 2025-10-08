@@ -2,7 +2,6 @@ package com.macuguita.backpacks.client.render;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 
 import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
 import com.macuguita.backpacks.client.render.state.BlockStateGuiElementRenderState;
@@ -19,11 +18,9 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.TexturedRenderLayers;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.texture.TextureSetup;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.random.Random;
 

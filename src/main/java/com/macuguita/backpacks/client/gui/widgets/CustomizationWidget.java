@@ -22,7 +22,7 @@
 
 package com.macuguita.backpacks.client.gui.widgets;
 
-import com.macuguita.backpacks.GuitaBackpacks;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.client.gui.BackpackCustomizationScreen;
 
 import net.minecraft.client.MinecraftClient;

@@ -20,13 +20,13 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.reg;
+package com.macuguita.backpacks.common.reg;
 
 import java.util.function.Function;
 
-import com.macuguita.backpacks.GuitaBackpacks;
-import com.macuguita.backpacks.block.BackpackBlock;
-import com.macuguita.backpacks.item.BackpackItem;
+import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.block.BackpackBlock;
+import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.lib.platform.registry.GuitaRegistries;
 import com.macuguita.lib.platform.registry.GuitaRegistry;
 import com.macuguita.lib.platform.registry.GuitaRegistryEntry;

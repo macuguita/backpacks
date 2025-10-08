@@ -25,7 +25,7 @@ package com.macuguita.backpacks.datagen;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
-import com.macuguita.backpacks.reg.GBObjects;
+import com.macuguita.backpacks.common.reg.GBObjects;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;

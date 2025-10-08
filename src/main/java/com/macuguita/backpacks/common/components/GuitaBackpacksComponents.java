@@ -20,10 +20,10 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.components;
+package com.macuguita.backpacks.common.components;
 
-import com.macuguita.backpacks.GuitaBackpacks;
-import com.macuguita.backpacks.utils.EquipmentUtils;
+import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;

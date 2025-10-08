@@ -20,27 +20,44 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.network.payload;
+package com.macuguita.backpacks.common.payload;
 
-import com.macuguita.backpacks.network.GBNetworking;
+import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.item.BackpackItem;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.server.network.ServerPlayerEntity;
 
-public record OpenBackpackPayload(boolean buf) implements CustomPayload {
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-	public static final CustomPayload.Id<OpenBackpackPayload> ID = new CustomPayload.Id<>(GBNetworking.OPEN_BACKPACK_PACKET);
+public record OpenBackpackPayload() implements CustomPayload {
 
-	public static final PacketCodec<RegistryByteBuf, OpenBackpackPayload> CODEC = PacketCodec.tuple(
-			PacketCodecs.BOOLEAN,
-			OpenBackpackPayload::buf,
-			OpenBackpackPayload::new
-	);
+	public static final CustomPayload.Id<OpenBackpackPayload> ID = new CustomPayload.Id<>(GuitaBackpacks.id("open_backpack"));
+
+	public static final PacketCodec<RegistryByteBuf, OpenBackpackPayload> CODEC = PacketCodec.unit(new OpenBackpackPayload());
 
 	@Override
 	public Id<? extends CustomPayload> getId() {
 		return ID;
+	}
+
+	public static void send() {
+		ClientPlayNetworking.send(new OpenBackpackPayload());
+	}
+
+	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<OpenBackpackPayload> {
+
+		@Override
+		public void receive(OpenBackpackPayload payload, ServerPlayNetworking.Context context) {
+			ServerPlayerEntity player = context.player();
+			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
+			if (backpackSlot != -1) {
+				BackpackItem.openOrCreateBackpackIfNotExists(player, backpackSlot);
+			}
+		}
 	}
 }

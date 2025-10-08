@@ -20,7 +20,7 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.config;
+package com.macuguita.backpacks;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -29,7 +29,7 @@ import java.nio.file.Path;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.macuguita.backpacks.GuitaBackpacks;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;

@@ -20,19 +20,26 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.network.payload;
+package com.macuguita.backpacks.common.payload;
 
-import com.macuguita.backpacks.network.GBNetworking;
+import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
+import com.macuguita.backpacks.common.reg.GBComponents;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 public record BackpackCosmeticSyncPayload(ItemStack oldBackpack, Identifier newId) implements CustomPayload {
 
-	public static final CustomPayload.Id<BackpackCosmeticSyncPayload> ID = new CustomPayload.Id<>(GBNetworking.BACKPACK_COSMETIC_SYNC);
+	public static final CustomPayload.Id<BackpackCosmeticSyncPayload> ID = new CustomPayload.Id<>(GuitaBackpacks.id("backpack_cosmetic_sync"));
 
 	public static final PacketCodec<RegistryByteBuf, BackpackCosmeticSyncPayload> CODEC = PacketCodec.tuple(
 			ItemStack.PACKET_CODEC,
@@ -45,5 +52,33 @@ public record BackpackCosmeticSyncPayload(ItemStack oldBackpack, Identifier newI
 	@Override
 	public Id<? extends CustomPayload> getId() {
 		return ID;
+	}
+
+	public static void send(ItemStack oldBackpack, Identifier newId) {
+		ClientPlayNetworking.send(new BackpackCosmeticSyncPayload(oldBackpack, newId));
+	}
+
+	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<BackpackCosmeticSyncPayload> {
+
+		@Override
+		public void receive(BackpackCosmeticSyncPayload payload, ServerPlayNetworking.Context context) {
+			ServerPlayerEntity player = context.player();
+
+			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
+			if (backpackSlot == -1) {
+				return;
+			}
+
+			ItemStack backpack = EquipmentUtils.getBackpackFromSlotIndex(player, backpackSlot);
+			if (backpack.isEmpty() || !backpack.contains(GBComponents.BACKPACK_MODEL_ID.get())) {
+				return;
+			}
+
+			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), payload.newId());
+
+			if (!EquipmentUtils.isTrinketsLoaded() && backpackSlot >= 20000) {
+				GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getInventory().markDirty();
+			}
+		}
 	}
 }

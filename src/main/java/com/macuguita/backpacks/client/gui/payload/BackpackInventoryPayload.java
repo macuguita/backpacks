@@ -20,21 +20,29 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.reg;
+package com.macuguita.backpacks.client.gui.payload;
 
-import com.macuguita.backpacks.GuitaBackpacks;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 
-import net.minecraft.item.Item;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.packet.CustomPayload;
 
-public class GBItemTags {
+public record BackpackInventoryPayload(int backpackSize, int slotIndex) implements CustomPayload {
 
-	public static final TagKey<Item> BACKPACK_BLACKLIST = createTag(GuitaBackpacks.id("backpack_blacklist"));
-	public static final TagKey<Item> TRINKETS_CHEST = createTag(Identifier.of("trinkets", "chest/back"));
+	public static final CustomPayload.Id<BackpackInventoryPayload> ID = new CustomPayload.Id<>(GuitaBackpacks.id("backpack_inventory_size"));
 
-	private static TagKey<Item> createTag(Identifier id) {
-		return TagKey.of(RegistryKeys.ITEM, id);
+	public static final PacketCodec<RegistryByteBuf, BackpackInventoryPayload> CODEC = PacketCodec.tuple(
+			PacketCodecs.INTEGER,
+			BackpackInventoryPayload::backpackSize,
+			PacketCodecs.INTEGER,
+			BackpackInventoryPayload::slotIndex,
+			BackpackInventoryPayload::new
+	);
+
+	@Override
+	public Id<? extends CustomPayload> getId() {
+		return ID;
 	}
 }

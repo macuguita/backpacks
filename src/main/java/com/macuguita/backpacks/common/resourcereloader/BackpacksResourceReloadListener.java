@@ -20,13 +20,13 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.network;
+package com.macuguita.backpacks.common.resourcereloader;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.macuguita.backpacks.GuitaBackpacks;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;

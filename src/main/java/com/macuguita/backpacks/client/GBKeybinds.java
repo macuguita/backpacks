@@ -24,10 +24,10 @@ package com.macuguita.backpacks.client;
 
 import java.util.Optional;
 
-import com.macuguita.backpacks.GuitaBackpacks;
-import com.macuguita.backpacks.network.payload.OpenBackpackPayload;
-import com.macuguita.backpacks.network.payload.OpenEquipmentPayload;
-import com.macuguita.backpacks.utils.EquipmentUtils;
+import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.payload.OpenBackpackPayload;
+import com.macuguita.backpacks.common.payload.OpenEquipmentPayload;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.option.KeyBinding;
@@ -38,7 +38,6 @@ import net.minecraft.util.math.Vec3d;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 public class GBKeybinds {
 
@@ -64,7 +63,7 @@ public class GBKeybinds {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (openBackpackKey.wasPressed()) {
-				ClientPlayNetworking.send(new OpenBackpackPayload(true));
+				OpenBackpackPayload.send();
 				if (client.player != null && client.world != null) {
 					int backpackSlot = EquipmentUtils.getBackpackSlotIndex(client.player);
 					if (backpackSlot != -1) {
@@ -82,7 +81,7 @@ public class GBKeybinds {
 			if (EquipmentUtils.isTrinketsLoaded()) return;
 			finalMaybeOpenEquipmentKey.ifPresent(openEquipmentKey -> {
 				while (openEquipmentKey.wasPressed()) {
-					ClientPlayNetworking.send(new OpenEquipmentPayload(true));
+					OpenEquipmentPayload.send();
 				}
 			});
 		});

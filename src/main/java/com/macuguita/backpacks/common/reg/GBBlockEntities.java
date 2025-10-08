@@ -20,35 +20,40 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.reg;
+package com.macuguita.backpacks.common.reg;
 
-import java.util.UUID;
-
-import com.macuguita.backpacks.GuitaBackpacks;
+import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.macuguita.lib.platform.registry.GuitaRegistries;
 import com.macuguita.lib.platform.registry.GuitaRegistry;
-import com.macuguita.lib.platform.registry.GuitaRegistryEntry;
-import com.mojang.serialization.Codec;
 
-import net.minecraft.component.ComponentType;
+import net.minecraft.block.Block;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Uuids;
 
-public class GBComponents {
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 
-	static final GuitaRegistry<ComponentType<?>> COMPONENTS = GuitaRegistries.create(Registries.DATA_COMPONENT_TYPE, GuitaBackpacks.MOD_ID);
+public class GBBlockEntities {
 
-	public static final GuitaRegistryEntry<ComponentType<UUID>> BACKPACK_UUID = COMPONENTS.register("backpack_uuid",
-			() -> ComponentType.<UUID>builder().codec(Uuids.CODEC).build());
+	static final GuitaRegistry<BlockEntityType<?>> BLOCK_ENTITIES = GuitaRegistries.create(Registries.BLOCK_ENTITY_TYPE, GuitaBackpacks.MOD_ID);
 
-	public static final GuitaRegistryEntry<ComponentType<Boolean>> VISIBLE = COMPONENTS.register("visible",
-			() -> ComponentType.<Boolean>builder().codec(Codec.BOOL).build());
+	public static final BlockEntityType<BackpackBlockEntity> BACKPACK = register(
+			"backpack", BackpackBlockEntity::new, GBObjects.BACKPACK_BLOCK.get()
+	);
 
-	public static final GuitaRegistryEntry<ComponentType<Identifier>> BACKPACK_MODEL_ID = COMPONENTS.register("backpack_model",
-			() -> ComponentType.<Identifier>builder().codec(Identifier.CODEC).build());
+	private static <T extends BlockEntity> BlockEntityType<T> register(
+			String name,
+			FabricBlockEntityTypeBuilder.Factory<? extends T> entityFactory,
+			Block... blocks
+	) {
+		Identifier id = GuitaBackpacks.id(name);
+		return Registry.register(Registries.BLOCK_ENTITY_TYPE, id, FabricBlockEntityTypeBuilder.<T>create(entityFactory, blocks).build());
+	}
 
 	public static void init() {
-		COMPONENTS.init();
+		BLOCK_ENTITIES.init();
 	}
 }

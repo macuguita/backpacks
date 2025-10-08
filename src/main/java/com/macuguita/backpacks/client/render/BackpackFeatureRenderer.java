@@ -24,7 +24,7 @@ package com.macuguita.backpacks.client.render;
 
 import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
 import com.macuguita.backpacks.client.render.state.BackpackRenderState;
-import com.macuguita.backpacks.reg.GBComponents;
+import com.macuguita.backpacks.common.reg.GBComponents;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 

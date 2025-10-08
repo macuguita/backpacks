@@ -20,18 +20,21 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.utils;
+package com.macuguita.backpacks.common.utils;
 
 import java.util.List;
 import java.util.UUID;
 
-import com.macuguita.backpacks.reg.GBComponents;
+import com.macuguita.backpacks.common.reg.GBComponents;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
+
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 
 public class BackpackUtils {
 
@@ -71,6 +74,19 @@ public class BackpackUtils {
 					break;
 				}
 			}
+		}
+	}
+
+	public static class DeduplicateBackpacks implements ServerEntityEvents.Load {
+
+		@Override
+		public void onLoad(Entity entity, ServerWorld serverWorld) {
+			if (!(entity instanceof ItemEntity itemEntity)) return;
+
+			ItemStack stack = itemEntity.getStack();
+			if (!stack.contains(GBComponents.BACKPACK_UUID.get())) return;
+
+			dedupeBackpackItemEntity(itemEntity);
 		}
 	}
 }

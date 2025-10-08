@@ -20,19 +20,19 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.item;
+package com.macuguita.backpacks.common.item;
 
 import java.util.UUID;
 
-import com.macuguita.backpacks.block.entity.BackpackBlockEntity;
+import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.macuguita.backpacks.client.gui.BackpackScreenHandler;
-import com.macuguita.backpacks.components.BackpacksComponent;
-import com.macuguita.backpacks.components.GuitaBackpacksComponents;
-import com.macuguita.backpacks.config.GBConfig;
-import com.macuguita.backpacks.network.payload.BackpackInventoryPayload;
-import com.macuguita.backpacks.reg.GBComponents;
-import com.macuguita.backpacks.utils.BackpackUtils;
-import com.macuguita.backpacks.utils.EquipmentUtils;
+import com.macuguita.backpacks.client.gui.payload.BackpackInventoryPayload;
+import com.macuguita.backpacks.common.components.BackpacksComponent;
+import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
+import com.macuguita.backpacks.GBConfig;
+import com.macuguita.backpacks.common.reg.GBComponents;
+import com.macuguita.backpacks.common.utils.BackpackUtils;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

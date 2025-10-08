@@ -20,11 +20,11 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package com.macuguita.backpacks.block.entity;
+package com.macuguita.backpacks.common.block.entity;
 
 import java.util.UUID;
 
-import com.macuguita.backpacks.reg.GBBlockEntities;
+import com.macuguita.backpacks.common.reg.GBBlockEntities;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
