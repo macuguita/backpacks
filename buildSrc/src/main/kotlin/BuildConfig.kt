@@ -16,6 +16,6 @@ object BuildConfig {
     //val emiVersion: String = "1.1.22+" + minecraftVersion
 
     val maculibVersion: String = "1.0.5-" + minecraftVersion
-    //val trinketsVersion: String = "3.10.0"
+    val trinketsVersion: String = "3.11.0-1.21.10-rc1"
     val ccaVersion: String = "7.1.0-beta.1"
 }

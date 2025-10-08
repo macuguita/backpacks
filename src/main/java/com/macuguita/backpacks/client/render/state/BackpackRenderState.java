@@ -24,6 +24,8 @@ package com.macuguita.backpacks.client.render.state;
 
 import com.macuguita.backpacks.components.GuitaBackpacksComponents;
 
+import com.macuguita.backpacks.utils.EquipmentUtils;
+
 import net.minecraft.client.render.entity.state.LivingEntityRenderState;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -45,7 +47,7 @@ public class BackpackRenderState {
 	public static <E extends LivingEntity, S extends LivingEntityRenderState> void updateRenderState(E entity, S state) {
 		BackpackRenderState backpackRenderState = new BackpackRenderState();
 		if (!(entity instanceof PlayerEntity)) return;
-		backpackRenderState.backpack = GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(entity).getBackpack();
+		backpackRenderState.backpack = EquipmentUtils.getEquippedBackpack((PlayerEntity) entity);
 		backpackRenderState.chest = entity.getEquippedStack(EquipmentSlot.CHEST);
 		state.setData(KEY, backpackRenderState);
 	}

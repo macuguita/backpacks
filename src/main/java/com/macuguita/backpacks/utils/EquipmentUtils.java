@@ -26,8 +26,15 @@ import com.macuguita.backpacks.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.item.BackpackItem;
 import com.macuguita.backpacks.reg.GBComponents;
 
+import dev.emi.trinkets.api.TrinketComponent;
+import dev.emi.trinkets.api.TrinketInventory;
+import dev.emi.trinkets.api.TrinketsApi;
+
+import net.fabricmc.loader.api.FabricLoader;
+
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Pair;
 
 public class EquipmentUtils {
 
@@ -35,21 +42,19 @@ public class EquipmentUtils {
 	private static final int CUSTOM_EQUIPMENT_SLOT_OFFSET = 20000;
 
 	public static boolean isTrinketsLoaded() {
-		return false;
-		//return FabricLoader.getInstance().isModLoaded("trinkets");
+		return FabricLoader.getInstance().isModLoaded("trinkets");
 	}
 
 	public static ItemStack getEquippedBackpack(PlayerEntity player) {
 		if (!isTrinketsLoaded())
 			return GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getBackpack();
-//		return TrinketsApi.getTrinketComponent(player)
-//				.map(component -> component.getEquipped(stack -> stack.getItem() instanceof BackpackItem)
-//						.stream()
-//						.findFirst()
-//						.map(Pair::getRight)
-//						.orElse(ItemStack.EMPTY))
-//				.orElse(ItemStack.EMPTY);
-		return ItemStack.EMPTY;
+		return TrinketsApi.getTrinketComponent(player)
+				.map(component -> component.getEquipped(stack -> stack.getItem() instanceof BackpackItem)
+						.stream()
+						.findFirst()
+						.map(Pair::getRight)
+						.orElse(ItemStack.EMPTY))
+				.orElse(ItemStack.EMPTY);
 	}
 
 	/**
@@ -83,30 +88,30 @@ public class EquipmentUtils {
 	}
 
 	private static int getTrinketBackpackSlotIndex(PlayerEntity player) {
-//		TrinketComponent trinketComponent = TrinketsApi.getTrinketComponent(player).orElse(null);
-//		if (trinketComponent == null) {
-//			return -1;
-//		}
-//
-//		int groupIndex = 0;
-//		for (var groupEntry : trinketComponent.getGroups().entrySet()) {
-//			String groupId = groupEntry.getKey();
-//			int slotTypeIndex = 0;
-//
-//			for (var slotEntry : groupEntry.getValue().getSlots().entrySet()) {
-//				String slotId = slotEntry.getKey();
-//				TrinketInventory trinketInv = trinketComponent.getInventory().get(groupId).get(slotId);
-//
-//				for (int i = 0; i < trinketInv.size(); i++) {
-//					ItemStack stack = trinketInv.getStack(i);
-//					if (stack.getItem() instanceof BackpackItem && stack.contains(GBComponents.BACKPACK_UUID.get())) {
-//						return TRINKET_SLOT_OFFSET + (groupIndex * 1000) + (slotTypeIndex * 100) + i;
-//					}
-//				}
-//				slotTypeIndex++;
-//			}
-//			groupIndex++;
-//		}
+		TrinketComponent trinketComponent = TrinketsApi.getTrinketComponent(player).orElse(null);
+		if (trinketComponent == null) {
+			return -1;
+		}
+
+		int groupIndex = 0;
+		for (var groupEntry : trinketComponent.getGroups().entrySet()) {
+			String groupId = groupEntry.getKey();
+			int slotTypeIndex = 0;
+
+			for (var slotEntry : groupEntry.getValue().getSlots().entrySet()) {
+				String slotId = slotEntry.getKey();
+				TrinketInventory trinketInv = trinketComponent.getInventory().get(groupId).get(slotId);
+
+				for (int i = 0; i < trinketInv.size(); i++) {
+					ItemStack stack = trinketInv.getStack(i);
+					if (stack.getItem() instanceof BackpackItem && stack.contains(GBComponents.BACKPACK_UUID.get())) {
+						return TRINKET_SLOT_OFFSET + (groupIndex * 1000) + (slotTypeIndex * 100) + i;
+					}
+				}
+				slotTypeIndex++;
+			}
+			groupIndex++;
+		}
 
 		return -1;
 	}
@@ -143,35 +148,35 @@ public class EquipmentUtils {
 	}
 
 	private static ItemStack getBackpackFromTrinketSlotIndex(PlayerEntity player, int slotIndex) {
-//		TrinketComponent trinketComponent = TrinketsApi.getTrinketComponent(player).orElse(null);
-//		if (trinketComponent == null) {
-//			return ItemStack.EMPTY;
-//		}
-//
-//		int encoded = slotIndex - TRINKET_SLOT_OFFSET;
-//		int targetGroupIndex = encoded / 1000;
-//		int targetSlotTypeIndex = (encoded % 1000) / 100;
-//		int targetSlot = encoded % 100;
-//
-//		int groupIndex = 0;
-//		for (var groupEntry : trinketComponent.getGroups().entrySet()) {
-//			if (groupIndex == targetGroupIndex) {
-//				String groupId = groupEntry.getKey();
-//				int slotTypeIndex = 0;
-//				for (var slotEntry : groupEntry.getValue().getSlots().entrySet()) {
-//					if (slotTypeIndex == targetSlotTypeIndex) {
-//						String slotId = slotEntry.getKey();
-//						TrinketInventory trinketInv = trinketComponent.getInventory().get(groupId).get(slotId);
-//						if (targetSlot < trinketInv.size()) {
-//							return trinketInv.getStack(targetSlot);
-//						}
-//						return ItemStack.EMPTY;
-//					}
-//					slotTypeIndex++;
-//				}
-//			}
-//			groupIndex++;
-//		}
+		TrinketComponent trinketComponent = TrinketsApi.getTrinketComponent(player).orElse(null);
+		if (trinketComponent == null) {
+			return ItemStack.EMPTY;
+		}
+
+		int encoded = slotIndex - TRINKET_SLOT_OFFSET;
+		int targetGroupIndex = encoded / 1000;
+		int targetSlotTypeIndex = (encoded % 1000) / 100;
+		int targetSlot = encoded % 100;
+
+		int groupIndex = 0;
+		for (var groupEntry : trinketComponent.getGroups().entrySet()) {
+			if (groupIndex == targetGroupIndex) {
+				String groupId = groupEntry.getKey();
+				int slotTypeIndex = 0;
+				for (var slotEntry : groupEntry.getValue().getSlots().entrySet()) {
+					if (slotTypeIndex == targetSlotTypeIndex) {
+						String slotId = slotEntry.getKey();
+						TrinketInventory trinketInv = trinketComponent.getInventory().get(groupId).get(slotId);
+						if (targetSlot < trinketInv.size()) {
+							return trinketInv.getStack(targetSlot);
+						}
+						return ItemStack.EMPTY;
+					}
+					slotTypeIndex++;
+				}
+			}
+			groupIndex++;
+		}
 
 		return ItemStack.EMPTY;
 	}

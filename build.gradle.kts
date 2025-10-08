@@ -6,6 +6,8 @@ import com.matthewprenger.cursegradle.Options
 plugins {
     id("fabric-loom").version("1.11-SNAPSHOT")
     id("maven-publish")
+    id("com.modrinth.minotaur").version("2.+")
+    id("com.matthewprenger.cursegradle").version("1.4.0")
 }
 
 loom {
@@ -95,17 +97,17 @@ dependencies {
 //    modLocalRuntime("dev.emi:emi-fabric:${BuildConfig.emiVersion}"){
 //        exclude("net.fabricmc.fabric-api")
 //    }
-//    if (true) {
-//        modImplementation("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
-//            exclude("net.fabricmc.fabric-api")
-//            exclude("org.ladysnake.cardinal-components-api")
-//        }
-//    } else {
-//        modCompileOnly("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
-//            exclude("net.fabricmc.fabric-api")
-//            exclude("org.ladysnake.cardinal-components-api")
-//        }
-//    }
+    if (true) {
+        modImplementation("maven.modrinth:trinkets-canary:${BuildConfig.trinketsVersion}") {
+            exclude("net.fabricmc.fabric-api")
+            exclude("org.ladysnake.cardinal-components-api")
+        }
+    } else {
+        modCompileOnly("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
+            exclude("net.fabricmc.fabric-api")
+            exclude("org.ladysnake.cardinal-components-api")
+        }
+    }
 
     modImplementation("org.ladysnake.cardinal-components-api:cardinal-components-base:${BuildConfig.ccaVersion}"){
         exclude("net.fabricmc.fabric-api")
@@ -185,7 +187,7 @@ modrinth {
     dependencies {
         required.project("fabric-api")
         required.project("macu-lib")
-        //optional.project("trinkets-canary")
+        optional.project("trinkets-canary")
         embedded.project("cardinal-components-api")
     }
 }
