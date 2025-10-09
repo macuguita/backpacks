@@ -1,2 +1,1 @@
-- Added support for trinkets canary
-- Fixed missing screen title
+- Updated backpack item texture
