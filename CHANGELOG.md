@@ -1,1 +1,1 @@
-- Updated backpack item texture
+- Fixed backpack position when shifting

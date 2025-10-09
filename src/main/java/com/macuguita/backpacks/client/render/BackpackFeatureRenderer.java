@@ -79,6 +79,11 @@ public class BackpackFeatureRenderer<S extends BipedEntityRenderState, M extends
 		var playerModel = this.getContextModel();
 
 		// Align with body
+		matrices.translate(
+				playerModel.body.originX / 16.0F,
+				playerModel.body.originY / 16.0F,
+				playerModel.body.originZ / 16.0F
+		);
 		matrices.multiply(new Quaternionf()
 				.rotationZYX(playerModel.body.roll, playerModel.body.yaw, playerModel.body.pitch));
 
