@@ -1,1 +1,1 @@
-# guita
+- Updated backpack item texture

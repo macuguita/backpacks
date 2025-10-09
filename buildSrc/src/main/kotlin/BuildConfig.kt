@@ -5,7 +5,7 @@ object BuildConfig {
     val yarnMappings: String = minecraftVersion + "+build.3"
     val loaderVersion: String = "0.17.2"
 
-    val modVersion: String = minecraftVersion + "-beta+1"
+    val modVersion: String = minecraftVersion + "-beta+3"
     val mavenGroup: String = "com.macuguita.backpacks"
     val modId: String = "gbackpacks"
     val modName: String = "guita's Backpacks"
