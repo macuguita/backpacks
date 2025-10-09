@@ -1,13 +1,7 @@
-import com.matthewprenger.cursegradle.CurseArtifact
-import com.matthewprenger.cursegradle.CurseProject
-import com.matthewprenger.cursegradle.CurseRelation
-import com.matthewprenger.cursegradle.Options
-
 plugins {
     id("fabric-loom").version("1.9-SNAPSHOT")
     id("maven-publish")
-    id("com.modrinth.minotaur").version("2.+")
-    id("com.matthewprenger.cursegradle").version("1.4.0")
+    id("me.modmuss50.mod-publish-plugin").version("1.0.0")
 }
 
 loom {
@@ -174,64 +168,65 @@ tasks.jar {
 
 val changelogText: String = rootProject.file("CHANGELOG.md").readText()
 
-modrinth {
-    token.set(System.getenv("MODRINTH_TOKEN"))
-    projectId.set("MjD9CI06")
-    versionNumber.set(BuildConfig.modVersion)
-    versionName.set("guita's Backpacks ${BuildConfig.modVersion}")
+publishMods {
+    changelog = changelogText
+    file.set(tasks.remapJar.get().archiveFile)
+    additionalFiles.from(tasks.remapSourcesJar.get().archiveFile)
+    displayName = BuildConfig.modName + " " + BuildConfig.modVersion
+    version = BuildConfig.modVersion
     if (BuildConfig.modVersion.contains("beta")) {
-        versionType.set("beta")
+        type = BETA
     } else {
-        versionType.set("release")
+        type = STABLE
     }
-    uploadFile.set(tasks.named("remapJar").get())
-    additionalFiles.add(tasks.named("remapSourcesJar").get())
-    changelog.set(changelogText)
-    gameVersions.add(BuildConfig.minecraftVersion)
-    loaders.addAll("fabric", "quilt")
-
-    dependencies {
-        required.project("fabric-api")
-        required.project("macu-lib")
-        optional.project("trinkets")
-        embedded.project("cardinal-components-api")
+    modLoaders.add("fabric")
+    modLoaders.add("quilt")
+    dryRun = providers.environmentVariable("MODRINTH_TOKEN").getOrNull() == null || providers.environmentVariable("CURSEFORGE_TOKEN").getOrNull() == null
+    modrinth {
+        projectId = "MjD9CI06"
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        for (version in BuildConfig.supportedVersions)
+            minecraftVersions.add(version)
+        requires("fabric-api")
+        requires("macu-lib")
+        optional("trinkets")
+        embeds("cardinal-components-api")
     }
-}
-
-curseforge {
-    options(closureOf<Options> {
-        forgeGradleIntegration = false
-    })
-
-    project(closureOf<CurseProject> {
-        apiKey = System.getenv("CURSEFORGE_TOKEN")
-        id = "1308420" // TODO change this because it is the woodworks number
-        if (BuildConfig.modVersion.contains("beta")) {
-            releaseType = ("beta")
-        } else {
-            releaseType = ("release")
-        }
-        addGameVersion(BuildConfig.minecraftVersion)
-        addGameVersion("Fabric")
-        addGameVersion("Quilt")
-        addGameVersion("Java 21")
-
+    modrinth("modrinthNeoforge") {
+        modLoaders.empty()
+        modLoaders.add("neoforge")
+        projectId = "MjD9CI06"
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        for (version in BuildConfig.supportedVersions)
+            minecraftVersions.add(version)
+        requires("forgified-fabric-api")
+        requires("macu-lib")
+        requires("connector")
+        embeds("cardinal-components-api")
+    }
+    curseforge {
+        projectId = "1361094"
         changelogType = "markdown"
-        changelog = changelogText
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        for (version in BuildConfig.supportedVersions)
+            minecraftVersions.add(version)
+        javaVersions.add(JavaVersion.VERSION_21)
+        clientRequired = true
+        serverRequired = true
+        projectSlug = "guitas-backpacks"
+        requires("fabric-api")
+        requires("macu-lib")
+        optional("trinkets")
+        embeds("cardinal-components-api")
+    }
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        repository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("macuguita/dryRun")
+        commitish = providers.environmentVariable("GITHUB_REF_NAME").getOrElse("dryrun")
 
-        mainArtifact(tasks.named("remapJar").get(), closureOf<CurseArtifact> {
-            displayName = "guita's Backpacks ${BuildConfig.modVersion}"
-        })
-
-        addArtifact(tasks.named("remapSourcesJar").get())
-
-        relations(closureOf<CurseRelation> {
-            requiredDependency("fabric-api")
-            requiredDependency("macu-lib")
-            optionalDependency("trinkets")
-            embeddedLibrary("cardinal-components-api")
-        })
-    })
+        tagName = "release/${BuildConfig.modVersion}"
+        allowEmptyFiles = true
+    }
 }
 
 // configure the maven publication

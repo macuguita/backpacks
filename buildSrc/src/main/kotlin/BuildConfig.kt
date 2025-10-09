@@ -1,6 +1,7 @@
 object BuildConfig {
     val minecraftVersion: String = "1.21.1"
     val minecraftVersionRange: String = "~1.21.1"
+    val supportedVersions: Array<String> = arrayOf("1.21.1")
     val yarnMappings: String = minecraftVersion + "+build.3"
     val loaderVersion: String = "0.17.2"
 
