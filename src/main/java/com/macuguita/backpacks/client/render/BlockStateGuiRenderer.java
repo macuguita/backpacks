@@ -25,7 +25,7 @@ package com.macuguita.backpacks.client.render;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
+import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.state.BlockStateGuiElementRenderState;
 import com.mojang.blaze3d.systems.ProjectionType;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -101,7 +101,7 @@ public class BlockStateGuiRenderer extends SpecialGuiElementRenderer<BlockStateG
 		matrices.translate(-0.5f, -0.5f, -0.5f);
 		matrices.scale(1, -1, 1);
 
-		var model = GBModelLoadingPlugin.getBlockstateModel(element.modelId());
+		var model = GBModelReloadListener.INSTANCE.getModel(element.modelId());
 		if (model != null) {
 			VertexConsumer buffer = vertexConsumers.getBuffer(TexturedRenderLayers.getEntityCutout());
 			int light = 0xF000F0;

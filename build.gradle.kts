@@ -166,7 +166,7 @@ publishMods {
     changelog = changelogText
     file.set(tasks.remapJar.get().archiveFile)
     additionalFiles.from(tasks.remapSourcesJar.get().archiveFile)
-    displayName = BuildConfig.modName
+    displayName = BuildConfig.modName + " " + BuildConfig.modVersion
     version = BuildConfig.modVersion
     if (BuildConfig.modVersion.contains("beta")) {
         type = BETA

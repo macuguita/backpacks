@@ -1,1 +1,2 @@
 - Fixed backpack position when shifting
+- Fixed crash when reloading resourcepacks while a backpack is being rendered

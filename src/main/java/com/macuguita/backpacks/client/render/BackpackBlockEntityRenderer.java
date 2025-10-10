@@ -22,7 +22,7 @@
 
 package com.macuguita.backpacks.client.render;
 
-import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
+import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.state.BackpackBlockEntityRenderState;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import org.jetbrains.annotations.Nullable;
@@ -68,7 +68,7 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
 
 	@Override
 	public void render(BackpackBlockEntityRenderState state, MatrixStack matrices, OrderedRenderCommandQueue queue, CameraRenderState cameraState) {
-		BlockStateModel model = GBModelLoadingPlugin.getBlockstateModel(state.modelId);
+		BlockStateModel model = GBModelReloadListener.INSTANCE.getModel(state.modelId);
 		Direction direction = state.direction;
 
 		if (model == null)

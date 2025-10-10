@@ -29,6 +29,7 @@ import java.util.UUID;
 import com.macuguita.backpacks.client.gui.BackpackScreen;
 import com.macuguita.backpacks.client.gui.EquipmentScreen;
 import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
+import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
 import com.macuguita.backpacks.client.render.BackpackBlockEntityRenderer;
 import com.macuguita.backpacks.client.render.BackpackFeatureRenderer;
@@ -45,6 +46,7 @@ import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -54,6 +56,8 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.reloader.ResourceReloaderKeys;
 
 public class GuitaBackpacksClient implements ClientModInitializer {
 
@@ -70,9 +74,9 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(BackpackListSyncPayload.ID, new BackpackListSyncPayload.Receiver());
 
 		// Might have to do something with this, look at the link above
-//		ResourceLoader resourceLoader = ResourceLoader.get(ResourceType.CLIENT_RESOURCES);
-//		resourceLoader.registerReloader(GBModelReloadListener.ID, GBModelReloadListener.INSTANCE);
-//		resourceLoader.addReloaderOrdering(ResourceReloaderKeys.Client.MODELS, GBModelReloadListener.ID);
+		ResourceLoader resourceLoader = ResourceLoader.get(ResourceType.CLIENT_RESOURCES);
+		resourceLoader.registerReloader(GBModelReloadListener.ID, GBModelReloadListener.INSTANCE);
+		resourceLoader.addReloaderOrdering(ResourceReloaderKeys.Client.MODELS, GBModelReloadListener.ID);
 
 		BlockEntityRendererFactories.register(GBBlockEntities.BACKPACK, BackpackBlockEntityRenderer::new);
 

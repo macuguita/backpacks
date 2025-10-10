@@ -22,11 +22,10 @@
 
 package com.macuguita.backpacks.client.render;
 
-import com.macuguita.backpacks.client.model.GBModelLoadingPlugin;
+import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.state.BackpackRenderState;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
 
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.TexturedRenderLayers;
@@ -72,20 +71,16 @@ public class BackpackFeatureRenderer<S extends BipedEntityRenderState, M extends
 		if (Boolean.FALSE.equals(backpack.get(GBComponents.VISIBLE.get())))
 			return;
 
-		BlockStateModel model = GBModelLoadingPlugin.getBlockstateModel(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
+		BlockStateModel model = GBModelReloadListener.INSTANCE.getModel(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
+
+		if (model == null)
+			return;
 
 		matrices.push();
 
 		var playerModel = this.getContextModel();
-
 		// Align with body
-		matrices.translate(
-				playerModel.body.originX / 16.0F,
-				playerModel.body.originY / 16.0F,
-				playerModel.body.originZ / 16.0F
-		);
-		matrices.multiply(new Quaternionf()
-				.rotationZYX(playerModel.body.roll, playerModel.body.yaw, playerModel.body.pitch));
+		playerModel.body.applyTransform(matrices);
 
 		// Fix model placement
 		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0F));

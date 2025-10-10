@@ -28,38 +28,32 @@ import java.util.Map;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BlockStateModel;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
+public class GBModelReloadListener implements SynchronousResourceReloader {
+	public static final GBModelReloadListener INSTANCE = new GBModelReloadListener();
+	public static final Identifier ID = Identifier.of("backpacks", "model_reload_listener");
 
-@Environment(EnvType.CLIENT)
-public class GBModelLoadingPlugin implements ModelLoadingPlugin {
-
-	private static final Map<Identifier, ExtraModelKey<BlockStateModel>> blockStateModels = new HashMap<>();
+	private final Map<Identifier, BlockStateModel> loadedModels = new HashMap<>();
 
 	@Override
-	public void initialize(Context context) {
-		ResourceManager resourceManager = MinecraftClient.getInstance().getResourceManager();
+	public void reload(ResourceManager manager) {
+		loadedModels.clear();
 
-		var resources = resourceManager.findResources("models/backpacks", path -> path.getPath().endsWith(".json"));
+		var client = MinecraftClient.getInstance();
 
-		resources.forEach((key, resource) -> {
-			String relPath = key.getPath()
-					.substring("models/".length(), key.getPath().length() - ".json".length());
-			Identifier id = Identifier.of(key.getNamespace(), relPath);
-
-			ExtraModelKey<BlockStateModel> modelKey = ExtraModelKey.create(id::toString);
-
-			context.addModel(modelKey, SimpleUnbakedExtraModel.blockStateModel(id));
-			blockStateModels.put(id, modelKey);
-		});
+		for (var entry : GBModelLoadingPlugin.getBlockStateModels().entrySet()) {
+			Identifier id = entry.getKey();
+			var key = entry.getValue();
+			BlockStateModel model = client.getBakedModelManager().getModel(key);
+			if (model != null) {
+				loadedModels.put(id, model);
+			}
+		}
 	}
 
-	public static Map<Identifier, ExtraModelKey<BlockStateModel>> getBlockStateModels() {
-		return blockStateModels;
+	public BlockStateModel getModel(Identifier id) {
+		return loadedModels.get(id);
 	}
 }
