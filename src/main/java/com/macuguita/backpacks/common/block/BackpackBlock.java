@@ -22,6 +22,7 @@
 
 package com.macuguita.backpacks.common.block;
 
+import java.util.Map;
 import java.util.UUID;
 
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
@@ -187,44 +188,11 @@ public class BackpackBlock extends BlockWithEntity implements BlockEntityProvide
 							.orElse(new Box(0, 0, 0, 1, 1, 1))
 			);
 
-			return switch (world.getBlockState(pos).get(FACING)) {
-				case NORTH -> rotateVoxelShape(shape, Direction.Axis.Y, 0);
-				case SOUTH -> rotateVoxelShape(shape, Direction.Axis.Y, 180);
-				case WEST -> rotateVoxelShape(shape, Direction.Axis.Y, 270);
-				case EAST -> rotateVoxelShape(shape, Direction.Axis.Y, 90);
-				default -> VoxelShapes.fullCube();
-			};
+			Map<Direction, VoxelShape> shapes = VoxelShapes.createHorizontalFacingShapeMap(shape);
+
+			return shapes.get(world.getBlockState(pos).get(FACING));
 		}
 		return VoxelShapes.fullCube();
-	}
-
-	public static VoxelShape rotateVoxelShape(VoxelShape shape, Direction.Axis axis, int degrees) {
-		int times = ((degrees % 360) + 360) % 360 / 90;
-		if (times == 0 || shape.isEmpty()) return shape;
-
-		VoxelShape result = shape;
-		for (int i = 0; i < times; ++i) {
-			VoxelShape rotated = VoxelShapes.empty();
-			for (Box box : result.getBoundingBoxes()) {
-				Box rotatedBox = switch (axis) {
-					case Y -> new Box(
-							1 - box.maxZ, box.minY, box.minX,
-							1 - box.minZ, box.maxY, box.maxX
-					);
-					case X -> new Box(
-							box.minX, 1 - box.maxZ, box.minY,
-							box.maxX, 1 - box.minZ, box.maxY
-					);
-					case Z -> new Box(
-							box.minY, box.minX, box.minZ,
-							box.maxY, box.maxX, box.maxZ
-					);
-				};
-				rotated = VoxelShapes.union(rotated, VoxelShapes.cuboid(rotatedBox));
-			}
-			result = rotated;
-		}
-		return result;
 	}
 
 	@Override
