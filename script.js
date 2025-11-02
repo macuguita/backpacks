@@ -1,0 +1,1 @@
+console.log("Welcome to the guita's backpack wiki!")
