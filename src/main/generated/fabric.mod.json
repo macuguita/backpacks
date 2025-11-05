@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "gbackpacks",
-  "version": "1.21.10-beta+5",
+  "version": "1.21.10-beta+5a",
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [

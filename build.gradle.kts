@@ -198,8 +198,6 @@ tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
     }
 }
 
-tasks.processResources {}
-
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(21)
 }
@@ -212,6 +210,14 @@ java {
 
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
+}
+
+tasks.processResources {
+    dependsOn(tasks.named("genModJson"))
+}
+
+tasks.named("sourcesJar") {
+    dependsOn(tasks.named("genModJson"))
 }
 
 tasks.jar {
