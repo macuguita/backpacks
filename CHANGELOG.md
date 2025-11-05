@@ -1,4 +1,1 @@
-- Migrated to Mojang's mappings
-- Updated FMJ
-- Added missing tag translations
-- Fixed bug where you cannot change the model of a handheld backpack while you have one equipped
+- Migrating to mojmap it renamed some fields and made the equipment screen appear missing textures

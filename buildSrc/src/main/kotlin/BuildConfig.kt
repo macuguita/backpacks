@@ -5,7 +5,7 @@ object BuildConfig {
     val parchmentMappings: String = "2025.10.12"
     val loaderVersion: String = "0.17.2"
 
-    val modVersion: String = "$minecraftVersion-beta+5"
+    val modVersion: String = "$minecraftVersion-beta+5a"
     val mavenGroup: String = "com.macuguita.backpacks"
     val modId: String = "gbackpacks"
     val modName: String = "guita's Backpacks"

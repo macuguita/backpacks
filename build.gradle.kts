@@ -109,8 +109,9 @@ dependencies {
             exclude("net.fabricmc.fabric-api")
             exclude("org.ladysnake.cardinal-components-api")
         }
+        add("prodMods", "maven.modrinth:trinkets-canary:${BuildConfig.trinketsVersion}")
     } else {
-        modCompileOnly("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
+        modCompileOnly("maven.modrinth:trinkets-canary:${BuildConfig.trinketsVersion}") {
             exclude("net.fabricmc.fabric-api")
             exclude("org.ladysnake.cardinal-components-api")
         }
@@ -139,7 +140,6 @@ dependencies {
     add("prodMods", "net.fabricmc.fabric-api:fabric-api:${BuildConfig.fabricVersion}")
     add("prodMods", "maven.modrinth:macu-lib:${BuildConfig.maculibVersion}-fabric")
     add("prodMods", "com.terraformersmc:modmenu:${BuildConfig.modMenuVersion}")
-    add("prodMods", "maven.modrinth:trinkets-canary:${BuildConfig.trinketsVersion}")
 }
 
 tasks.register<net.fabricmc.loom.task.prod.ClientProductionRunTask>("prodClient") {
