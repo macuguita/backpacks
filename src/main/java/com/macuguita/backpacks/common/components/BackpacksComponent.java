@@ -44,7 +44,7 @@ public class BackpacksComponent implements Component {
 
 	private final Map<UUID, SimpleContainer> backpacks = new HashMap<>();
 
-	public BackpacksComponent(Scoreboard provider, @Nullable MinecraftServer server) {
+	public BackpacksComponent(Scoreboard ignoredProvider, @Nullable MinecraftServer ignoredServer) {
 	}
 
 	public void removeBackpack(UUID uuid) {

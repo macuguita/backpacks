@@ -45,14 +45,10 @@ import net.minecraft.world.phys.Vec3;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-@SuppressWarnings("ClassCanBeRecord")
 @Environment(EnvType.CLIENT)
 public class BackpackBlockEntityRenderer implements BlockEntityRenderer<BackpackBlockEntity, BackpackBlockEntityRenderState> {
 
-	private final BlockEntityRendererProvider.Context context;
-
 	public BackpackBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-		this.context = context;
 	}
 
 	@Override

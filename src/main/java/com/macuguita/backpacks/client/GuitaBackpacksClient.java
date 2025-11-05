@@ -81,7 +81,7 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 		BlockEntityRenderers.register(GBBlockEntities.BACKPACK, BackpackBlockEntityRenderer::new);
 
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
-			if (entityRenderer instanceof AvatarRenderer playerRenderer) {
+			if (entityRenderer instanceof AvatarRenderer<?> playerRenderer) {
 				registrationHelper.register(new BackpackFeatureRenderer<>(playerRenderer));
 			}
 		});
