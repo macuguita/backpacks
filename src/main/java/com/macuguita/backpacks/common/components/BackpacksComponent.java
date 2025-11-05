@@ -28,20 +28,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.macuguita.backpacks.GBConfig;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.Component;
 
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Uuids;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.scores.Scoreboard;
 
 public class BackpacksComponent implements Component {
 
-	private final Map<UUID, SimpleInventory> backpacks = new HashMap<>();
+	private final Map<UUID, SimpleContainer> backpacks = new HashMap<>();
 
 	public BackpacksComponent(Scoreboard provider, @Nullable MinecraftServer server) {
 	}
@@ -58,25 +59,25 @@ public class BackpacksComponent implements Component {
 
 	public void addInventory(UUID uuid, int size) {
 		if (uuid == null) return;
-		backpacks.put(uuid, new SimpleInventory(size));
+		backpacks.put(uuid, new SimpleContainer(size));
 	}
 
-	public SimpleInventory getInventory(UUID uuid) {
+	public SimpleContainer getInventory(UUID uuid) {
 		if (uuid == null) return null;
 		return backpacks.get(uuid);
 	}
 
 	public boolean growBackpack(UUID uuid, int newSize) {
 		if (uuid == null) return false;
-		SimpleInventory oldInventory = backpacks.get(uuid);
+		SimpleContainer oldInventory = backpacks.get(uuid);
 
 		if (oldInventory != null) {
-			int oldSize = oldInventory.size();
+			int oldSize = oldInventory.getContainerSize();
 			if (newSize <= oldSize) return false;
 
-			SimpleInventory newInventory = new SimpleInventory(newSize);
+			SimpleContainer newInventory = new SimpleContainer(newSize);
 			for (int i = 0; i < oldSize; i++) {
-				newInventory.setStack(i, oldInventory.getStack(i));
+				newInventory.setItem(i, oldInventory.getItem(i));
 			}
 
 			backpacks.put(uuid, newInventory);
@@ -87,34 +88,34 @@ public class BackpacksComponent implements Component {
 	}
 
 	@Override
-	public void readData(ReadView readView) {
+	public void readData(@NotNull ValueInput readView) {
 		backpacks.clear();
-		ReadView.ListReadView backpacksList = readView.getListReadView("Backpacks");
+		ValueInput.ValueInputList backpacksList = readView.childrenListOrEmpty("Backpacks");
 
-		for (ReadView backpackReadView : backpacksList) {
-			Optional<UUID> uuid = backpackReadView.read("UUID", Uuids.CODEC);
-			int size = backpackReadView.getInt("Size", 0);
+		for (ValueInput backpackReadView : backpacksList) {
+			Optional<UUID> uuid = backpackReadView.read("UUID", UUIDUtil.AUTHLIB_CODEC);
+			int size = backpackReadView.getIntOr("Size", 0);
 
-			SimpleInventory inventory = new SimpleInventory(size);
-			Inventories.readData(backpackReadView, inventory.heldStacks);
+			SimpleContainer inventory = new SimpleContainer(size);
+			ContainerHelper.loadAllItems(backpackReadView, inventory.items);
 			backpacks.put(uuid.orElse(null), inventory);
 		}
 	}
 
 	@Override
-	public void writeData(WriteView writeView) {
-		WriteView.ListView backpacksList = writeView.getList("Backpacks");
+	public void writeData(@NotNull ValueOutput writeView) {
+		ValueOutput.ValueOutputList backpacksList = writeView.childrenList("Backpacks");
 
-		for (Map.Entry<UUID, SimpleInventory> entry : backpacks.entrySet()) {
+		for (Map.Entry<UUID, SimpleContainer> entry : backpacks.entrySet()) {
 			UUID uuid = entry.getKey();
-			SimpleInventory inventory = entry.getValue();
+			SimpleContainer inventory = entry.getValue();
 
-			WriteView backpackView = backpacksList.add();
+			ValueOutput backpackView = backpacksList.addChild();
 
-			backpackView.put("UUID", Uuids.CODEC, uuid);
-			backpackView.putInt("Size", inventory.size());
+			backpackView.store("UUID", UUIDUtil.AUTHLIB_CODEC, uuid);
+			backpackView.putInt("Size", inventory.getContainerSize());
 
-			Inventories.writeData(backpackView, inventory.heldStacks);
+			ContainerHelper.saveAllItems(backpackView, inventory.items);
 		}
 	}
 }

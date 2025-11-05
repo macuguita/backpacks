@@ -30,23 +30,23 @@ import com.macuguita.lib.platform.registry.GuitaRegistry;
 import com.macuguita.lib.platform.registry.GuitaRegistryEntry;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.component.ComponentType;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Uuids;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 
 public class GBComponents {
 
-	static final GuitaRegistry<ComponentType<?>> COMPONENTS = GuitaRegistries.create(Registries.DATA_COMPONENT_TYPE, GuitaBackpacks.MOD_ID);
+	static final GuitaRegistry<DataComponentType<?>> COMPONENTS = GuitaRegistries.create(BuiltInRegistries.DATA_COMPONENT_TYPE, GuitaBackpacks.MOD_ID);
 
-	public static final GuitaRegistryEntry<ComponentType<UUID>> BACKPACK_UUID = COMPONENTS.register("backpack_uuid",
-			() -> ComponentType.<UUID>builder().codec(Uuids.CODEC).build());
+	public static final GuitaRegistryEntry<DataComponentType<UUID>> BACKPACK_UUID = COMPONENTS.register("backpack_uuid",
+			() -> DataComponentType.<UUID>builder().persistent(UUIDUtil.AUTHLIB_CODEC).build());
 
-	public static final GuitaRegistryEntry<ComponentType<Boolean>> VISIBLE = COMPONENTS.register("visible",
-			() -> ComponentType.<Boolean>builder().codec(Codec.BOOL).build());
+	public static final GuitaRegistryEntry<DataComponentType<Boolean>> VISIBLE = COMPONENTS.register("visible",
+			() -> DataComponentType.<Boolean>builder().persistent(Codec.BOOL).build());
 
-	public static final GuitaRegistryEntry<ComponentType<Identifier>> BACKPACK_MODEL_ID = COMPONENTS.register("backpack_model",
-			() -> ComponentType.<Identifier>builder().codec(Identifier.CODEC).build());
+	public static final GuitaRegistryEntry<DataComponentType<ResourceLocation>> BACKPACK_MODEL_ID = COMPONENTS.register("backpack_model",
+			() -> DataComponentType.<ResourceLocation>builder().persistent(ResourceLocation.CODEC).build());
 
 	public static void init() {
 		COMPONENTS.init();

@@ -33,53 +33,54 @@ import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.inventory.StackReference;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsage;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ClickType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 
 public class BackpackItem extends BlockItem {
 
-	public BackpackItem(Block block, Settings settings) {
+	public BackpackItem(Block block, Properties settings) {
 		super(block, settings);
 	}
 
-	private static void toggleVisibility(ItemStack stack) {
+	private static void toggleVisibility(@NotNull ItemStack stack) {
 		Boolean visible = stack.get(GBComponents.VISIBLE.get());
 		boolean newValue = visible == null || !visible;
 		stack.set(GBComponents.VISIBLE.get(), newValue);
 	}
 
-	public static void openOrCreateBackpackIfNotExists(PlayerEntity player, int slotIndex) {
+	public static void openOrCreateBackpackIfNotExists(Player player, int slotIndex) {
 		ItemStack backpack = EquipmentUtils.getBackpackFromSlotIndex(player, slotIndex);
 
 		if (backpack.isEmpty()) {
@@ -87,15 +88,15 @@ public class BackpackItem extends BlockItem {
 		}
 
 		UUID uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
-		if (uuid == null && player.getEntityWorld() instanceof ServerWorld) {
-			if (!backpack.contains(GBComponents.BACKPACK_UUID.get())) {
+		if (uuid == null && player.level() instanceof ServerLevel) {
+			if (!backpack.has(GBComponents.BACKPACK_UUID.get())) {
 				backpack.set(GBComponents.BACKPACK_UUID.get(), UUID.randomUUID());
 			}
 			uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
 		}
 
-		BackpacksComponent backpacksComponent = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(player.getEntityWorld().getScoreboard());
-		SimpleInventory inventory = backpacksComponent.getInventory(uuid);
+		BackpacksComponent backpacksComponent = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(player.level().getScoreboard());
+		SimpleContainer inventory = backpacksComponent.getInventory(uuid);
 		if (inventory == null) {
 			backpacksComponent.addInventory(uuid);
 			inventory = backpacksComponent.getInventory(uuid);
@@ -104,112 +105,113 @@ public class BackpackItem extends BlockItem {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static void openBackpack(PlayerEntity player, SimpleInventory inventory, int slotIndex) {
+	public static void openBackpack(@NotNull Player player, SimpleContainer inventory, int slotIndex) {
 		var factory = new ExtendedScreenHandlerFactory() {
 
 			@Override
-			public @NotNull ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-				ItemStack backpack = EquipmentUtils.getBackpackFromSlotIndex(player, slotIndex);
-				return new BackpackScreenHandler(syncId, playerInventory, inventory, backpack);
+			public @NotNull AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+				return new BackpackScreenHandler(syncId, playerInventory, inventory, slotIndex);
 			}
 
+			@Contract(value = " -> new", pure = true)
 			@Override
-			public Text getDisplayName() {
-				return Text.translatable("gui.gbackpacks.backpack");
+			public @NotNull Component getDisplayName() {
+				return Component.translatable("gui.gbackpacks.backpack");
 			}
 
+			@Contract("_ -> new")
 			@Override
-			public Object getScreenOpeningData(ServerPlayerEntity player) {
-				return new BackpackInventoryPayload(inventory.size(), slotIndex);
+			public @NotNull Object getScreenOpeningData(ServerPlayer player) {
+				return new BackpackInventoryPayload(inventory.getContainerSize(), slotIndex);
 			}
 		};
 
-		player.openHandledScreen(factory);
+		player.openMenu(factory);
 	}
 
 	@Override
-	public void inventoryTick(ItemStack stack, ServerWorld world, Entity entity, @Nullable EquipmentSlot slot) {
-		super.inventoryTick(stack, world, entity, slot);
-		if (world instanceof ServerWorld) {
-			if (!stack.isEmpty() && !stack.contains(GBComponents.BACKPACK_UUID.get())) {
+	public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
+		super.inventoryTick(stack, level, entity, slot);
+		if (level instanceof ServerLevel) {
+			if (!stack.isEmpty() && !stack.has(GBComponents.BACKPACK_UUID.get())) {
 				stack.set(GBComponents.BACKPACK_UUID.get(), UUID.randomUUID());
 			}
-			if (entity instanceof PlayerEntity player)
+			if (entity instanceof Player player)
 				BackpackUtils.checkForDuplicateBackpacks(player, stack.get(GBComponents.BACKPACK_UUID.get()), stack);
 		}
 	}
 
 	@Override
-	public ActionResult use(World world, PlayerEntity user, Hand hand) {
-		ItemStack stack = user.getStackInHand(hand);
-		if (stack.contains(GBComponents.BACKPACK_UUID.get())) {
-			if (world instanceof ServerWorld) {
+	public @NotNull InteractionResult use(Level level, @NotNull Player user, InteractionHand hand) {
+		ItemStack stack = user.getItemInHand(hand);
+		if (stack.has(GBComponents.BACKPACK_UUID.get())) {
+			if (level instanceof ServerLevel) {
 				// Find the slot index of the backpack
-				int slotIndex = user.getInventory().getSlotWithStack(stack);
+				int slotIndex = user.getInventory().findSlotMatchingItem(stack);
 				if (slotIndex != -1) {
 					openOrCreateBackpackIfNotExists(user, slotIndex);
 				}
-			} else if (world instanceof ClientWorld clientWorld) {
-				Vec3d pos = user.getEntityPos();
-				clientWorld.playSoundClient(
+			} else if (level instanceof ClientLevel clientLevel) {
+				Vec3 pos = user.position();
+				clientLevel.playLocalSound(
 						pos.x, pos.y, pos.z,
-						SoundEvents.ITEM_BUNDLE_INSERT,
-						SoundCategory.PLAYERS,
+						SoundEvents.BUNDLE_INSERT,
+						SoundSource.PLAYERS,
 						1.0f, 1.0f,
 						false
 				);
 			}
 		} else {
-			return ActionResult.FAIL;
+			return InteractionResult.FAIL;
 		}
-		return super.use(world, user, hand);
+		return super.use(level, user, hand);
 	}
 
 	@Override
-	protected boolean postPlacement(BlockPos pos, World world, @Nullable PlayerEntity player, ItemStack stack, BlockState state) {
-		BlockEntity be = world.getBlockEntity(pos);
+	protected boolean updateCustomBlockEntityTag(BlockPos pos, @NotNull Level level, @Nullable Player player, ItemStack stack, BlockState state) {
+		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack) {
-			if (stack.contains(GBComponents.BACKPACK_UUID.get())) {
+			if (stack.has(GBComponents.BACKPACK_UUID.get())) {
 				backpack.setUuid(stack.get(GBComponents.BACKPACK_UUID.get()));
 			}
-			if (stack.contains(GBComponents.BACKPACK_MODEL_ID.get())) {
-				Identifier modelId = stack.get(GBComponents.BACKPACK_MODEL_ID.get());
-				if (modelId == null) return super.postPlacement(pos, world, player, stack, state);
+			if (stack.has(GBComponents.BACKPACK_MODEL_ID.get())) {
+				ResourceLocation modelId = stack.get(GBComponents.BACKPACK_MODEL_ID.get());
+				if (modelId == null) return super.updateCustomBlockEntityTag(pos, level, player, stack, state);
 				backpack.setItemModelId(modelId);
 
 				String namespace = modelId.getNamespace();
 				String path = modelId.getPath();
 				path = path.replaceFirst("^backpacks/", "backpacks/blocks/");
 
-				Identifier newModelId = Identifier.of(namespace, path);
+				ResourceLocation newModelId = ResourceLocation.fromNamespaceAndPath(namespace, path);
 
 				backpack.setBlockModelId(newModelId);
 			}
 		}
-		return super.postPlacement(pos, world, player, stack, state);
+		return super.updateCustomBlockEntityTag(pos, level, player, stack, state);
 	}
 
 	@Override
-	public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
-		if (clickType == ClickType.RIGHT && otherStack.isEmpty()) {
+	public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction clickType, Player player, SlotAccess cursorStackReference) {
+		if (clickType == ClickAction.SECONDARY && otherStack.isEmpty()) {
 			toggleVisibility(stack);
 			return true;
 		}
-		return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
+		return super.overrideOtherStackedOnMe(stack, otherStack, slot, clickType, player, cursorStackReference);
 	}
 
 	@Override
-	public void onItemEntityDestroyed(ItemEntity entity) {
-		super.onItemEntityDestroyed(entity);
-		ItemStack stack = entity.getStack();
-		if (stack.contains(GBComponents.BACKPACK_UUID.get())) {
+	public void onDestroyed(ItemEntity entity) {
+		super.onDestroyed(entity);
+		ItemStack stack = entity.getItem();
+		if (stack.has(GBComponents.BACKPACK_UUID.get())) {
 			UUID uuid = stack.get(GBComponents.BACKPACK_UUID.get());
 			if (Boolean.TRUE.equals(GBConfig.getBackpackDropItemsOnDestroyed())) {
-				SimpleInventory inv = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.getEntityWorld().getScoreboard()).getInventory(uuid);
-				ItemUsage.spawnItemContents(entity, inv.heldStacks);
+				SimpleContainer inv = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.level().getScoreboard()).getInventory(uuid);
+				ItemUtils.onContainerDestroyed(entity, inv.items);
 			}
 			if (Boolean.TRUE.equals(GBConfig.getBackpackEntriesGetRemoved())) {
-				GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.getEntityWorld().getScoreboard()).removeBackpack(uuid);
+				GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.level().getScoreboard()).removeBackpack(uuid);
 			}
 		}
 	}

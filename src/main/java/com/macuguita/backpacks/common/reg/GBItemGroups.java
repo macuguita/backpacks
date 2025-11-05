@@ -27,21 +27,21 @@ import com.macuguita.lib.platform.registry.GuitaRegistries;
 import com.macuguita.lib.platform.registry.GuitaRegistry;
 import com.macuguita.lib.platform.registry.GuitaRegistryEntry;
 
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.text.Text;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 
 public class GBItemGroups {
 
-	static final GuitaRegistry<ItemGroup> ITEM_GROUPS = GuitaRegistries.create(Registries.ITEM_GROUP, GuitaBackpacks.MOD_ID);
+	static final GuitaRegistry<CreativeModeTab> ITEM_GROUPS = GuitaRegistries.create(BuiltInRegistries.CREATIVE_MODE_TAB, GuitaBackpacks.MOD_ID);
 
-	public static final GuitaRegistryEntry<ItemGroup> GW_TAB = ITEM_GROUPS.register("gbackpacks", () ->
-			ItemGroup.create(ItemGroup.Row.TOP, 0)
-					.displayName(Text.translatable("itemGroup." + GuitaBackpacks.MOD_ID + ".gbackpacks"))
+	public static final GuitaRegistryEntry<CreativeModeTab> GW_TAB = ITEM_GROUPS.register("gbackpacks", () ->
+			CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)
+					.title(Component.translatable("itemGroup." + GuitaBackpacks.MOD_ID + ".gbackpacks"))
 					.icon(() -> new ItemStack(GBObjects.BACKPACK.get().asItem()))
-					.entries((itemDisplayParameters, output) ->
-							GBObjects.ITEMS.stream().map(item -> item.get().getDefaultStack()).forEach(output::add)
+					.displayItems((itemDisplayParameters, output) ->
+							GBObjects.ITEMS.stream().map(item -> item.get().getDefaultInstance()).forEach(output::accept)
 					).build());
 
 	public static void init() {

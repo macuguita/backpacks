@@ -24,53 +24,56 @@ package com.macuguita.backpacks.client.gui.widgets;
 
 import com.macuguita.backpacks.client.gui.BackpackCustomizationScreen;
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
-public class CustomizationWidget extends ClickableWidget {
+public class CustomizationWidget extends AbstractWidget {
 
-	public static final Identifier WIDGET_ICON = GuitaBackpacks.id("textures/gui/widget/customize.png");
+	public static final ResourceLocation WIDGET_ICON = GuitaBackpacks.id("textures/gui/widget/customize.png");
+	private final int slotIndex;
 	private final ItemStack backpack;
 	public final Screen parent;
 
-	public CustomizationWidget(int x, int y, int width, int height, Text message, Screen parent, ItemStack backpack) {
+	public CustomizationWidget(int x, int y, int width, int height, Component message, Screen parent, int slotIndex) {
 		super(x, y, width, height, message);
 		this.parent = parent;
-		this.backpack = backpack;
+		this.slotIndex = slotIndex;
+		this.backpack = EquipmentUtils.getBackpackFromSlotIndex(Minecraft.getInstance().player, slotIndex);
 	}
 
 	@Override
-	protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+	protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		if (backpack.isEmpty()) return;
-		context.drawTexture(RenderPipelines.GUI_TEXTURED, WIDGET_ICON, getX(), getY(), 0, 0,
+		context.blit(RenderPipelines.GUI_TEXTURED, WIDGET_ICON, getX(), getY(), 0, 0,
 				this.width, this.height, 10, 10);
 	}
 
 	@Override
-	protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+	protected void updateWidgetNarration(NarrationElementOutput builder) {
 		if (backpack.isEmpty()) return;
-		builder.put(NarrationPart.TITLE, Text.translatable("narration.gbackpacks.customization_widget"));
+		builder.add(NarratedElementType.TITLE, Component.translatable("narration.gbackpacks.customization_widget"));
 	}
 
 	@Override
-	public void onClick(Click click, boolean doubled) {
+	public void onClick(MouseButtonEvent click, boolean doubled) {
 		if (backpack.isEmpty()) return;
 		super.onClick(click, doubled);
-		MinecraftClient client = MinecraftClient.getInstance();
-		client.setScreen(new BackpackCustomizationScreen(Text.translatable("gui.gbackpacks.customization"), parent, backpack));
+		Minecraft client = Minecraft.getInstance();
+		client.setScreen(new BackpackCustomizationScreen(Component.translatable("gui.gbackpacks.customization"), parent, slotIndex));
 	}
 }

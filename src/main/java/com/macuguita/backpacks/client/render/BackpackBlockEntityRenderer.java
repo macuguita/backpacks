@@ -25,21 +25,22 @@ package com.macuguita.backpacks.client.render;
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.state.BackpackBlockEntityRenderState;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.LecternBlock;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.TexturedRenderLayers;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.render.command.ModelCommandRenderer;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.model.BlockStateModel;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.LecternBlock;
+import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -48,58 +49,58 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class BackpackBlockEntityRenderer implements BlockEntityRenderer<BackpackBlockEntity, BackpackBlockEntityRenderState> {
 
-	private final BlockEntityRendererFactory.Context context;
+	private final BlockEntityRendererProvider.Context context;
 
-	public BackpackBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
+	public BackpackBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
 		this.context = context;
 	}
 
 	@Override
-	public void updateRenderState(BackpackBlockEntity blockEntity, BackpackBlockEntityRenderState state, float tickProgress, Vec3d cameraPos, @Nullable ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
-		BlockEntityRenderer.super.updateRenderState(blockEntity, state, tickProgress, cameraPos, crumblingOverlay);
-		state.modelId = blockEntity.getBlockModelId();
-		state.direction = blockEntity.getCachedState().get(LecternBlock.FACING);
+	public void extractRenderState(BackpackBlockEntity blockEntity, BackpackBlockEntityRenderState renderState, float partialTick, Vec3 cameraPosition, @Nullable ModelFeatureRenderer.CrumblingOverlay breakProgress) {
+		BlockEntityRenderer.super.extractRenderState(blockEntity, renderState, partialTick, cameraPosition, breakProgress);
+		renderState.modelId = blockEntity.getBlockModelId();
+		renderState.direction = blockEntity.getBlockState().getValue(LecternBlock.FACING);
 	}
 
 	@Override
-	public BackpackBlockEntityRenderState createRenderState() {
+	public @NotNull BackpackBlockEntityRenderState createRenderState() {
 		return new BackpackBlockEntityRenderState();
 	}
 
 	@Override
-	public void render(BackpackBlockEntityRenderState state, MatrixStack matrices, OrderedRenderCommandQueue queue, CameraRenderState cameraState) {
-		BlockStateModel model = GBModelReloadListener.INSTANCE.getModel(state.modelId);
-		Direction direction = state.direction;
+	public void submit(@NotNull BackpackBlockEntityRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState) {
+		BlockStateModel model = GBModelReloadListener.INSTANCE.getModel(renderState.modelId);
+		Direction direction = renderState.direction;
 
 		if (model == null)
 			return;
 
-		matrices.push();
+		poseStack.pushPose();
 
-		matrices.translate(0.5, 0.5, 0.5);
+		poseStack.translate(0.5, 0.5, 0.5);
 
 		// Rotate according to block direction
 		float rotation = switch (direction) {
 			case NORTH -> 0f;
 			case SOUTH -> 180f;
-			case WEST  -> 90f;
-			case EAST  -> -90f;
-			default    -> 0f;
+			case WEST -> 90f;
+			case EAST -> -90f;
+			default -> 0f;
 		};
 
-		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotation));
+		poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
 
-		matrices.translate(-0.5, -0.5, -0.5);
+		poseStack.translate(-0.5, -0.5, -0.5);
 
-		queue.getBatchingQueue(0).submitBlockStateModel(
-				matrices,
-				TexturedRenderLayers.getEntityCutout(),
+		nodeCollector.order(0).submitBlockModel(
+				poseStack,
+				Sheets.cutoutBlockSheet(),
 				model,
 				1, 1, 1,
-				state.lightmapCoordinates,
-				OverlayTexture.DEFAULT_UV,
+				renderState.lightCoords,
+				OverlayTexture.NO_OVERLAY,
 				0
 		);
-		matrices.pop();
+		poseStack.popPose();
 	}
 }

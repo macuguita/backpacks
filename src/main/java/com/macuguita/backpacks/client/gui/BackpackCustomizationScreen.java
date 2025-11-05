@@ -29,17 +29,20 @@ import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3x2f;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.ScreenRect;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -47,7 +50,7 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class BackpackCustomizationScreen extends Screen {
 
-	public static final Identifier BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
+	public static final ResourceLocation BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
 
 	private static final int BACKGROUND_WIDTH = 176;
 	private static final int BACKGROUND_HEIGHT = 166;
@@ -59,21 +62,23 @@ public class BackpackCustomizationScreen extends Screen {
 	private static final int ITEM_HEIGHT = 24;
 
 	final ItemStack backpack;
-	private final Identifier currentModelId;
+	final int slotIndex;
+	private final ResourceLocation currentModelId;
 	public final Screen parent;
-	private Identifier selectedModelId;
+	private ResourceLocation selectedModelId;
 	private int scrollOffset = 0;
 	private ScrollBarWidget scrollBar;
 
-	public BackpackCustomizationScreen(Text title, Screen parent, ItemStack backpack) {
+	public BackpackCustomizationScreen(Component title, Screen parent, int slotIndex) {
 		super(title);
 		this.parent = parent;
-		this.backpack = backpack;
+		this.backpack = EquipmentUtils.getBackpackFromSlotIndex(Minecraft.getInstance().player, slotIndex);
+		this.slotIndex = slotIndex;
 		this.currentModelId = backpack.get(GBComponents.BACKPACK_MODEL_ID.get());
 		this.selectedModelId = this.currentModelId;
 	}
 
-	public static void drawModelInGui(DrawContext context, Identifier modelId, int x, int y, float scale) {
+	public static void drawModelInGui(@NotNull GuiGraphics context, ResourceLocation modelId, int x, int y, float scale) {
 		int size = 27;
 
 		float centerX = x + size / 2f;
@@ -84,7 +89,7 @@ public class BackpackCustomizationScreen extends Screen {
 				.scale(scale)
 				.translate(-centerX, -centerY);
 
-		ScreenRect rect = new ScreenRect(x, y, size, size).transformEachVertex(pose);
+		ScreenRectangle rect = new ScreenRectangle(x, y, size, size).transformMaxBounds(pose);
 
 		BlockStateGuiElementRenderState renderState = new BlockStateGuiElementRenderState(
 				pose,
@@ -94,7 +99,7 @@ public class BackpackCustomizationScreen extends Screen {
 				rect
 		);
 
-		context.state.addSpecialElement(renderState);
+		context.guiRenderState.submitPicturesInPictureState(renderState);
 	}
 
 	@Override
@@ -106,7 +111,7 @@ public class BackpackCustomizationScreen extends Screen {
 
 		int scrollBarX = i + BACKGROUND_WIDTH - ScrollBarWidget.BACKGROUND_WIDTH - 10;
 		int scrollBarY = j + 10;
-		this.scrollBar = this.addDrawableChild(
+		this.scrollBar = this.addRenderableWidget(
 				new ScrollBarWidget(scrollBarX, scrollBarY, BACKGROUND_HEIGHT - 45, new ScrollBarWidget.ScrollCallback() {
 					@Override
 					public void onScroll(int delta) {
@@ -136,25 +141,25 @@ public class BackpackCustomizationScreen extends Screen {
 				})
 		);
 
-		this.addDrawableChild(
-				ButtonWidget.builder(Text.translatable("gui.done"), button -> {
+		this.addRenderableWidget(
+				Button.builder(Component.translatable("gui.done"), button -> {
 							if (!this.selectedModelId.equals(this.currentModelId)) {
-								BackpackCosmeticSyncPayload.send(backpack, this.selectedModelId);
+								BackpackCosmeticSyncPayload.send(this.slotIndex, this.selectedModelId);
 							}
-							this.close();
+							this.onClose();
 						})
-						.dimensions(i + 10, j + BACKGROUND_HEIGHT - 30, BACKGROUND_WIDTH - 20, 20)
+						.bounds(i + 10, j + BACKGROUND_HEIGHT - 30, BACKGROUND_WIDTH - 20, 20)
 						.build()
 		);
 	}
 
 	@Override
-	public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+	public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		super.renderBackground(context, mouseX, mouseY, delta);
 		int i = (this.width - BACKGROUND_WIDTH) / 2;
 		int j = (this.height - BACKGROUND_HEIGHT) / 2;
 
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i, j, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i, j, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
 
 		int listBgX = i + 10;
 		int listBgY = j + 10;
@@ -199,7 +204,7 @@ public class BackpackCustomizationScreen extends Screen {
 					isHovered ? HOVERED_ITEM_TEXT_COLOR :
 							DEFAULT_ITEM_TEXT_COLOR;
 
-			context.drawText(this.textRenderer, Text.translatable(backpackItem.translationKey()),
+			context.drawString(this.font, Component.translatable(backpackItem.translationKey()),
 					startX + 28, y + 8, textColor, isSelected);
 		}
 
@@ -219,7 +224,7 @@ public class BackpackCustomizationScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseClicked(Click click, boolean doubled) {
+	public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
 		int i = (this.width - BACKGROUND_WIDTH) / 2;
 		int j = (this.height - BACKGROUND_HEIGHT) / 2;
 
@@ -245,13 +250,13 @@ public class BackpackCustomizationScreen extends Screen {
 	}
 
 	@Override
-	public boolean shouldPause() {
+	public boolean isPauseScreen() {
 		return false;
 	}
 
 	@Override
-	public void close() {
-		if (this.client == null) return;
-		this.client.setScreen(this.parent);
+	public void onClose() {
+		if (this.minecraft == null) return;
+		this.minecraft.setScreen(this.parent);
 	}
 }

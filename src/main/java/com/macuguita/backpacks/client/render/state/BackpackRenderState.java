@@ -24,11 +24,11 @@ package com.macuguita.backpacks.client.render.state;
 
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
-import net.minecraft.client.render.entity.state.LivingEntityRenderState;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -44,9 +44,9 @@ public class BackpackRenderState {
 
 	public static <E extends LivingEntity, S extends LivingEntityRenderState> void updateRenderState(E entity, S state) {
 		BackpackRenderState backpackRenderState = new BackpackRenderState();
-		if (!(entity instanceof PlayerEntity)) return;
-		backpackRenderState.backpack = EquipmentUtils.getEquippedBackpack((PlayerEntity) entity);
-		backpackRenderState.chest = entity.getEquippedStack(EquipmentSlot.CHEST);
+		if (!(entity instanceof Player)) return;
+		backpackRenderState.backpack = EquipmentUtils.getEquippedBackpack((Player) entity);
+		backpackRenderState.chest = entity.getItemBySlot(EquipmentSlot.CHEST);
 		state.setData(KEY, backpackRenderState);
 	}
 }

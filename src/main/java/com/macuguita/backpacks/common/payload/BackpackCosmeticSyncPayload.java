@@ -26,58 +26,59 @@ import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-public record BackpackCosmeticSyncPayload(ItemStack oldBackpack, Identifier newId) implements CustomPayload {
+public record BackpackCosmeticSyncPayload(int slotIndex, ResourceLocation newId) implements CustomPacketPayload {
 
-	public static final CustomPayload.Id<BackpackCosmeticSyncPayload> ID = new CustomPayload.Id<>(GuitaBackpacks.id("backpack_cosmetic_sync"));
+	public static final CustomPacketPayload.Type<BackpackCosmeticSyncPayload> ID = new CustomPacketPayload.Type<>(GuitaBackpacks.id("backpack_cosmetic_sync"));
 
-	public static final PacketCodec<RegistryByteBuf, BackpackCosmeticSyncPayload> CODEC = PacketCodec.tuple(
-			ItemStack.PACKET_CODEC,
-			BackpackCosmeticSyncPayload::oldBackpack,
-			Identifier.PACKET_CODEC,
+	public static final StreamCodec<RegistryFriendlyByteBuf, BackpackCosmeticSyncPayload> CODEC = StreamCodec.composite(
+			ByteBufCodecs.INT,
+			BackpackCosmeticSyncPayload::slotIndex,
+			ResourceLocation.STREAM_CODEC,
 			BackpackCosmeticSyncPayload::newId,
 			BackpackCosmeticSyncPayload::new
 	);
 
 	@Override
-	public Id<? extends CustomPayload> getId() {
+	public @NotNull Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 
-	public static void send(ItemStack oldBackpack, Identifier newId) {
-		ClientPlayNetworking.send(new BackpackCosmeticSyncPayload(oldBackpack, newId));
+	public static void send(int slotIndex, ResourceLocation newId) {
+		ClientPlayNetworking.send(new BackpackCosmeticSyncPayload(slotIndex, newId));
 	}
 
 	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<BackpackCosmeticSyncPayload> {
 
 		@Override
-		public void receive(BackpackCosmeticSyncPayload payload, ServerPlayNetworking.Context context) {
-			ServerPlayerEntity player = context.player();
+		public void receive(BackpackCosmeticSyncPayload payload, ServerPlayNetworking.@NotNull Context context) {
+			ServerPlayer player = context.player();
 
-			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
-			if (backpackSlot == -1) {
+			if (payload.slotIndex == -1) {
 				return;
 			}
 
-			ItemStack backpack = EquipmentUtils.getBackpackFromSlotIndex(player, backpackSlot);
-			if (backpack.isEmpty() || !backpack.contains(GBComponents.BACKPACK_MODEL_ID.get())) {
+			ItemStack backpack = EquipmentUtils.getBackpackFromSlotIndex(player, payload.slotIndex);
+			if (backpack.isEmpty() || !backpack.has(GBComponents.BACKPACK_MODEL_ID.get())) {
 				return;
 			}
 
 			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), payload.newId());
 
-			if (!EquipmentUtils.isTrinketsLoaded() && backpackSlot >= 20000) {
-				GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getInventory().markDirty();
+			if (!EquipmentUtils.isTrinketsLoaded() && payload.slotIndex >= 20000) {
+				GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getInventory().setChanged();
 			}
 		}
 	}

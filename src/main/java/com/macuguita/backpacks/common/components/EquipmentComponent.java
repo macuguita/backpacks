@@ -25,52 +25,52 @@ package com.macuguita.backpacks.common.components;
 import org.ladysnake.cca.api.v3.component.Component;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class EquipmentComponent implements Component, AutoSyncedComponent {
 
-	private final PlayerEntity player;
-	private final SimpleInventory inventory = new SimpleInventory(1) {
+	private final Player player;
+	private final SimpleContainer inventory = new SimpleContainer(1) {
 		@Override
-		public void markDirty() {
-			super.markDirty();
-			if (!player.getEntityWorld().isClient()) {
+		public void setChanged() {
+			super.setChanged();
+			if (!player.level().isClientSide()) {
 				GuitaBackpacksComponents.EQUIPMENT_COMPONENT.sync(player);
 			}
 		}
 	};
 
-	public EquipmentComponent(PlayerEntity player) {
+	public EquipmentComponent(Player player) {
 		this.player = player;
 	}
 
 	public void clearInventory() {
-		inventory.clear();
+		inventory.clearContent();
 		GuitaBackpacksComponents.EQUIPMENT_COMPONENT.sync(player);
 	}
 
-	public SimpleInventory getInventory() {
+	public SimpleContainer getInventory() {
 		return inventory;
 	}
 
 	public ItemStack getBackpack() {
 
-		return inventory.getStack(0);
+		return inventory.getItem(0);
 	}
 
 	@Override
-	public void readData(ReadView readView) {
-		this.inventory.clear();
-		Inventories.readData(readView, this.inventory.heldStacks);
+	public void readData(ValueInput readView) {
+		this.inventory.clearContent();
+		ContainerHelper.loadAllItems(readView, this.inventory.items);
 	}
 
 	@Override
-	public void writeData(WriteView writeView) {
-		Inventories.writeData(writeView, this.inventory.heldStacks);
+	public void writeData(ValueOutput writeView) {
+		ContainerHelper.saveAllItems(writeView, this.inventory.items);
 	}
 }

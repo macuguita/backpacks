@@ -32,105 +32,106 @@ import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.mojang.serialization.MapCodec;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BackpackBlock extends BlockWithEntity implements BlockEntityProvider {
+public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 
-	public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
+	public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-	public BackpackBlock(Settings settings) {
+	public BackpackBlock(Properties settings) {
 		super(settings);
-		this.setDefaultState(this.stateManager.getDefaultState().with(FACING, Direction.NORTH));
+		this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
 	}
 
 	@Override
-	protected MapCodec<? extends BlockWithEntity> getCodec() {
-		return createCodec(BackpackBlock::new);
+	protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+		return simpleCodec(BackpackBlock::new);
 	}
 
 	@Override
-	public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+	public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		return new BackpackBlockEntity(pos, state);
 	}
 
 	@Override
-	public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-		BlockEntity be = world.getBlockEntity(pos);
+	public @NotNull BlockState playerWillDestroy(@NotNull Level level, BlockPos pos, BlockState state, Player player) {
+		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack) {
 			ItemStack stack = new ItemStack(GBObjects.BACKPACK.get());
 
 			stack.set(GBComponents.BACKPACK_MODEL_ID.get(), backpack.getItemModelId());
 			stack.set(GBComponents.BACKPACK_UUID.get(), backpack.getUuid());
-			ItemEntity itemEntity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+			ItemEntity itemEntity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
 
-			itemEntity.setToDefaultPickupDelay();
-			world.spawnEntity(itemEntity);
+			itemEntity.setDefaultPickUpDelay();
+			level.addFreshEntity(itemEntity);
 		}
-		return super.onBreak(world, pos, state, player);
+		return super.playerWillDestroy(level, pos, state, player);
 	}
 
 	@Override
-	protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
 		builder.add(FACING);
 	}
 
 	@Override
-	protected boolean isTransparent(BlockState state) {
+	protected boolean propagatesSkylightDown(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public float getAmbientOcclusionLightLevel(BlockState state, BlockView world, BlockPos pos) {
+	public float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
 		return 1.0F;
 	}
 
 	@Override
-	public boolean isSideInvisible(BlockState state, BlockState stateFrom, Direction direction) {
+	public boolean skipRendering(BlockState state, BlockState stateFrom, Direction direction) {
 		return false;
 	}
 
 	@Override
-	protected int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
-		return ScreenHandler.calculateComparatorOutput(getInventory(world, pos, world.getServer()));
+	protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+		return AbstractContainerMenu.getRedstoneSignalFromContainer(getInventory(level, pos, level.getServer()));
 	}
 
 	@Override
-	protected boolean hasComparatorOutput(BlockState state) {
+	protected boolean hasAnalogOutputSignal(BlockState state) {
 		return true;
 	}
 
-	private @Nullable SimpleInventory getInventory(BlockView world, BlockPos pos, MinecraftServer server) {
-		BlockEntity be = world.getBlockEntity(pos);
+	private @Nullable SimpleContainer getInventory(@NotNull BlockGetter level, BlockPos pos, MinecraftServer server) {
+		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack) {
 			UUID uuid = backpack.getUuid();
 			if (server != null) {
@@ -141,67 +142,67 @@ public class BackpackBlock extends BlockWithEntity implements BlockEntityProvide
 	}
 
 	@Override
-	public BlockState getPlacementState(ItemPlacementContext ctx) {
-		return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
+	public BlockState getStateForPlacement(@NotNull BlockPlaceContext ctx) {
+		return this.defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
 	}
 
 	@Override
-	protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-		if (world instanceof ServerWorld serverWorld) {
-			BlockEntity be = world.getBlockEntity(pos);
+	protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+		if (level instanceof ServerLevel serverLevel) {
+			BlockEntity be = level.getBlockEntity(pos);
 			if (be instanceof BackpackBlockEntity backpackBe) {
 				UUID uuid = backpackBe.getUuid();
 				if (uuid != null) {
-					SimpleInventory inventory = getInventory(world, pos, player.getEntityWorld().getServer());
+					SimpleContainer inventory = getInventory(level, pos, player.level().getServer());
 					if (inventory == null) {
-						GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(serverWorld.getScoreboard()).addInventory(uuid);
-						inventory = getInventory(world, pos, player.getEntityWorld().getServer());
+						GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(serverLevel.getScoreboard()).addInventory(uuid);
+						inventory = getInventory(level, pos, player.level().getServer());
 					}
 					BackpackItem.openBackpack(player, inventory, -1);
-					return ActionResult.SUCCESS_SERVER;
+					return InteractionResult.SUCCESS_SERVER;
 				}
 			}
 		}
-		return ActionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	protected BlockState rotate(BlockState state, BlockRotation rotation) {
-		return state.with(FACING, rotation.rotate(state.get(FACING)));
+	protected @NotNull BlockState rotate(@NotNull BlockState state, @NotNull Rotation rotation) {
+		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
 	}
 
 	@Override
-	protected BlockState mirror(BlockState state, BlockMirror mirror) {
-		return state.rotate(mirror.getRotation(state.get(FACING)));
+	protected @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
+		return state.rotate(mirror.getRotation(state.getValue(FACING)));
 	}
 
-	private VoxelShape getVoxelShape(BlockView world, BlockPos pos) {
-		BlockEntity be = world.getBlockEntity(pos);
+	private VoxelShape getVoxelShape(@NotNull BlockGetter level, BlockPos pos) {
+		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack && backpack.getItemModelId() != null) {
-			Identifier modelId = backpack.getItemModelId();
+			ResourceLocation modelId = backpack.getItemModelId();
 
-			VoxelShape shape = VoxelShapes.cuboid(
+			VoxelShape shape = Shapes.create(
 					BackpacksResourceReloadListener.BACKPACKS.stream()
 							.filter(bp -> bp.id().equals(modelId))
 							.findFirst()
 							.map(BackpacksResourceReloadListener.Backpack::blockCollisionShape)
-							.orElse(new Box(0, 0, 0, 1, 1, 1))
+							.orElse(new AABB(0, 0, 0, 1, 1, 1))
 			);
 
-			Map<Direction, VoxelShape> shapes = VoxelShapes.createHorizontalFacingShapeMap(shape);
+			Map<Direction, VoxelShape> shapes = Shapes.rotateHorizontal(shape);
 
-			return shapes.get(world.getBlockState(pos).get(FACING));
+			return shapes.get(level.getBlockState(pos).getValue(FACING));
 		}
-		return VoxelShapes.fullCube();
+		return Shapes.block();
 	}
 
 	@Override
-	protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return getVoxelShape(world, pos);
+	protected @NotNull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		return getVoxelShape(level, pos);
 	}
 
 	@Override
-	protected VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-		return getVoxelShape(world, pos);
+	protected @NotNull VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		return getVoxelShape(level, pos);
 	}
 }

@@ -25,10 +25,10 @@ package com.macuguita.backpacks.client.render.state;
 import com.macuguita.backpacks.common.block.BackpackBlock;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.render.block.entity.state.BlockEntityRenderState;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.fabricmc.fabric.api.client.rendering.v1.RenderStateDataKey;
 
@@ -36,14 +36,14 @@ public class BackpackBlockEntityRenderState extends BlockEntityRenderState {
 
 	public static final RenderStateDataKey<BackpackBlockEntityRenderState> KEY = RenderStateDataKey.create(() -> "backpack_block");
 
-	public Identifier modelId = null;
+	public ResourceLocation modelId = null;
 	public Direction direction = Direction.NORTH;
 
-	public static <E extends BlockEntity, S extends BlockEntityRenderState> void updateRenderState(E blockEntity, S state) {
+	public static <E extends BlockEntity, S extends BlockEntityRenderState> void extractBase(E blockEntity, S state) {
 		BackpackBlockEntityRenderState backpackRenderState = new BackpackBlockEntityRenderState();
 		if (!(blockEntity instanceof BackpackBlockEntity backpackBlock))
 			return;
-		backpackRenderState.direction = blockEntity.getCachedState().get(BackpackBlock.FACING);
+		backpackRenderState.direction = blockEntity.getBlockState().getValue(BackpackBlock.FACING);
 		backpackRenderState.modelId = backpackBlock.getBlockModelId();
 		state.setData(KEY, backpackRenderState);
 	}

@@ -22,33 +22,46 @@
 
 package com.macuguita.backpacks.client.render.state;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2f;
 
-import net.minecraft.client.gui.ScreenRect;
-import net.minecraft.client.gui.render.state.special.SpecialGuiElementRenderState;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
+import net.minecraft.resources.ResourceLocation;
 
 public record BlockStateGuiElementRenderState(
 		Matrix3x2f pose,
-		Identifier modelId,
-		int x1,
-		int y1,
-		ScreenRect bounds
-) implements SpecialGuiElementRenderState {
+		ResourceLocation modelId,
+		int x,
+		int y,
+		ScreenRectangle bounds
+) implements PictureInPictureRenderState {
 
-	public BlockStateGuiElementRenderState(Matrix3x2f pose, Identifier modelId, int x, int y) {
-		this(pose, modelId, x, y, new ScreenRect(x, y, 27, 27).transformEachVertex(pose));
+	private static final int SIZE = 27;
+
+	public BlockStateGuiElementRenderState(Matrix3x2f pose, ResourceLocation modelId, int x, int y) {
+		this(pose, modelId, x, y, new ScreenRectangle(x, y, SIZE, SIZE).transformMaxBounds(pose));
 	}
 
 	@Override
-	public int x2() {
-		return x1 + 27;
+	public int x0() {
+		return x;
 	}
 
 	@Override
-	public int y2() {
-		return y1 + 27;
+	public int y0() {
+		return y;
+	}
+
+	@Override
+	public int x1() {
+		return x + SIZE;
+	}
+
+	@Override
+	public int y1() {
+		return y + SIZE;
 	}
 
 	@Override
@@ -56,8 +69,14 @@ public record BlockStateGuiElementRenderState(
 		return 20.0f;
 	}
 
+	@Nullable
 	@Override
-	public @Nullable ScreenRect scissorArea() {
+	public ScreenRectangle scissorArea() {
 		return null;
+	}
+
+	@Override
+	public @NotNull Matrix3x2f pose() {
+		return pose;
 	}
 }

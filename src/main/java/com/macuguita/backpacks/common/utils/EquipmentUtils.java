@@ -28,9 +28,9 @@ import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketInventory;
 import dev.emi.trinkets.api.TrinketsApi;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Pair;
+import net.minecraft.util.Tuple;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -43,14 +43,14 @@ public class EquipmentUtils {
 		return FabricLoader.getInstance().isModLoaded("trinkets");
 	}
 
-	public static ItemStack getEquippedBackpack(PlayerEntity player) {
+	public static ItemStack getEquippedBackpack(Player player) {
 		if (!isTrinketsLoaded())
 			return GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getBackpack();
 		return TrinketsApi.getTrinketComponent(player)
 				.map(component -> component.getEquipped(stack -> stack.getItem() instanceof BackpackItem)
 						.stream()
 						.findFirst()
-						.map(Pair::getRight)
+						.map(Tuple::getB)
 						.orElse(ItemStack.EMPTY))
 				.orElse(ItemStack.EMPTY);
 	}
@@ -58,13 +58,13 @@ public class EquipmentUtils {
 	/**
 	 * Gets the slot index of the equipped backpack.
 	 * For regular inventory: returns 0-40 (standard inventory slots)
-	 * For trinkets: returns TRINKET_SLOT_OFFSET + encoded position
-	 * For custom equipment: returns CUSTOM_EQUIPMENT_SLOT_OFFSET
+	 * For trinkets: returns {@code TRINKET_SLOT_OFFSET} + encoded position
+	 * For custom equipment: returns {@code CUSTOM_EQUIPMENT_SLOT_OFFSET}
 	 *
 	 * @param player The player to search
-	 * @return The slot index, or -1 if no backpack is equipped
+	 * @return The slot index, or {@code -1} if no backpack is equipped
 	 */
-	public static int getBackpackSlotIndex(PlayerEntity player) {
+	public static int getBackpackSlotIndex(Player player) {
 
 		int result = -1;
 
@@ -80,8 +80,8 @@ public class EquipmentUtils {
 
 		if (result != -1) return result;
 
-		for (int i = 0; i < player.getInventory().size(); i++) {
-			ItemStack stack = player.getInventory().getStack(i);
+		for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+			ItemStack stack = player.getInventory().getItem(i);
 			if (stack.getItem() instanceof BackpackItem) {
 				return i;
 			}
@@ -89,7 +89,7 @@ public class EquipmentUtils {
 		return -1;
 	}
 
-	private static int getTrinketBackpackSlotIndex(PlayerEntity player) {
+	private static int getTrinketBackpackSlotIndex(Player player) {
 		TrinketComponent trinketComponent = TrinketsApi.getTrinketComponent(player).orElse(null);
 		if (trinketComponent == null) {
 			return -1;
@@ -104,8 +104,8 @@ public class EquipmentUtils {
 				String slotId = slotEntry.getKey();
 				TrinketInventory trinketInv = trinketComponent.getInventory().get(groupId).get(slotId);
 
-				for (int i = 0; i < trinketInv.size(); i++) {
-					ItemStack stack = trinketInv.getStack(i);
+				for (int i = 0; i < trinketInv.getContainerSize(); i++) {
+					ItemStack stack = trinketInv.getItem(i);
 					if (stack.getItem() instanceof BackpackItem) {
 						return TRINKET_SLOT_OFFSET + (groupIndex * 1000) + (slotTypeIndex * 100) + i;
 					}
@@ -122,11 +122,11 @@ public class EquipmentUtils {
 	 * Gets the backpack ItemStack from a slot index.
 	 * Handles regular inventory slots, trinket slots, and custom equipment slots.
 	 *
-	 * @param player The player
+	 * @param player    The player
 	 * @param slotIndex The slot index (from getBackpackSlotIndex)
-	 * @return The ItemStack, or ItemStack.EMPTY if not found
+	 * @return The {@link ItemStack}, or {@code ItemStack.EMPTY} if not found
 	 */
-	public static ItemStack getBackpackFromSlotIndex(PlayerEntity player, int slotIndex) {
+	public static ItemStack getBackpackFromSlotIndex(Player player, int slotIndex) {
 		if (slotIndex < 0) {
 			return ItemStack.EMPTY;
 		}
@@ -142,14 +142,14 @@ public class EquipmentUtils {
 			return ItemStack.EMPTY;
 		}
 
-		if (slotIndex < player.getInventory().size()) {
-			return player.getInventory().getStack(slotIndex);
+		if (slotIndex < player.getInventory().getContainerSize()) {
+			return player.getInventory().getItem(slotIndex);
 		}
 
 		return ItemStack.EMPTY;
 	}
 
-	private static ItemStack getBackpackFromTrinketSlotIndex(PlayerEntity player, int slotIndex) {
+	private static ItemStack getBackpackFromTrinketSlotIndex(Player player, int slotIndex) {
 		TrinketComponent trinketComponent = TrinketsApi.getTrinketComponent(player).orElse(null);
 		if (trinketComponent == null) {
 			return ItemStack.EMPTY;
@@ -169,8 +169,8 @@ public class EquipmentUtils {
 					if (slotTypeIndex == targetSlotTypeIndex) {
 						String slotId = slotEntry.getKey();
 						TrinketInventory trinketInv = trinketComponent.getInventory().get(groupId).get(slotId);
-						if (targetSlot < trinketInv.size()) {
-							return trinketInv.getStack(targetSlot);
+						if (targetSlot < trinketInv.getContainerSize()) {
+							return trinketInv.getItem(targetSlot);
 						}
 						return ItemStack.EMPTY;
 					}

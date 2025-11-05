@@ -25,35 +25,35 @@ package com.macuguita.backpacks.client.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.model.BlockStateModel;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.SynchronousResourceReloader;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 
-public class GBModelReloadListener implements SynchronousResourceReloader {
+public class GBModelReloadListener implements ResourceManagerReloadListener {
 	public static final GBModelReloadListener INSTANCE = new GBModelReloadListener();
-	public static final Identifier ID = Identifier.of("backpacks", "model_reload_listener");
+	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("backpacks", "model_reload_listener");
 
-	private final Map<Identifier, BlockStateModel> loadedModels = new HashMap<>();
+	private final Map<ResourceLocation, BlockStateModel> loadedModels = new HashMap<>();
 
 	@Override
-	public void reload(ResourceManager manager) {
+	public void onResourceManagerReload(ResourceManager manager) {
 		loadedModels.clear();
 
-		var client = MinecraftClient.getInstance();
+		var client = Minecraft.getInstance();
 
 		for (var entry : GBModelLoadingPlugin.getBlockStateModels().entrySet()) {
-			Identifier id = entry.getKey();
+			ResourceLocation id = entry.getKey();
 			var key = entry.getValue();
-			BlockStateModel model = client.getBakedModelManager().getModel(key);
+			BlockStateModel model = client.getModelManager().getModel(key);
 			if (model != null) {
 				loadedModels.put(id, model);
 			}
 		}
 	}
 
-	public BlockStateModel getModel(Identifier id) {
+	public BlockStateModel getModel(ResourceLocation id) {
 		return loadedModels.get(id);
 	}
 }

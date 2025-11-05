@@ -26,12 +26,12 @@ import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class BackpackSlot extends Slot {
 
@@ -41,28 +41,28 @@ public class BackpackSlot extends Slot {
 	private final Predicate<ItemStack> insertPredicate;
 	private final ItemStack backpack;
 
-	public BackpackSlot(Inventory inventory, int index, int x, int y, @Nullable Predicate<ItemStack> insertPredicate) {
+	public BackpackSlot(Container inventory, int index, int x, int y, @Nullable Predicate<ItemStack> insertPredicate) {
 		this(inventory, index, x, y, null, null, insertPredicate);
 	}
 
-	public BackpackSlot(Inventory inventory, int index, int x, int y, ItemStack backpack, @Nullable TagKey<Item> backpackBlacklist) {
+	public BackpackSlot(Container inventory, int index, int x, int y, ItemStack backpack, @Nullable TagKey<Item> backpackBlacklist) {
 		this(inventory, index, x, y, backpack, backpackBlacklist, null);
 	}
 
-	public BackpackSlot(Inventory inventory, int index, int x, int y, ItemStack backpack, @Nullable TagKey<Item> backpackBlacklist, @Nullable Predicate<ItemStack> insertPredicate) {
+	public BackpackSlot(Container inventory, int index, int x, int y, ItemStack backpack, @Nullable TagKey<Item> backpackBlacklist, @Nullable Predicate<ItemStack> insertPredicate) {
 		super(inventory, index, x, y);
 		this.backpack = backpack;
 		this.backpackBlacklist = backpackBlacklist;
 		this.insertPredicate = insertPredicate;
 	}
 
-	public BackpackSlot(Inventory inventory, int index, int x, int y, ItemStack backpack) {
+	public BackpackSlot(Container inventory, int index, int x, int y, ItemStack backpack) {
 		this(inventory, index, x, y, backpack, null);
 	}
 
 	@Override
-	public boolean canInsert(ItemStack stack) {
-		if (backpackBlacklist != null && stack.isIn(backpackBlacklist)) {
+	public boolean mayPlace(ItemStack stack) {
+		if (backpackBlacklist != null && stack.is(backpackBlacklist)) {
 			return false;
 		}
 
@@ -70,17 +70,17 @@ public class BackpackSlot extends Slot {
 			return false;
 		}
 
-		return super.canInsert(stack);
+		return super.mayPlace(stack);
 	}
 
 	@Override
-	public boolean canTakeItems(PlayerEntity playerEntity) {
+	public boolean mayPickup(Player playerEntity) {
 		if (backpack != null && !backpack.isEmpty()) {
-			ItemStack current = this.getStack();
-			if (ItemStack.areItemsEqual(current, backpack)) {
+			ItemStack current = this.getItem();
+			if (ItemStack.isSameItem(current, backpack)) {
 				return false;
 			}
 		}
-		return super.canTakeItems(playerEntity);
+		return super.mayPickup(playerEntity);
 	}
 }

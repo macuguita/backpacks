@@ -27,22 +27,22 @@ import java.util.concurrent.CompletableFuture;
 
 import com.macuguita.backpacks.common.reg.GBObjects;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 
 public class GBLangProvider extends FabricLanguageProvider {
 
-	public GBLangProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+	public GBLangProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
 		super(dataOutput, "en_us", registryLookup);
 	}
 
 	@Override
-	public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+	public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
 		generateBlockTranslations(translationBuilder, GBObjects.BACKPACK_BLOCK.get());
 		generateItemTranslations(translationBuilder, GBObjects.BACKPACK.get());
 		translationBuilder.add("itemGroup.gbackpacks.gbackpacks", "guita's Backpack");
@@ -59,6 +59,7 @@ public class GBLangProvider extends FabricLanguageProvider {
 		translationBuilder.add("key.categories.gbackpacks", "guita's Backpacks");
 		translationBuilder.add("narration.gbackpacks.customization_widget", "Backpack customization widget");
 		translationBuilder.add("narration.gbackpacks.scroll_bar", "Scroll bar widget");
+		translationBuilder.add("tag.item.gbackpacks.backpack_blacklist", "Backpack blacklist");
 	}
 
 	private String capitalizeString(String string) {
@@ -76,12 +77,12 @@ public class GBLangProvider extends FabricLanguageProvider {
 	}
 
 	private void generateBlockTranslations(TranslationBuilder translationBuilder, Block block) {
-		String temp = capitalizeString(Registries.BLOCK.getId(block).getPath().replace("_", " "));
+		String temp = capitalizeString(BuiltInRegistries.BLOCK.getKey(block).getPath().replace("_", " "));
 		translationBuilder.add(block, temp);
 	}
 
 	private void generateItemTranslations(TranslationBuilder translationBuilder, Item item) {
-		String temp = capitalizeString(Registries.ITEM.getId(item).getPath().replace("_", " "));
+		String temp = capitalizeString(BuiltInRegistries.ITEM.getKey(item).getPath().replace("_", " "));
 		translationBuilder.add(item, temp);
 	}
 }

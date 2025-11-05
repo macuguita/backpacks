@@ -23,26 +23,27 @@
 package com.macuguita.backpacks.client.gui.widgets;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
-public class ScrollBarWidget extends ClickableWidget {
+public class ScrollBarWidget extends AbstractWidget {
 
-	private static final Identifier SCROLLER_TEXTURE = Identifier.ofVanilla("container/creative_inventory/scroller");
-	private static final Identifier SCROLLER_DISABLED_TEXTURE = Identifier.ofVanilla("container/creative_inventory/scroller_disabled");
-	private static final Identifier SCROLLER_BACK_TEXTURE = GuitaBackpacks.id("scroll_back");
+	private static final ResourceLocation SCROLLER_TEXTURE = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller");
+	private static final ResourceLocation SCROLLER_DISABLED_TEXTURE = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller_disabled");
+	private static final ResourceLocation SCROLLER_BACK_TEXTURE = GuitaBackpacks.id("scroll_back");
 
 	public static final int SCROLLER_WIDTH = 12;
 	public static final int BACKGROUND_WIDTH = 14;
@@ -54,7 +55,7 @@ public class ScrollBarWidget extends ClickableWidget {
 	private boolean scrolling = false;
 
 	public ScrollBarWidget(int x, int y, int height, ScrollCallback callback) {
-		super(x, y, BACKGROUND_WIDTH, height + 2, Text.empty());
+		super(x, y, BACKGROUND_WIDTH, height + 2, Component.empty());
 		this.callback = callback;
 		this.innerHeight = height;
 	}
@@ -64,11 +65,11 @@ public class ScrollBarWidget extends ClickableWidget {
 	}
 
 	@Override
-	protected void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+	protected void renderWidget(@NotNull GuiGraphics context, int mouseX, int mouseY, float delta) {
 		int x = getX();
 		int y = getY();
 
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SCROLLER_BACK_TEXTURE, x, y, this.width, this.height);
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, SCROLLER_BACK_TEXTURE, x, y, this.width, this.height);
 
 		int scrollerX = x + (this.width - SCROLLER_WIDTH) / 2;
 
@@ -79,12 +80,12 @@ public class ScrollBarWidget extends ClickableWidget {
 			scrollerY = y + 1 + (int) (scrollPercent * (innerHeight - SCROLLER_HEIGHT));
 		}
 
-		Identifier scrollerTexture = callback.canScroll() ? SCROLLER_TEXTURE : SCROLLER_DISABLED_TEXTURE;
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, scrollerTexture, scrollerX, scrollerY, SCROLLER_WIDTH, SCROLLER_HEIGHT);
+		ResourceLocation scrollerTexture = callback.canScroll() ? SCROLLER_TEXTURE : SCROLLER_DISABLED_TEXTURE;
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, scrollerTexture, scrollerX, scrollerY, SCROLLER_WIDTH, SCROLLER_HEIGHT);
 	}
 
 	@Override
-	public boolean mouseClicked(Click click, boolean doubled) {
+	public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
 		if (!callback.canScroll() || click.button() != 0) {
 			return super.mouseClicked(click, doubled);
 		}
@@ -111,7 +112,7 @@ public class ScrollBarWidget extends ClickableWidget {
 	}
 
 	@Override
-	public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+	public boolean mouseDragged(MouseButtonEvent click, double offsetX, double offsetY) {
 		if (this.scrolling && callback.canScroll()) {
 			updateScroll(click.y(), false);
 			return true;
@@ -120,7 +121,7 @@ public class ScrollBarWidget extends ClickableWidget {
 	}
 
 	@Override
-	public boolean mouseReleased(Click click) {
+	public boolean mouseReleased(@NotNull MouseButtonEvent click) {
 		if (click.button() == 0) {
 			this.scrolling = false;
 		}
@@ -145,7 +146,7 @@ public class ScrollBarWidget extends ClickableWidget {
 		} else {
 			float denom = (float) (innerHeight - SCROLLER_HEIGHT);
 			position = ((float) mouseY - (float) (getY() + 1) - (SCROLLER_HEIGHT / 2.0F)) / denom;
-			position = MathHelper.clamp(position, 0.0F, 1.0F);
+			position = Mth.clamp(position, 0.0F, 1.0F);
 		}
 
 		int maxOffset = callback.getMaxScrollOffset();
@@ -165,8 +166,8 @@ public class ScrollBarWidget extends ClickableWidget {
 	}
 
 	@Override
-	protected void appendClickableNarrations(NarrationMessageBuilder builder) {
-		builder.put(NarrationPart.TITLE, Text.translatable("narration.gbackpacks.scroll_bar"));
+	protected void updateWidgetNarration(@NotNull NarrationElementOutput builder) {
+		builder.add(NarratedElementType.TITLE, Component.translatable("narration.gbackpacks.scroll_bar"));
 	}
 
 	/**

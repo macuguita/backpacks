@@ -1,2 +1,4 @@
-- Fixed backpack position when shifting
-- Fixed crash when reloading resourcepacks while a backpack is being rendered
+- Migrated to Mojang's mappings
+- Updated FMJ
+- Added missing tag translations
+- Fixed bug where you cannot change the model of a handheld backpack while you have one equipped

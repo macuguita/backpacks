@@ -23,26 +23,27 @@
 package com.macuguita.backpacks.client.gui.payload;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record BackpackInventoryPayload(int backpackSize, int slotIndex) implements CustomPayload {
+public record BackpackInventoryPayload(int backpackSize, int slotIndex) implements CustomPacketPayload {
 
-	public static final CustomPayload.Id<BackpackInventoryPayload> ID = new CustomPayload.Id<>(GuitaBackpacks.id("backpack_inventory_size"));
+	public static final CustomPacketPayload.Type<BackpackInventoryPayload> ID = new CustomPacketPayload.Type<>(GuitaBackpacks.id("backpack_inventory_size"));
 
-	public static final PacketCodec<RegistryByteBuf, BackpackInventoryPayload> CODEC = PacketCodec.tuple(
-			PacketCodecs.INTEGER,
+	public static final StreamCodec<RegistryFriendlyByteBuf, BackpackInventoryPayload> CODEC = StreamCodec.composite(
+			ByteBufCodecs.INT,
 			BackpackInventoryPayload::backpackSize,
-			PacketCodecs.INTEGER,
+			ByteBufCodecs.INT,
 			BackpackInventoryPayload::slotIndex,
 			BackpackInventoryPayload::new
 	);
 
 	@Override
-	public Id<? extends CustomPayload> getId() {
+	public @NotNull Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 }

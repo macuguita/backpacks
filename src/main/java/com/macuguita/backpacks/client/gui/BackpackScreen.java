@@ -25,33 +25,34 @@ package com.macuguita.backpacks.client.gui;
 import com.macuguita.backpacks.client.gui.widgets.CustomizationWidget;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.Text;
-import net.minecraft.util.Colors;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.CommonColors;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 @Environment(value = EnvType.CLIENT)
-public class BackpackScreen extends HandledScreen<BackpackScreenHandler> {
+public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandler> {
 
-	private static final Identifier BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
-	private static final Identifier SLOT_TEXTURE = Identifier.ofVanilla("container/slot");
-	private static final Identifier SCROLL_ADDON_TEXTURE = GuitaBackpacks.id("scroll_addon");
-	private static final Identifier INVENTORY_AND_HOTBAR_TEXTURE = GuitaBackpacks.id("inventory/inventory_and_hotbar");
+	private static final ResourceLocation BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
+	private static final ResourceLocation SLOT_TEXTURE = ResourceLocation.withDefaultNamespace("container/slot");
+	private static final ResourceLocation SCROLL_ADDON_TEXTURE = GuitaBackpacks.id("scroll_addon");
+	private static final ResourceLocation INVENTORY_AND_HOTBAR_TEXTURE = GuitaBackpacks.id("inventory/inventory_and_hotbar");
 
-	private static final Identifier SLOTS_ROW1_TEXTURE = GuitaBackpacks.id("inventory/slots_row1");
-	private static final Identifier SLOTS_ROW2_TEXTURE = GuitaBackpacks.id("inventory/slots_row2");
-	private static final Identifier SLOTS_ROW3_TEXTURE = GuitaBackpacks.id("inventory/slots_row3");
-	private static final Identifier SLOTS_ROW4_TEXTURE = GuitaBackpacks.id("inventory/slots_row4");
-	private static final Identifier SLOTS_ROW5_TEXTURE = GuitaBackpacks.id("inventory/slots_row5");
-	private static final Identifier SLOTS_ROW6_TEXTURE = GuitaBackpacks.id("inventory/slots_row6");
-	private static final Identifier[] SLOTS_ROW = {
+	private static final ResourceLocation SLOTS_ROW1_TEXTURE = GuitaBackpacks.id("inventory/slots_row1");
+	private static final ResourceLocation SLOTS_ROW2_TEXTURE = GuitaBackpacks.id("inventory/slots_row2");
+	private static final ResourceLocation SLOTS_ROW3_TEXTURE = GuitaBackpacks.id("inventory/slots_row3");
+	private static final ResourceLocation SLOTS_ROW4_TEXTURE = GuitaBackpacks.id("inventory/slots_row4");
+	private static final ResourceLocation SLOTS_ROW5_TEXTURE = GuitaBackpacks.id("inventory/slots_row5");
+	private static final ResourceLocation SLOTS_ROW6_TEXTURE = GuitaBackpacks.id("inventory/slots_row6");
+	private static final ResourceLocation[] SLOTS_ROW = {
 			SLOTS_ROW1_TEXTURE,
 			SLOTS_ROW2_TEXTURE,
 			SLOTS_ROW3_TEXTURE,
@@ -73,9 +74,9 @@ public class BackpackScreen extends HandledScreen<BackpackScreenHandler> {
 	private final int playerInventoryStartY;
 	private ScrollBarWidget scrollBar;
 
-	public BackpackScreen(BackpackScreenHandler handler, PlayerInventory inventory, Text title) {
+	public BackpackScreen(BackpackScreenHandler handler, Inventory inventory, Component title) {
 		super(handler, inventory, title);
-		this.backpackSize = handler.inventory.size();
+		this.backpackSize = handler.inventory.getContainerSize();
 
 		int totalRows = handler.getTotalRows();
 		this.visibleBackpackRows = Math.min(totalRows, VISIBLE_ROWS);
@@ -83,46 +84,46 @@ public class BackpackScreen extends HandledScreen<BackpackScreenHandler> {
 		this.backpackStartY = handler.getBackpackStartY();
 		this.playerInventoryStartY = handler.getPlayerInventoryStartY();
 
-		this.backgroundWidth = SIDE_PADDING + (9 * SLOT_SIZE) + SIDE_PADDING;
-		this.backgroundHeight = TOP_PADDING +
+		this.imageWidth = SIDE_PADDING + (9 * SLOT_SIZE) + SIDE_PADDING;
+		this.imageHeight = TOP_PADDING +
 				(visibleBackpackRows * SLOT_SIZE) +
 				GAP_BETWEEN_BACKPACK_AND_PLAYER +
 				(3 * SLOT_SIZE) + 4 + SLOT_SIZE + BOTTOM_PADDING;
 	}
 
 	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		renderBackground(context, mouseX, mouseY, delta);
 		super.render(context, mouseX, mouseY, delta);
-		drawMouseoverTooltip(context, mouseX, mouseY);
+		renderTooltip(context, mouseX, mouseY);
 	}
 
 	@Override
-	protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
+	protected void renderLabels(@NotNull GuiGraphics context, int mouseX, int mouseY) {
 		int backpackTitleY = 3;
-		context.drawText(this.textRenderer, this.title, SIDE_PADDING, backpackTitleY, Colors.DARK_GRAY, false);
+		context.drawString(this.font, this.title, SIDE_PADDING, backpackTitleY, CommonColors.DARK_GRAY, false);
 
-		int playerTitleY = backpackStartY + visibleBackpackRows * SLOT_SIZE + GAP_BETWEEN_BACKPACK_AND_PLAYER / 2 - (this.textRenderer.fontHeight / 2);
-		context.drawText(this.textRenderer, this.playerInventoryTitle, SIDE_PADDING, playerTitleY, Colors.DARK_GRAY, false);
+		int playerTitleY = backpackStartY + visibleBackpackRows * SLOT_SIZE + GAP_BETWEEN_BACKPACK_AND_PLAYER / 2 - (this.font.lineHeight / 2);
+		context.drawString(this.font, this.playerInventoryTitle, SIDE_PADDING, playerTitleY, CommonColors.DARK_GRAY, false);
 	}
 
 	@Override
-	protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
-		int guiX = (this.width - this.backgroundWidth) / 2;
-		int guiY = (this.height - this.backgroundHeight) / 2;
+	protected void renderBg(@NotNull GuiGraphics context, float delta, int mouseX, int mouseY) {
+		int guiX = (this.width - this.imageWidth) / 2;
+		int guiY = (this.height - this.imageHeight) / 2;
 
-		int backpackRows = Math.min(handler.getTotalRows(), VISIBLE_ROWS);
+		int backpackRows = Math.min(menu.getTotalRows(), VISIBLE_ROWS);
 
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY - 2, this.backgroundWidth, this.backgroundHeight + 2);
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY - 2, this.imageWidth, this.imageHeight + 2);
 
-		if (handler.needsScrolling()) {
+		if (menu.needsScrolling()) {
 			int scrollAddonX = guiX + SIDE_PADDING + 9 * SLOT_SIZE + 4;
 			int scrollAddonY = guiY + backpackStartY - 4;
-			context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SCROLL_ADDON_TEXTURE, scrollAddonX, scrollAddonY,
+			context.blitSprite(RenderPipelines.GUI_TEXTURED, SCROLL_ADDON_TEXTURE, scrollAddonX, scrollAddonY,
 					ScrollBarWidget.BACKGROUND_WIDTH + 5, backpackRows * SLOT_SIZE + 8);
 		}
 
-		int scrollOffset = handler.getScrollOffset();
+		int scrollOffset = menu.getScrollOffset();
 
 		int visibleSlots = Math.min(backpackSize - scrollOffset * 9, backpackRows * 9);
 
@@ -136,78 +137,78 @@ public class BackpackScreen extends HandledScreen<BackpackScreenHandler> {
 			int rowTextureIndex = Math.min(fullRows - 1, SLOTS_ROW.length - 1);
 			int rowsInTexture = rowTextureIndex + 1;
 
-			context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SLOTS_ROW[rowTextureIndex], rowX, rowY, 9 * SLOT_SIZE, rowsInTexture * SLOT_SIZE);
+			context.blitSprite(RenderPipelines.GUI_TEXTURED, SLOTS_ROW[rowTextureIndex], rowX, rowY, 9 * SLOT_SIZE, rowsInTexture * SLOT_SIZE);
 
 			rowY += rowsInTexture * SLOT_SIZE;
 		}
 
 		for (int col = 0; col < leftoverSlots; col++) {
 			int slotX = rowX + col * SLOT_SIZE;
-			context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, slotX, rowY, SLOT_SIZE, SLOT_SIZE);
+			context.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, slotX, rowY, SLOT_SIZE, SLOT_SIZE);
 		}
 
 		int inventoryX = guiX + SIDE_PADDING - 1;
 		int inventoryY = guiY + playerInventoryStartY - 1;
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, inventoryX, inventoryY, 162, 76);
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, inventoryX, inventoryY, 162, 76);
 	}
 
 	@Override
 	protected void init() {
 		super.init();
 
-		int guiX = (this.width - this.backgroundWidth) / 2;
-		int guiY = (this.height - this.backgroundHeight) / 2;
+		int guiX = (this.width - this.imageWidth) / 2;
+		int guiY = (this.height - this.imageHeight) / 2;
 
-		int widgetX = guiX + this.backgroundWidth - 18;
+		int widgetX = guiX + this.imageWidth - 18;
 		int widgetY = guiY + 2;
-		CustomizationWidget customizationWidget = new CustomizationWidget(widgetX, widgetY, 10, 10, null, this, handler.backpack);
-		if (!handler.backpack.isEmpty())
-			this.addDrawableChild(customizationWidget);
+		CustomizationWidget customizationWidget = new CustomizationWidget(widgetX, widgetY, 10, 10, null, this, menu.slotIndex);
+		if (!menu.backpack.isEmpty())
+			this.addRenderableWidget(customizationWidget);
 
-		if (handler.needsScrolling()) {
+		if (menu.needsScrolling()) {
 			int scrollBarX = guiX + SIDE_PADDING + (9 * SLOT_SIZE) + 5;
 			int scrollBarY = guiY + backpackStartY;
 
 			this.scrollBar = new ScrollBarWidget(scrollBarX, scrollBarY, visibleBackpackRows * SLOT_SIZE - 2, new ScrollBarWidget.ScrollCallback() {
 				@Override
 				public void onScroll(int delta) {
-					handler.scroll(delta);
+					menu.scroll(delta);
 					scrollBar.updateScrollPercent();
 				}
 
 				@Override
 				public void scrollTo(int offset) {
-					int current = handler.getScrollOffset();
-					handler.scroll(offset - current);
+					int current = menu.getScrollOffset();
+					menu.scroll(offset - current);
 					scrollBar.updateScrollPercent();
 				}
 
 				@Override
 				public int getMaxScrollOffset() {
-					return handler.getTotalRows() - VISIBLE_ROWS;
+					return menu.getTotalRows() - VISIBLE_ROWS;
 				}
 
 				@Override
 				public int getCurrentScrollOffset() {
-					return handler.getScrollOffset();
+					return menu.getScrollOffset();
 				}
 
 				@Override
 				public boolean canScroll() {
-					return handler.needsScrolling();
+					return menu.needsScrolling();
 				}
 			});
 
 			this.scrollBar.updateScrollPercent();
-			this.addDrawableChild(scrollBar);
+			this.addRenderableWidget(scrollBar);
 		}
 	}
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-		if (handler.needsScrolling()) {
+		if (menu.needsScrolling()) {
 			int scrollDirection = verticalAmount > 0 ? -1 : 1;
-			handler.scroll(scrollDirection);
+			menu.scroll(scrollDirection);
 			if (scrollBar != null) scrollBar.updateScrollPercent();
 			return true;
 		}

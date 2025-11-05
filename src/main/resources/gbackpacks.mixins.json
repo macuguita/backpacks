@@ -5,7 +5,7 @@
   "plugin": "com.macuguita.backpacks.GuitaBackpacksMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "PlayerEntityMixin",
+    "PlayerMixin",
     "SlotMixin"
   ],
   "injectors": {
@@ -15,6 +15,6 @@
     "requireAnnotations": true
   },
   "client": [
-    "PlayerEntityRendererMixin"
+    "AvatarRendererMixin"
   ]
 }

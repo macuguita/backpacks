@@ -23,44 +23,45 @@
 package com.macuguita.backpacks.client.gui;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 @Environment(EnvType.CLIENT)
-public class EquipmentScreen extends HandledScreen<EquipmentScreenHandler> {
+public class EquipmentScreen extends AbstractContainerScreen<EquipmentScreenHandler> {
 
-	private static final Identifier BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
-	private static final Identifier INVENTORY_AND_HOTBAR_TEXTURE = GuitaBackpacks.id("inventory/inventory_and_hotbar");
-	private static final Identifier SLOT_TEXTURE = Identifier.ofVanilla("container/slot");
+	private static final ResourceLocation BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
+	private static final ResourceLocation INVENTORY_AND_HOTBAR_TEXTURE = GuitaBackpacks.id("inventory/inventory_and_hotbar");
+	private static final ResourceLocation SLOT_TEXTURE = ResourceLocation.withDefaultNamespace("container/slot");
 
-	public EquipmentScreen(EquipmentScreenHandler handler, PlayerInventory inventory, Text title) {
+	public EquipmentScreen(EquipmentScreenHandler handler, Inventory inventory, Component title) {
 		super(handler, inventory, title);
 	}
 
 	@Override
-	protected void drawBackground(DrawContext context, float delta, int mouseX, int mouseY) {
-		int guiX = (this.width - this.backgroundWidth) / 2;
-		int guiY = (this.height - this.backgroundHeight) / 2;
+	protected void renderBg(@NotNull GuiGraphics context, float delta, int mouseX, int mouseY) {
+		int guiX = (this.width - this.imageWidth) / 2;
+		int guiY = (this.height - this.imageHeight) / 2;
 
 		int yDisplacement = 66;
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY + yDisplacement, this.backgroundWidth, this.backgroundHeight - yDisplacement);
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX + 75, guiY + 38, 26, 26);
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, guiX + 7, guiY + 83, 162, 76);
-		context.drawGuiTexture(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, guiX + 79, guiY + 42, 18, 18);
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY + yDisplacement, this.imageWidth, this.imageHeight - yDisplacement);
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX + 75, guiY + 38, 26, 26);
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, guiX + 7, guiY + 83, 162, 76);
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, guiX + 79, guiY + 42, 18, 18);
 	}
 
 	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		renderBackground(context, mouseX, mouseY, delta);
 		super.render(context, mouseX, mouseY, delta);
-		drawMouseoverTooltip(context, mouseX, mouseY);
+		renderTooltip(context, mouseX, mouseY);
 	}
 }

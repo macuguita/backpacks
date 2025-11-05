@@ -27,40 +27,42 @@ import java.util.List;
 import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-public record BackpackListSyncPayload(List<BackpacksResourceReloadListener.Backpack> list) implements CustomPayload {
+public record BackpackListSyncPayload(
+		List<BackpacksResourceReloadListener.Backpack> list) implements CustomPacketPayload {
 
-	public static final CustomPayload.Id<BackpackListSyncPayload> ID = new CustomPayload.Id<>(GuitaBackpacks.id("backpack_list_sync"));
+	public static final CustomPacketPayload.Type<BackpackListSyncPayload> ID = new CustomPacketPayload.Type<>(GuitaBackpacks.id("backpack_list_sync"));
 
-	public static final PacketCodec<RegistryByteBuf, BackpackListSyncPayload> CODEC = PacketCodecs.unlimitedRegistryCodec(
+	public static final StreamCodec<RegistryFriendlyByteBuf, BackpackListSyncPayload> CODEC = ByteBufCodecs.fromCodecWithRegistriesTrusted(
 			BackpacksResourceReloadListener.Backpack.CODEC.listOf()
-	).xmap(
+	).map(
 			BackpackListSyncPayload::new,
 			BackpackListSyncPayload::list
 	);
 
 	@Override
-	public CustomPayload.Id<? extends CustomPayload> getId() {
+	public CustomPacketPayload.@NotNull Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 
-	public static void send(ServerPlayerEntity player, List<BackpacksResourceReloadListener.Backpack> list) {
+	public static void send(ServerPlayer player, List<BackpacksResourceReloadListener.Backpack> list) {
 		ServerPlayNetworking.send(player, new BackpackListSyncPayload(list));
 	}
 
 	public static class Receiver implements ClientPlayNetworking.PlayPayloadHandler<BackpackListSyncPayload> {
 
 		@Override
-		public void receive(BackpackListSyncPayload payload, ClientPlayNetworking.Context context) {
+		public void receive(@NotNull BackpackListSyncPayload payload, ClientPlayNetworking.Context context) {
 			GuitaBackpacksClient.BACKPACKS.clear();
 			GuitaBackpacksClient.BACKPACKS.addAll(payload.list());
 		}

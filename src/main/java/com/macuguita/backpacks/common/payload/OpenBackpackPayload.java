@@ -25,23 +25,24 @@ package com.macuguita.backpacks.common.payload;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-public record OpenBackpackPayload() implements CustomPayload {
+public record OpenBackpackPayload() implements CustomPacketPayload {
 
-	public static final CustomPayload.Id<OpenBackpackPayload> ID = new CustomPayload.Id<>(GuitaBackpacks.id("open_backpack"));
+	public static final CustomPacketPayload.Type<OpenBackpackPayload> ID = new CustomPacketPayload.Type<>(GuitaBackpacks.id("open_backpack"));
 
-	public static final PacketCodec<RegistryByteBuf, OpenBackpackPayload> CODEC = PacketCodec.unit(new OpenBackpackPayload());
+	public static final StreamCodec<RegistryFriendlyByteBuf, OpenBackpackPayload> CODEC = StreamCodec.unit(new OpenBackpackPayload());
 
 	@Override
-	public Id<? extends CustomPayload> getId() {
+	public @NotNull Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 
@@ -52,8 +53,8 @@ public record OpenBackpackPayload() implements CustomPayload {
 	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<OpenBackpackPayload> {
 
 		@Override
-		public void receive(OpenBackpackPayload payload, ServerPlayNetworking.Context context) {
-			ServerPlayerEntity player = context.player();
+		public void receive(OpenBackpackPayload payload, ServerPlayNetworking.@NotNull Context context) {
+			ServerPlayer player = context.player();
 			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
 			if (backpackSlot != -1) {
 				BackpackItem.openOrCreateBackpackIfNotExists(player, backpackSlot);

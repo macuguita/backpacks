@@ -28,13 +28,13 @@ import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.payload.OpenBackpackPayload;
 import com.macuguita.backpacks.common.payload.OpenEquipmentPayload;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import com.mojang.blaze3d.platform.InputConstants;
 import org.lwjgl.glfw.GLFW;
 
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -42,36 +42,36 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 public class GBKeybinds {
 
 	public static void init() {
-		var category = KeyBinding.Category.create(GuitaBackpacks.id("backpacks"));
+		var category = KeyMapping.Category.register(GuitaBackpacks.id("backpacks"));
 
-		KeyBinding openBackpackKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+		KeyMapping openBackpackKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
 				"key.gbackpacks.open_backpack",
-				InputUtil.Type.KEYSYM,
+				InputConstants.Type.KEYSYM,
 				GLFW.GLFW_KEY_B,
 				category
 		));
-		Optional<KeyBinding> maybeOpenEquipmentKey = Optional.empty();
+		Optional<KeyMapping> maybeOpenEquipmentKey = Optional.empty();
 		if (!EquipmentUtils.isTrinketsLoaded()) {
-			maybeOpenEquipmentKey = Optional.of(KeyBindingHelper.registerKeyBinding(new KeyBinding(
+			maybeOpenEquipmentKey = Optional.of(KeyBindingHelper.registerKeyBinding(new KeyMapping(
 					"key.gbackpacks.open_equipment",
-					InputUtil.Type.KEYSYM,
+					InputConstants.Type.KEYSYM,
 					GLFW.GLFW_KEY_G,
 					category
 			)));
 		}
-		Optional<KeyBinding> finalMaybeOpenEquipmentKey = maybeOpenEquipmentKey;
+		Optional<KeyMapping> finalMaybeOpenEquipmentKey = maybeOpenEquipmentKey;
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			while (openBackpackKey.wasPressed()) {
+			while (openBackpackKey.consumeClick()) {
 				OpenBackpackPayload.send();
-				if (client.player != null && client.world != null) {
+				if (client.player != null && client.level != null) {
 					int backpackSlot = EquipmentUtils.getBackpackSlotIndex(client.player);
 					if (backpackSlot != -1) {
-						Vec3d pos = client.player.getEntityPos();
-						client.world.playSoundClient(
+						Vec3 pos = client.player.position();
+						client.level.playLocalSound(
 								pos.x, pos.y, pos.z,
-								SoundEvents.ITEM_BUNDLE_INSERT,
-								SoundCategory.PLAYERS,
+								SoundEvents.BUNDLE_INSERT,
+								SoundSource.PLAYERS,
 								1.0f, 1.0f,
 								false
 						);
@@ -80,7 +80,7 @@ public class GBKeybinds {
 			}
 			if (EquipmentUtils.isTrinketsLoaded()) return;
 			finalMaybeOpenEquipmentKey.ifPresent(openEquipmentKey -> {
-				while (openEquipmentKey.wasPressed()) {
+				while (openEquipmentKey.consumeClick()) {
 					OpenEquipmentPayload.send();
 				}
 			});

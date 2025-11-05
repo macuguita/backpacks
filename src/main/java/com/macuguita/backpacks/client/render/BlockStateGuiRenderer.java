@@ -27,55 +27,56 @@ import java.util.Deque;
 
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.state.BlockStateGuiElementRenderState;
-import com.mojang.blaze3d.systems.ProjectionType;
+import com.mojang.blaze3d.ProjectionType;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.render.SpecialGuiElementRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.render.TextureSetup;
+import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
+import net.minecraft.client.gui.render.state.BlitRenderState;
 import net.minecraft.client.gui.render.state.GuiRenderState;
-import net.minecraft.client.gui.render.state.TexturedQuadGuiElementRenderState;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.TexturedRenderLayers;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.texture.TextureSetup;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 
 // sources: https://github.com/ZurrTum/Create-Fly/blob/v6.0.7-15/src/client/java/com/zurrtum/create/client/foundation/gui/render/ManualBlockRenderer.java
-public class BlockStateGuiRenderer extends SpecialGuiElementRenderer<BlockStateGuiElementRenderState> {
-	public static int MAX = 6;
+public class BlockStateGuiRenderer extends PictureInPictureRenderer<BlockStateGuiElementRenderState> {
+	public static final int MAX = 6;
 	private int allocate = MAX;
 	private static final Deque<GpuTexture> TEXTURES = new ArrayDeque<>(MAX);
-	private final MatrixStack matrices = new MatrixStack();
+	private final PoseStack matrices = new PoseStack();
 	private int windowScaleFactor;
 
-	public BlockStateGuiRenderer(VertexConsumerProvider.Immediate vertexConsumers) {
+	public BlockStateGuiRenderer(MultiBufferSource.BufferSource vertexConsumers) {
 		super(vertexConsumers);
 	}
 
 	@Override
-	public Class<BlockStateGuiElementRenderState> getElementClass() {
+	public @NotNull Class<BlockStateGuiElementRenderState> getRenderStateClass() {
 		return BlockStateGuiElementRenderState.class;
 	}
 
 	@Override
-	public void render(BlockStateGuiElementRenderState element, GuiRenderState guiState, int windowScaleFactor) {
-		MinecraftClient mc = MinecraftClient.getInstance();
+	public void prepare(BlockStateGuiElementRenderState renderState, GuiRenderState guiRenderState, int guiScale) {
+		Minecraft mc = Minecraft.getInstance();
 
 		// Manage framebuffer reuse (same logic as Create)
-		if (this.windowScaleFactor != windowScaleFactor) {
-			this.windowScaleFactor = windowScaleFactor;
+		if (this.windowScaleFactor != guiScale) {
+			this.windowScaleFactor = guiScale;
 			TEXTURES.forEach(GpuTexture::close);
 			TEXTURES.clear();
 			allocate = MAX;
 		}
 
-		int size = 27 * windowScaleFactor;
+		int size = 27 * guiScale;
 		GpuTexture texture;
 		if (allocate > 0) {
 			allocate--;
@@ -85,53 +86,53 @@ public class BlockStateGuiRenderer extends SpecialGuiElementRenderer<BlockStateG
 			assert texture != null;
 		}
 
-		RenderSystem.setProjectionMatrix(projectionMatrix.set(size, size), ProjectionType.ORTHOGRAPHIC);
+		RenderSystem.setProjectionMatrix(projectionMatrixBuffer.getBuffer(size, size), ProjectionType.ORTHOGRAPHIC);
 		texture.prepare();
 
-		matrices.push();
+		matrices.pushPose();
 		matrices.translate(size / 2.0F, size, 0.0F);
-		float scale = 20 * windowScaleFactor;
+		float scale = 20 * guiScale;
 		matrices.scale(scale, scale, scale);
 
-		mc.gameRenderer.getDiffuseLighting().setShaderLights(DiffuseLighting.Type.ENTITY_IN_UI);
+		mc.gameRenderer.getLighting().setupFor(Lighting.Entry.ENTITY_IN_UI);
 
 		// Fancy camera transform for the model
-		matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-30));
-		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(45));
+		matrices.mulPose(Axis.XP.rotationDegrees(-30));
+		matrices.mulPose(Axis.YP.rotationDegrees(45));
 		matrices.translate(-0.5f, -0.5f, -0.5f);
 		matrices.scale(1, -1, 1);
 
-		var model = GBModelReloadListener.INSTANCE.getModel(element.modelId());
+		var model = GBModelReloadListener.INSTANCE.getModel(renderState.modelId());
 		if (model != null) {
-			VertexConsumer buffer = vertexConsumers.getBuffer(TexturedRenderLayers.getEntityCutout());
+			VertexConsumer buffer = bufferSource.getBuffer(Sheets.cutoutBlockSheet());
 			int light = 0xF000F0;
-			int overlay = OverlayTexture.DEFAULT_UV;
+			int overlay = OverlayTexture.NO_OVERLAY;
 
-			for (var part : model.getParts(mc.world != null ? mc.world.random : Random.create())) {
+			for (var part : model.collectParts(mc.level != null ? mc.level.random : RandomSource.create())) {
 				for (var dir : Direction.values()) {
 					for (var quad : part.getQuads(dir)) {
-						buffer.quad(matrices.peek(), quad, 1f, 1f, 1f, 1f, light, overlay);
+						buffer.putBulkData(matrices.last(), quad, 1f, 1f, 1f, 1f, light, overlay);
 					}
 				}
 				for (var quad : part.getQuads(null)) {
-					buffer.quad(matrices.peek(), quad, 1f, 1f, 1f, 1f, light, overlay);
+					buffer.putBulkData(matrices.last(), quad, 1f, 1f, 1f, 1f, light, overlay);
 				}
 			}
 
-			vertexConsumers.draw();
+			bufferSource.endBatch();
 		}
 
-		matrices.pop();
+		matrices.popPose();
 		texture.clear();
 
-		guiState.addSimpleElementToCurrentLayer(new TexturedQuadGuiElementRenderState(
+		guiRenderState.submitBlitToCurrentLayer(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED_PREMULTIPLIED_ALPHA,
-				TextureSetup.withoutGlTexture(texture.textureView()),
-				element.pose(),
-				element.x1(),
-				element.y1(),
-				element.x2(),
-				element.y2(),
+				TextureSetup.singleTexture(texture.textureView()),
+				renderState.pose(),
+				renderState.x0(),
+				renderState.y0(),
+				renderState.x1(),
+				renderState.y1(),
 				0.0F,
 				1.0F,
 				1.0F,
@@ -145,11 +146,10 @@ public class BlockStateGuiRenderer extends SpecialGuiElementRenderer<BlockStateG
 	}
 
 	@Override
-	protected void render(BlockStateGuiElementRenderState state, MatrixStack matrices) {
-	}
+	protected void renderToTexture(BlockStateGuiElementRenderState renderState, PoseStack poseStack) {}
 
 	@Override
-	protected String getName() {
+	protected @NotNull String getTextureLabel() {
 		return "blockstate gui renderer";
 	}
 }

@@ -34,8 +34,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.util.JsonHelper;
+import net.minecraft.util.GsonHelper;
 
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -46,19 +48,23 @@ public class GBConfig {
 
 	private static Configuration CONFIG = null;
 
-	public static Integer getDefaultBackpackSize() {
+	@Contract(pure = true)
+	public static @Nullable Integer getDefaultBackpackSize() {
 		return CONFIG != null ? CONFIG.defaultBackpackSize : null;
 	}
 
-	public static Boolean getBackpackEntriesGetRemoved() {
+	@Contract(pure = true)
+	public static @Nullable Boolean getBackpackEntriesGetRemoved() {
 		return CONFIG != null ? CONFIG.backpackEntriesGetRemoved : null;
 	}
 
-	public static Boolean getBackpackDropItemsOnDestroyed() {
+	@Contract(pure = true)
+	public static @Nullable Boolean getBackpackDropItemsOnDestroyed() {
 		return CONFIG != null ? CONFIG.backpackDropItemsOnDestroyed : null;
 	}
 
-	public static Boolean getBackpackDropsOnDeath() {
+	@Contract(pure = true)
+	public static @Nullable Boolean getBackpackDropsOnDeath() {
 		return CONFIG != null ? CONFIG.backpackDropsOnDeath : null;
 	}
 
@@ -69,7 +75,7 @@ public class GBConfig {
 			}
 
 			try (var reader = Files.newBufferedReader(CONFIG_PATH)) {
-				var json = JsonHelper.deserialize(reader);
+				var json = GsonHelper.parse(reader);
 				var result = Configuration.CODEC.parse(JsonOps.INSTANCE, json);
 
 				if (result.error().isPresent()) {
@@ -78,7 +84,7 @@ public class GBConfig {
 					createDefaultConfig();
 
 					try (var newReader = Files.newBufferedReader(CONFIG_PATH)) {
-						json = JsonHelper.deserialize(newReader);
+						json = GsonHelper.parse(newReader);
 						result = Configuration.CODEC.parse(JsonOps.INSTANCE, json);
 					}
 				}

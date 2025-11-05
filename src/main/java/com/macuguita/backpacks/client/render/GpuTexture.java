@@ -27,17 +27,21 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.textures.TextureFormat;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 // source: https://github.com/ZurrTum/Create-Fly/blob/v6.0.7-15/src/client/java/com/zurrtum/create/client/catnip/gui/render/GpuTexture.java
 public record GpuTexture(
 		int width, int height, com.mojang.blaze3d.textures.GpuTexture texture, GpuTextureView textureView,
 		com.mojang.blaze3d.textures.GpuTexture depthTexture, GpuTextureView depthTextureView
 ) {
-	public static GpuTexture create(int size) {
+	@Contract("_ -> new")
+	public static @NotNull GpuTexture create(int size) {
 		return create(size, size);
 	}
 
-	public static GpuTexture create(int width, int height) {
+	@Contract("_, _ -> new")
+	public static @NotNull GpuTexture create(int width, int height) {
 		GpuDevice gpuDevice = RenderSystem.getDevice();
 		com.mojang.blaze3d.textures.GpuTexture texture = gpuDevice.createTexture(
 				() -> "UI Item Transform texture",

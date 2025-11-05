@@ -14,5 +14,6 @@
   "key.gbackpacks.open_backpack": "Open backpack",
   "key.gbackpacks.open_equipment": "Open equipment inventory",
   "narration.gbackpacks.customization_widget": "Backpack customization widget",
-  "narration.gbackpacks.scroll_bar": "Scroll bar widget"
+  "narration.gbackpacks.scroll_bar": "Scroll bar widget",
+  "tag.item.gbackpacks.backpack_blacklist": "Backpack blacklist"
 }

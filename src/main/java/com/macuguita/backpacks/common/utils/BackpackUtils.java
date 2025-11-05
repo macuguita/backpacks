@@ -26,24 +26,25 @@ import java.util.List;
 import java.util.UUID;
 
 import com.macuguita.backpacks.common.reg.GBComponents;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 
 public class BackpackUtils {
 
-	public static void checkForDuplicateBackpacks(PlayerEntity player, UUID backpackUuid, ItemStack backpack) {
-		PlayerInventory inv = player.getInventory();
-		for (int i = 0; i < inv.size(); i++) {
-			ItemStack other = inv.getStack(i);
+	public static void checkForDuplicateBackpacks(@NotNull Player player, UUID backpackUuid, ItemStack backpack) {
+		Inventory inv = player.getInventory();
+		for (int i = 0; i < inv.getContainerSize(); i++) {
+			ItemStack other = inv.getItem(i);
 			if (other == backpack) continue;
-			if (other.contains(GBComponents.BACKPACK_UUID.get())) {
+			if (other.has(GBComponents.BACKPACK_UUID.get())) {
 				UUID otherUuid = other.get(GBComponents.BACKPACK_UUID.get());
 				if (backpackUuid.equals(otherUuid)) {
 					other.remove(GBComponents.BACKPACK_UUID.get());
@@ -52,22 +53,22 @@ public class BackpackUtils {
 		}
 	}
 
-	public static void dedupeBackpackItemEntity(ItemEntity newEntity) {
-		ItemStack newStack = newEntity.getStack();
-		if (!newStack.contains(GBComponents.BACKPACK_UUID.get())) return;
+	public static void dedupeBackpackItemEntity(@NotNull ItemEntity newEntity) {
+		ItemStack newStack = newEntity.getItem();
+		if (!newStack.has(GBComponents.BACKPACK_UUID.get())) return;
 
 		UUID newUuid = newStack.get(GBComponents.BACKPACK_UUID.get());
 
-		List<ItemEntity> nearby = newEntity.getEntityWorld().getEntitiesByClass(
+		List<ItemEntity> nearby = newEntity.level().getEntitiesOfClass(
 				ItemEntity.class,
-				newEntity.getBoundingBox().expand(10),
+				newEntity.getBoundingBox().inflate(10),
 				Entity::isAlive
 		);
 
 		for (ItemEntity otherEntity : nearby) {
 			if (otherEntity == newEntity) continue;
-			ItemStack otherStack = otherEntity.getStack();
-			if (otherStack.contains(GBComponents.BACKPACK_UUID.get())) {
+			ItemStack otherStack = otherEntity.getItem();
+			if (otherStack.has(GBComponents.BACKPACK_UUID.get())) {
 				UUID otherUuid = otherStack.get(GBComponents.BACKPACK_UUID.get());
 				if (newUuid != null && newUuid.equals(otherUuid)) {
 					newStack.remove(GBComponents.BACKPACK_UUID.get());
@@ -80,11 +81,11 @@ public class BackpackUtils {
 	public static class DeduplicateBackpacks implements ServerEntityEvents.Load {
 
 		@Override
-		public void onLoad(Entity entity, ServerWorld serverWorld) {
+		public void onLoad(Entity entity, ServerLevel serverWorld) {
 			if (!(entity instanceof ItemEntity itemEntity)) return;
 
-			ItemStack stack = itemEntity.getStack();
-			if (!stack.contains(GBComponents.BACKPACK_UUID.get())) return;
+			ItemStack stack = itemEntity.getItem();
+			if (!stack.has(GBComponents.BACKPACK_UUID.get())) return;
 
 			dedupeBackpackItemEntity(itemEntity);
 		}

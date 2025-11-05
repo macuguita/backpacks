@@ -28,16 +28,17 @@ import com.macuguita.backpacks.client.gui.slots.CustomSlot;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.reg.GBItemTags;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
-public class BackpackScreenHandler extends ScreenHandler {
+public class BackpackScreenHandler extends AbstractContainerMenu {
 
 	private static final int VISIBLE_ROWS = 6;
 	private static final int SLOT_SIZE = 18;
@@ -45,25 +46,26 @@ public class BackpackScreenHandler extends ScreenHandler {
 	private static final int TOP_PADDING = 14;
 	private static final int SIDE_PADDING = 7;
 
-	public final Inventory inventory;
+	public final Container inventory;
 	public final ItemStack backpack;
+	public final int slotIndex;
 	private final int totalRows;
 	private final int backpackStartY;
 	private final int playerInventoryStartY;
 	private int scrollOffset = 0;
 
 	// TODO: should probably migrate to PropertyDelegates https://wiki.fabricmc.net/tutorial:propertydelegates
-	public BackpackScreenHandler(int syncId, PlayerInventory playerInventory, BackpackInventoryPayload buf) {
-		this(syncId, playerInventory, new SimpleInventory(buf.backpackSize()),
-				EquipmentUtils.getBackpackFromSlotIndex(playerInventory.player, buf.slotIndex()));
+	public BackpackScreenHandler(int syncId, Inventory playerInventory, @NotNull BackpackInventoryPayload buf) {
+		this(syncId, playerInventory, new SimpleContainer(buf.backpackSize()), buf.slotIndex());
 	}
 
-	public BackpackScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, ItemStack backpack) {
+	public BackpackScreenHandler(int syncId, @NotNull Inventory playerInventory, Container inventory, int slotIndex) {
 		super(GuitaBackpacks.BACKPACK_SCREEN_HANDLER, syncId);
-		checkSize(inventory, inventory.size());
-		this.backpack = backpack;
+		checkContainerSize(inventory, inventory.getContainerSize());
+		this.slotIndex = slotIndex;
+		this.backpack = EquipmentUtils.getBackpackFromSlotIndex(playerInventory.player, slotIndex);
 		this.inventory = inventory;
-		this.totalRows = (int) Math.ceil((double) inventory.size() / 9.0);
+		this.totalRows = (int) Math.ceil((double) inventory.getContainerSize() / 9.0);
 
 		int visibleRows = Math.min(totalRows, VISIBLE_ROWS);
 		int backpackHeight = visibleRows * SLOT_SIZE;
@@ -71,9 +73,9 @@ public class BackpackScreenHandler extends ScreenHandler {
 		this.backpackStartY = TOP_PADDING;
 		this.playerInventoryStartY = backpackStartY + backpackHeight + GAP_BETWEEN_BACKPACK_AND_PLAYER;
 
-		inventory.onOpen(playerInventory.player);
+		inventory.startOpen(playerInventory.player);
 
-		for (int i = 0; i < inventory.size(); i++) {
+		for (int i = 0; i < inventory.getContainerSize(); i++) {
 			this.addSlot(new BackpackSlot(inventory, i, -1000, -1000, backpack, GBItemTags.BACKPACK_BLACKLIST));
 		}
 
@@ -103,7 +105,7 @@ public class BackpackScreenHandler extends ScreenHandler {
 
 	public void updateSlotPositions() {
 		int startIndex = scrollOffset * 9;
-		int totalSlots = inventory.size();
+		int totalSlots = inventory.getContainerSize();
 		int visibleSlots = Math.min(VISIBLE_ROWS * 9, totalSlots - startIndex);
 
 		for (int i = 0; i < visibleSlots; i++) {
@@ -150,24 +152,24 @@ public class BackpackScreenHandler extends ScreenHandler {
 	}
 
 	@Override
-	public boolean canUse(PlayerEntity player) {
+	public boolean stillValid(Player player) {
 		return true;
 	}
 
 	@Override
-	public ItemStack quickMove(PlayerEntity player, int invSlot) {
+	public @NotNull ItemStack quickMoveStack(Player player, int invSlot) {
 		Slot slot = this.slots.get(invSlot);
-		if (!slot.hasStack()) return ItemStack.EMPTY;
+		if (!slot.hasItem()) return ItemStack.EMPTY;
 
-		ItemStack originalStack = slot.getStack();
+		ItemStack originalStack = slot.getItem();
 		ItemStack newStack = originalStack.copy();
 
-		int playerInvStartIndex = inventory.size();
+		int playerInvStartIndex = inventory.getContainerSize();
 		int playerInvEndIndex = this.slots.size();
 
 		boolean moved;
 		if (invSlot < playerInvStartIndex) {
-			moved = this.insertItem(originalStack, playerInvStartIndex, playerInvEndIndex, true);
+			moved = this.moveItemStackTo(originalStack, playerInvStartIndex, playerInvEndIndex, true);
 		} else {
 			moved = insertItemIntoBackpack(originalStack);
 		}
@@ -175,33 +177,33 @@ public class BackpackScreenHandler extends ScreenHandler {
 		if (!moved) return ItemStack.EMPTY;
 
 		if (originalStack.isEmpty()) {
-			slot.setStack(ItemStack.EMPTY);
+			slot.setByPlayer(ItemStack.EMPTY);
 		} else {
-			slot.markDirty();
+			slot.setChanged();
 		}
 
 		return newStack;
 	}
 
-	private boolean insertItemIntoBackpack(ItemStack stack) {
-		if (stack.isIn(GBItemTags.BACKPACK_BLACKLIST)) return false;
-		for (int i = 0; i < inventory.size(); i++) {
-			ItemStack slotStack = inventory.getStack(i);
-			if (!slotStack.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, slotStack)) {
-				int combined = Math.min(stack.getCount() + slotStack.getCount(), slotStack.getMaxCount());
+	private boolean insertItemIntoBackpack(@NotNull ItemStack stack) {
+		if (stack.is(GBItemTags.BACKPACK_BLACKLIST)) return false;
+		for (int i = 0; i < inventory.getContainerSize(); i++) {
+			ItemStack slotStack = inventory.getItem(i);
+			if (!slotStack.isEmpty() && ItemStack.isSameItemSameComponents(stack, slotStack)) {
+				int combined = Math.min(stack.getCount() + slotStack.getCount(), slotStack.getMaxStackSize());
 				int transferred = combined - slotStack.getCount();
 				if (transferred > 0) {
 					slotStack.setCount(combined);
-					stack.decrement(transferred);
+					stack.shrink(transferred);
 					if (stack.isEmpty()) return true;
 				}
 			}
 		}
 
-		for (int i = 0; i < inventory.size(); i++) {
-			ItemStack slotStack = inventory.getStack(i);
+		for (int i = 0; i < inventory.getContainerSize(); i++) {
+			ItemStack slotStack = inventory.getItem(i);
 			if (slotStack.isEmpty()) {
-				inventory.setStack(i, stack.copy());
+				inventory.setItem(i, stack.copy());
 				stack.setCount(0);
 				return true;
 			}

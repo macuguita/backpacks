@@ -25,41 +25,42 @@ package com.macuguita.backpacks.common.block.entity;
 import java.util.UUID;
 
 import com.macuguita.backpacks.common.reg.GBBlockEntities;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Uuids;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 public class BackpackBlockEntity extends BlockEntity {
 
-	private Identifier blockModelId;
-	private Identifier itemModelId;
+	private ResourceLocation blockModelId;
+	private ResourceLocation itemModelId;
 	private UUID uuid;
 
 	public BackpackBlockEntity(BlockPos pos, BlockState state) {
 		super(GBBlockEntities.BACKPACK, pos, state);
 	}
 
-	public Identifier getBlockModelId() {
+	public ResourceLocation getBlockModelId() {
 		return blockModelId;
 	}
 
-	public void setBlockModelId(Identifier modelId) {
+	public void setBlockModelId(ResourceLocation modelId) {
 		this.blockModelId = modelId;
 	}
 
-	public Identifier getItemModelId() {
+	public ResourceLocation getItemModelId() {
 		return itemModelId;
 	}
 
-	public void setItemModelId(Identifier itemModelId) {
+	public void setItemModelId(ResourceLocation itemModelId) {
 		this.itemModelId = itemModelId;
 	}
 
@@ -72,27 +73,27 @@ public class BackpackBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	protected void writeData(WriteView view) {
-		super.writeData(view);
-		view.put("UUID", Uuids.CODEC, this.uuid);
+	protected void saveAdditional(ValueOutput view) {
+		super.saveAdditional(view);
+		view.store("UUID", UUIDUtil.AUTHLIB_CODEC, this.uuid);
 		view.putString("Model", this.blockModelId.toString());
 		view.putString("ItemModel", this.itemModelId.toString());
 	}
 
 	@Override
-	protected void readData(ReadView view) {
-		super.readData(view);
-		this.uuid = view.read("UUID", Uuids.CODEC).orElse(null);
-		this.blockModelId = Identifier.of(view.getString("Model", ""));
-		this.itemModelId = Identifier.of(view.getString("ItemModel", ""));
+	protected void loadAdditional(ValueInput view) {
+		super.loadAdditional(view);
+		this.uuid = view.read("UUID", UUIDUtil.AUTHLIB_CODEC).orElse(null);
+		this.blockModelId = ResourceLocation.parse(view.getStringOr("Model", ""));
+		this.itemModelId = ResourceLocation.parse(view.getStringOr("ItemModel", ""));
 	}
 
-	public BlockEntityUpdateS2CPacket toUpdatePacket() {
-		return BlockEntityUpdateS2CPacket.create(this);
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
 	@Override
-	public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-		return this.createNbt(registryLookup);
+	public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registryLookup) {
+		return this.saveWithoutMetadata(registryLookup);
 	}
 }

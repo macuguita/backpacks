@@ -25,45 +25,46 @@ package com.macuguita.backpacks.datagen;
 import java.util.concurrent.CompletableFuture;
 
 import com.macuguita.backpacks.common.reg.GBObjects;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.data.recipe.RecipeExporter;
-import net.minecraft.data.recipe.RecipeGenerator;
-import net.minecraft.data.recipe.ShapedRecipeJsonBuilder;
-import net.minecraft.item.Items;
-import net.minecraft.recipe.book.RecipeCategory;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.world.item.Items;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 
 public class GBRecipeProvider extends FabricRecipeProvider {
 
-	public GBRecipeProvider(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+	public GBRecipeProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
 		super(output, registriesFuture);
 	}
 
 	@Override
-	protected RecipeGenerator getRecipeGenerator(RegistryWrapper.WrapperLookup wrapperLookup, RecipeExporter recipeExporter) {
-		return new RecipeGenerator(wrapperLookup, recipeExporter) {
+	protected @NotNull RecipeProvider createRecipeProvider(HolderLookup.Provider wrapperLookup, RecipeOutput recipeExporter) {
+		return new RecipeProvider(wrapperLookup, recipeExporter) {
 
 			@Override
-			public void generate() {
-				ShapedRecipeJsonBuilder.create(Registries.ITEM, RecipeCategory.TOOLS, GBObjects.BACKPACK.get(), 1)
+			public void buildRecipes() {
+				ShapedRecipeBuilder.shaped(BuiltInRegistries.ITEM, RecipeCategory.TOOLS, GBObjects.BACKPACK.get(), 1)
 						.pattern(" # ")
 						.pattern("#$#")
 						.pattern(" # ")
-						.input('#', Items.LEATHER)
-						.input('$', Items.CHEST)
-						.criterion(hasItem(Items.LEATHER), conditionsFromItem(Items.LEATHER))
-						.criterion(hasItem(Items.CHEST), conditionsFromItem(Items.CHEST))
-						.offerTo(recipeExporter);
+						.define('#', Items.LEATHER)
+						.define('$', Items.CHEST)
+						.unlockedBy(getHasName(Items.LEATHER), has(Items.LEATHER))
+						.unlockedBy(getHasName(Items.CHEST), has(Items.CHEST))
+						.save(recipeExporter);
 			}
 		};
 	}
 
 	@Override
-	public String getName() {
+	public @NotNull String getName() {
 		return "guita's Backpacks";
 	}
 }

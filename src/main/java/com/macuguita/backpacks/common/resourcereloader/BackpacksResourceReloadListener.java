@@ -31,33 +31,34 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.SynchronousResourceReloader;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.Util;
-import net.minecraft.util.dynamic.Codecs;
-import net.minecraft.util.math.Box;
+import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.phys.AABB;
 
-public class BackpacksResourceReloadListener implements SynchronousResourceReloader {
+public class BackpacksResourceReloadListener implements ResourceManagerReloadListener {
 
 	public static final List<Backpack> BACKPACKS = new ArrayList<>();
-	private static final Identifier BACKPACKS_DIR = GuitaBackpacks.id("backpacks");
-	public static final Identifier ID = GuitaBackpacks.id("backpacks_resource_reload_listener");
+	private static final ResourceLocation BACKPACKS_DIR = GuitaBackpacks.id("backpacks");
+	public static final ResourceLocation ID = GuitaBackpacks.id("backpacks_resource_reload_listener");
 
 	@Override
-	public void reload(ResourceManager manager) {
+	public void onResourceManagerReload(@NotNull ResourceManager manager) {
 		BACKPACKS.clear();
 
-		var resources = manager.findResources(BACKPACKS_DIR.getPath(), path -> path.getPath().endsWith(".json"));
+		var resources = manager.listResources(BACKPACKS_DIR.getPath(), path -> path.getPath().endsWith(".json"));
 		for (var entry : resources.entrySet()) {
 			var id = entry.getKey();
 
-			try (var reader = new InputStreamReader(entry.getValue().getInputStream())) {
-				var json = JsonHelper.deserialize(reader);
+			try (var reader = new InputStreamReader(entry.getValue().open())) {
+				var json = GsonHelper.parse(reader);
 
 				var result = Backpack.CODEC.parse(JsonOps.INSTANCE, json);
 				result.resultOrPartial(error -> GuitaBackpacks.LOGGER.warn("Failed to parse backpack at {}: {}", id, error))
@@ -68,22 +69,23 @@ public class BackpacksResourceReloadListener implements SynchronousResourceReloa
 		}
 	}
 
-	public record Backpack(Identifier id, String translationKey, Vector2i guiDisplacement, float guiScale, Box blockCollisionShape) {
+	public record Backpack(ResourceLocation id, String translationKey, Vector2i guiDisplacement, float guiScale,
+						   AABB blockCollisionShape) {
 
 		public static final Codec<Vector2i> VECTOR2I_CODEC =
 				Codec.INT.listOf().comapFlatMap(
-						list -> Util.decodeFixedLengthList(list, 2)
+						list -> Util.fixedSize(list, 2)
 								.map(listi -> new Vector2i(listi.getFirst(), listi.get(1))),
 						vector2i -> List.of(vector2i.x, vector2i.y)
 				);
 
-		public static final Codec<Box> BOX_CODEC =
-				Codecs.VECTOR_3F.listOf().comapFlatMap(
-						list -> Util.decodeFixedLengthList(list, 2)
+		public static final Codec<AABB> BOX_CODEC =
+				ExtraCodecs.VECTOR3F.listOf().comapFlatMap(
+						list -> Util.fixedSize(list, 2)
 								.map(listv3f -> {
 									Vector3f min = listv3f.get(0);
 									Vector3f max = listv3f.get(1);
-									return new Box(
+									return new AABB(
 											min.x / 16.0, min.y / 16.0, min.z / 16.0,
 											max.x / 16.0, max.y / 16.0, max.z / 16.0
 									);
@@ -95,7 +97,7 @@ public class BackpacksResourceReloadListener implements SynchronousResourceReloa
 				);
 
 		public static final Codec<Backpack> CODEC = RecordCodecBuilder.create(i -> i.group(
-				Identifier.CODEC.fieldOf("id").forGetter(Backpack::id),
+				ResourceLocation.CODEC.fieldOf("id").forGetter(Backpack::id),
 				Codec.STRING.fieldOf("translation_key").forGetter(Backpack::translationKey),
 				VECTOR2I_CODEC.optionalFieldOf("gui_displacement", new Vector2i(0, 0))
 						.forGetter(Backpack::guiDisplacement),
@@ -105,7 +107,7 @@ public class BackpacksResourceReloadListener implements SynchronousResourceReloa
 								: DataResult.error(() -> "gui_scale must be higher than 0 " + scale),
 						DataResult::success
 				).forGetter(Backpack::guiScale),
-				BOX_CODEC.optionalFieldOf("block_collision_shape", new Box(0.0, 0.0, 0.0, 1.0, 1.0, 1.0))
+				BOX_CODEC.optionalFieldOf("block_collision_shape", new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0))
 						.forGetter(Backpack::blockCollisionShape)
 		).apply(i, Backpack::new));
 	}

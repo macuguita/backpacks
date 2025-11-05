@@ -25,28 +25,29 @@ package com.macuguita.backpacks.client.gui;
 import com.macuguita.backpacks.client.gui.slots.BackpackSlot;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.item.BackpackItem;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
-public class EquipmentScreenHandler extends ScreenHandler {
+public class EquipmentScreenHandler extends AbstractContainerMenu {
 
-	private final Inventory inventory;
+	private final Container inventory;
 
-	public EquipmentScreenHandler(int syncId, PlayerInventory playerInventory) {
-		this(syncId, playerInventory, new SimpleInventory(1));
+	public EquipmentScreenHandler(int syncId, Inventory playerInventory) {
+		this(syncId, playerInventory, new SimpleContainer(1));
 	}
 
-	public EquipmentScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
+	public EquipmentScreenHandler(int syncId, @NotNull Inventory playerInventory, Container inventory) {
 		super(GuitaBackpacks.EQUIPMENT_SCREEN_HANDLER, syncId);
-		checkSize(inventory, 1);
+		checkContainerSize(inventory, 1);
 		this.inventory = inventory;
-		inventory.onOpen(playerInventory.player);
+		inventory.startOpen(playerInventory.player);
 
 		int m;
 		int l;
@@ -63,30 +64,30 @@ public class EquipmentScreenHandler extends ScreenHandler {
 	}
 
 	@Override
-	public ItemStack quickMove(PlayerEntity player, int index) {
+	public @NotNull ItemStack quickMoveStack(Player player, int index) {
 		ItemStack newStack = ItemStack.EMPTY;
 		Slot sourceSlot = this.slots.get(index);
 
-		if (sourceSlot.hasStack()) {
-			ItemStack originalStack = sourceSlot.getStack();
+		if (sourceSlot.hasItem()) {
+			ItemStack originalStack = sourceSlot.getItem();
 			newStack = originalStack.copy();
 
-			int containerSlotCount = this.inventory.size();
+			int containerSlotCount = this.inventory.getContainerSize();
 
 			if (index < containerSlotCount) {
-				if (!this.insertItem(originalStack, containerSlotCount, this.slots.size(), true)) {
+				if (!this.moveItemStackTo(originalStack, containerSlotCount, this.slots.size(), true)) {
 					return ItemStack.EMPTY;
 				}
 			} else {
-				if (!this.insertItem(originalStack, 0, containerSlotCount, false)) {
+				if (!this.moveItemStackTo(originalStack, 0, containerSlotCount, false)) {
 					return ItemStack.EMPTY;
 				}
 			}
 
 			if (originalStack.isEmpty()) {
-				sourceSlot.setStack(ItemStack.EMPTY);
+				sourceSlot.setByPlayer(ItemStack.EMPTY);
 			} else {
-				sourceSlot.markDirty();
+				sourceSlot.setChanged();
 			}
 		}
 
@@ -94,7 +95,7 @@ public class EquipmentScreenHandler extends ScreenHandler {
 	}
 
 	@Override
-	public boolean canUse(PlayerEntity player) {
+	public boolean stillValid(Player player) {
 		return true;
 	}
 }

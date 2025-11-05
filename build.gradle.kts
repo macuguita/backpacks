@@ -17,7 +17,7 @@ loom {
 
             ideConfigGenerated(true)
         }
-        register("client2") {
+        register("clientMacuguita") {
             client()
             name = "Minecraft Client macuguita"
             programArgs.add("--username=macuguita")
@@ -30,7 +30,9 @@ loom {
             }
         }
     }
-    accessWidenerPath.set(file(project.file("src/main/resources/${BuildConfig.modId}.accesswidener")))
+    if (project.file("src/main/resources/${BuildConfig.modId}.accesswidener").exists()) {
+        accessWidenerPath = project.file("src/main/resources/${BuildConfig.modId}.accesswidener")
+    }
 }
 
 sourceSets {
@@ -48,6 +50,10 @@ base {
 }
 
 repositories {
+    maven {
+        name = "ParchmentMC"
+        url = uri("https://maven.parchmentmc.org")
+    }
     maven {
         name = "Shedaniel maven"
         url = uri("https://maven.shedaniel.me/")
@@ -73,9 +79,16 @@ repositories {
     }
 }
 
+configurations {
+    create("prodMods")
+}
+
 dependencies {
     minecraft("com.mojang:minecraft:${BuildConfig.minecraftVersion}")
-    mappings("net.fabricmc:yarn:${BuildConfig.yarnMappings}:v2")
+    mappings(loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${BuildConfig.minecraftVersion}:${BuildConfig.parchmentMappings}@zip")
+    })
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.loaderVersion}")
 
     // Fabric API. This is technically optional, but you probably want it anyway.
@@ -122,23 +135,70 @@ dependencies {
     include("org.ladysnake.cardinal-components-api:cardinal-components-entity:${BuildConfig.ccaVersion}"){
         exclude("net.fabricmc.fabric-api")
     }
+
+    add("prodMods", "net.fabricmc.fabric-api:fabric-api:${BuildConfig.fabricVersion}")
+    add("prodMods", "maven.modrinth:macu-lib:${BuildConfig.maculibVersion}-fabric")
+    add("prodMods", "com.terraformersmc:modmenu:${BuildConfig.modMenuVersion}")
+    add("prodMods", "maven.modrinth:trinkets-canary:${BuildConfig.trinketsVersion}")
 }
 
-tasks.processResources {
-    filesMatching("fabric.mod.json") {
-        expand(
-            "version"  to BuildConfig.modVersion,
-            "modId"                 to BuildConfig.modId,
-            "modName"               to BuildConfig.modName,
-            "description"           to BuildConfig.description,
-            "license"               to BuildConfig.license,
-            "loaderVersion"         to BuildConfig.loaderVersion,
-            "minecraftVersion"      to BuildConfig.minecraftVersion,
-            "minecraftVersionRange" to BuildConfig.minecraftVersionRange,
-            "macuLibVersion"        to BuildConfig.maculibVersion
-        )
+tasks.register<net.fabricmc.loom.task.prod.ClientProductionRunTask>("prodClient") {
+
+    mods.from(configurations.named("prodMods"))
+    //jvmArgs.add("-Dfabric.client.gametest")
+    programArgs.add("--username=macuguita")
+    programArgs.add("--uuid=0e56050b-ee27-478a-a345-d2b384919081")
+    runDir.set(file("run"))
+    useXVFB = false
+
+    javaLauncher.set(
+        javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
+    )
+}
+
+tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
+    outputFile = project.file("src/main/generated/fabric.mod.json")
+
+    json {
+        modId = BuildConfig.modId
+        version = BuildConfig.modVersion
+        name = BuildConfig.modName
+        description = BuildConfig.description
+        author("macuguita") {
+            contactInformation = mapOf(
+                "discord" to "macuguita"
+            )
+        }
+        contactInformation.set(mapOf(
+            "homepage" to "https://macuguita.com",
+            "sources" to "https://github.com/macuguita/backpacks"
+        ))
+        licenses = listOf(BuildConfig.license)
+        icon("assets/${BuildConfig.modId}/icon.png")
+        mixin("${BuildConfig.modId}.mixins.json")
+        accessWidener = "${BuildConfig.modId}.accesswidener"
+        environment = "*"
+
+        entrypoint("main", "com.macuguita.backpacks.common.GuitaBackpacks")
+        entrypoint("client", "com.macuguita.backpacks.client.GuitaBackpacksClient")
+        entrypoint("fabric-datagen", "com.macuguita.backpacks.datagen.GuitaBackpacksDatagen")
+        entrypoint("cardinal-components", "com.macuguita.backpacks.common.components.GuitaBackpacksComponents")
+
+        depends("fabricloader", ">=${BuildConfig.loaderVersion}")
+        depends("minecraft", BuildConfig.minecraftVersionRange)
+        depends("java", ">=21")
+        depends("fabric-api", "*")
+        depends("macu_lib", ">=${BuildConfig.maculibVersion}")
+
+        suggests("trinkets", "*")
+
+        customData.put("cardinal-components", arrayOf("${BuildConfig.modId}:backpacks", "${BuildConfig.modId}:equipment"))
     }
 }
+
+tasks.processResources {}
 
 tasks.withType<JavaCompile>().configureEach {
     options.release.set(21)
@@ -168,10 +228,10 @@ publishMods {
     additionalFiles.from(tasks.remapSourcesJar.get().archiveFile)
     displayName = BuildConfig.modName + " " + BuildConfig.modVersion
     version = BuildConfig.modVersion
-    if (BuildConfig.modVersion.contains("beta")) {
-        type = BETA
+    type = if (BuildConfig.modVersion.contains("beta")) {
+        BETA
     } else {
-        type = STABLE
+        STABLE
     }
     modLoaders.add("fabric")
     modLoaders.add("quilt")

@@ -24,6 +24,7 @@ package com.macuguita.backpacks.common.components;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
@@ -41,7 +42,7 @@ public class GuitaBackpacksComponents implements ScoreboardComponentInitializer,
 			ComponentRegistry.getOrCreate(GuitaBackpacks.id("equipment"), EquipmentComponent.class);
 
 	@Override
-	public void registerScoreboardComponentFactories(ScoreboardComponentFactoryRegistry scoreboardComponentFactoryRegistry) {
+	public void registerScoreboardComponentFactories(@NotNull ScoreboardComponentFactoryRegistry scoreboardComponentFactoryRegistry) {
 		scoreboardComponentFactoryRegistry.registerScoreboardComponent(
 				GuitaBackpacksComponents.BACKPACKS_COMPONENT,
 				BackpacksComponent::new

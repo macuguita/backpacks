@@ -36,16 +36,18 @@ import com.macuguita.backpacks.common.reg.GBItemGroups;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.inventory.MenuType;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -61,14 +63,15 @@ public class GuitaBackpacks implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static final Identifier DEFAULT_BACKPACK_MODEL_ID = GuitaBackpacks.id("backpacks/backpack");
+	public static final ResourceLocation DEFAULT_BACKPACK_MODEL_ID = GuitaBackpacks.id("backpacks/backpack");
 
-	public static Identifier id(String name) {
-		return Identifier.of(MOD_ID, name);
+	@Contract("_ -> new")
+	public static @NotNull ResourceLocation id(String name) {
+		return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
 	}
 
 	public static final ExtendedScreenHandlerType<BackpackScreenHandler, BackpackInventoryPayload> BACKPACK_SCREEN_HANDLER = new ExtendedScreenHandlerType<>(BackpackScreenHandler::new, BackpackInventoryPayload.CODEC);
-	public static final ScreenHandlerType<EquipmentScreenHandler> EQUIPMENT_SCREEN_HANDLER = Registry.register(Registries.SCREEN_HANDLER, id("equipment"), new ScreenHandlerType<>(EquipmentScreenHandler::new, FeatureSet.empty()));
+	public static final MenuType<EquipmentScreenHandler> EQUIPMENT_SCREEN_HANDLER = Registry.register(BuiltInRegistries.MENU, id("equipment"), new MenuType<>(EquipmentScreenHandler::new, FeatureFlagSet.of()));
 
 	@Override
 	public void onInitialize() {
@@ -76,27 +79,26 @@ public class GuitaBackpacks implements ModInitializer {
 		initRegistries();
 		initPayloads();
 		initEvents();
-		ResourceLoader.get(ResourceType.SERVER_DATA)
+		ResourceLoader.get(PackType.SERVER_DATA)
 				.registerReloader(BackpacksResourceReloadListener.ID, new BackpacksResourceReloadListener());
 	}
 
 	private void initEvents() {
 		ServerEntityEvents.ENTITY_LOAD.register(new BackpackUtils.DeduplicateBackpacks());
 
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-			BackpackListSyncPayload.send(handler.player, BackpacksResourceReloadListener.BACKPACKS);
-		});
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
+				BackpackListSyncPayload.send(handler.player, BackpacksResourceReloadListener.BACKPACKS));
 
 		ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, serverResourceManager, success) -> {
 			if (success) {
-				for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList())
+				for (ServerPlayer player : server.getPlayerList().getPlayers())
 					BackpackListSyncPayload.send(player, BackpacksResourceReloadListener.BACKPACKS);
 			}
 		});
 	}
 
 	private void initRegistries() {
-		Registry.register(Registries.SCREEN_HANDLER, id("backpack"), BACKPACK_SCREEN_HANDLER);
+		Registry.register(BuiltInRegistries.MENU, id("backpack"), BACKPACK_SCREEN_HANDLER);
 		GBComponents.init();
 		GBObjects.init();
 		GBBlockEntities.init();

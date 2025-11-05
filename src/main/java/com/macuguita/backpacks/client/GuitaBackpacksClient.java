@@ -40,15 +40,15 @@ import com.macuguita.backpacks.common.reg.GBBlockEntities;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import com.mojang.blaze3d.platform.InputConstants;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.HandledScreens;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackType;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
@@ -74,57 +74,57 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(BackpackListSyncPayload.ID, new BackpackListSyncPayload.Receiver());
 
 		// Might have to do something with this, look at the link above
-		ResourceLoader resourceLoader = ResourceLoader.get(ResourceType.CLIENT_RESOURCES);
+		ResourceLoader resourceLoader = ResourceLoader.get(PackType.CLIENT_RESOURCES);
 		resourceLoader.registerReloader(GBModelReloadListener.ID, GBModelReloadListener.INSTANCE);
 		resourceLoader.addReloaderOrdering(ResourceReloaderKeys.Client.MODELS, GBModelReloadListener.ID);
 
-		BlockEntityRendererFactories.register(GBBlockEntities.BACKPACK, BackpackBlockEntityRenderer::new);
+		BlockEntityRenderers.register(GBBlockEntities.BACKPACK, BackpackBlockEntityRenderer::new);
 
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
-			if (entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
+			if (entityRenderer instanceof AvatarRenderer playerRenderer) {
 				registrationHelper.register(new BackpackFeatureRenderer<>(playerRenderer));
 			}
 		});
 
 		SpecialGuiElementRegistry.register(ctx -> new BlockStateGuiRenderer(ctx.vertexConsumers()));
-		HandledScreens.register(GuitaBackpacks.BACKPACK_SCREEN_HANDLER, BackpackScreen::new);
+		MenuScreens.register(GuitaBackpacks.BACKPACK_SCREEN_HANDLER, BackpackScreen::new);
 		if (!EquipmentUtils.isTrinketsLoaded())
-			HandledScreens.register(GuitaBackpacks.EQUIPMENT_SCREEN_HANDLER, EquipmentScreen::new);
+			MenuScreens.register(GuitaBackpacks.EQUIPMENT_SCREEN_HANDLER, EquipmentScreen::new);
 
 		ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, list) -> {
 			if (!(itemStack.getItem() instanceof BackpackItem)) return;
 
-			if (itemStack.contains(GBComponents.VISIBLE.get())) {
+			if (itemStack.has(GBComponents.VISIBLE.get())) {
 				Boolean visible = itemStack.get(GBComponents.VISIBLE.get());
 				if (Boolean.FALSE.equals(visible)) {
-					list.add(Text.translatable("item.gbackpacks.backpack.tooltip.hidden")
-							.formatted(Formatting.DARK_GRAY));
+					list.add(Component.translatable("item.gbackpacks.backpack.tooltip.hidden")
+							.withStyle(ChatFormatting.DARK_GRAY));
 				}
 			}
 
-			if (itemStack.contains(GBComponents.BACKPACK_MODEL_ID.get())) {
+			if (itemStack.has(GBComponents.BACKPACK_MODEL_ID.get())) {
 				var modelId = itemStack.get(GBComponents.BACKPACK_MODEL_ID.get());
 				if (modelId != null) {
 					GuitaBackpacksClient.BACKPACKS.stream()
 							.filter(backpack -> backpack.id().equals(modelId))
 							.findFirst()
 							.ifPresent(backpack -> list.add(
-									Text.translatable("item.gbackpacks.backpack.tooltip.cosmetic")
-											.append(Text.translatable(backpack.translationKey()))
-											.formatted(Formatting.DARK_GRAY)
+									Component.translatable("item.gbackpacks.backpack.tooltip.cosmetic")
+											.append(Component.translatable(backpack.translationKey()))
+											.withStyle(ChatFormatting.DARK_GRAY)
 							));
 				}
 			}
 
-			if (itemStack.contains(GBComponents.BACKPACK_UUID.get())) {
-				if (!InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow(), InputUtil.GLFW_KEY_LEFT_SHIFT)) {
-					list.add(Text.translatable("item.gbackpacks.backpack.tooltip.uuid.hidden")
-							.formatted(Formatting.DARK_GRAY));
+			if (itemStack.has(GBComponents.BACKPACK_UUID.get())) {
+				if (!InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), InputConstants.KEY_LSHIFT)) {
+					list.add(Component.translatable("item.gbackpacks.backpack.tooltip.uuid.hidden")
+							.withStyle(ChatFormatting.DARK_GRAY));
 				} else {
 					UUID uuid = itemStack.get(GBComponents.BACKPACK_UUID.get());
 					if (uuid != null) {
-						list.add(Text.translatable("item.gbackpacks.backpack.tooltip.uuid", uuid)
-								.formatted(Formatting.GOLD));
+						list.add(Component.translatable("item.gbackpacks.backpack.tooltip.uuid", uuid)
+								.withStyle(ChatFormatting.GOLD));
 					}
 				}
 			}

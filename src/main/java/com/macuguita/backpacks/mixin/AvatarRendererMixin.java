@@ -22,36 +22,33 @@
 
 package com.macuguita.backpacks.mixin;
 
-import com.macuguita.backpacks.GBConfig;
-import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
-import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import com.macuguita.backpacks.client.render.state.BackpackRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.GameRules;
+import net.minecraft.client.entity.ClientAvatarEntity;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.world.entity.Avatar;
 
-@Mixin(PlayerEntity.class)
-public class PlayerEntityMixin {
+@Mixin(AvatarRenderer.class)
+public abstract class AvatarRendererMixin<AvatarlikeEntity extends Avatar & ClientAvatarEntity>
+		extends LivingEntityRenderer<AvatarlikeEntity, AvatarRenderState, PlayerModel> {
+
+	public AvatarRendererMixin(EntityRendererProvider.Context ctx, PlayerModel model, float shadowRadius) {
+		super(ctx, model, shadowRadius);
+	}
 
 	@Inject(
-			method = "dropInventory",
+			method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V",
 			at = @At("TAIL")
 	)
-	private void gbackpacks$dropInventory(CallbackInfo info) {
-		if (EquipmentUtils.isTrinketsLoaded()) return;
-		if (Boolean.FALSE.equals(GBConfig.getBackpackDropsOnDeath())) return;
-		PlayerEntity player = (PlayerEntity) (Object) this;
-		boolean keepInv = ((ServerWorld) player.getEntityWorld()).getGameRules().getBoolean(GameRules.KEEP_INVENTORY);
-
-		ItemStack stack = EquipmentUtils.getEquippedBackpack(player);
-		if (!keepInv && !stack.isEmpty()) {
-			player.dropItem(stack.copy(), true, false);
-			GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).clearInventory();
-		}
+	private void gbackpacks$updateBackpackRenderState(AvatarlikeEntity entity, AvatarRenderState state, float tickProgress, CallbackInfo ci) {
+		BackpackRenderState.updateRenderState(entity, state);
 	}
 }

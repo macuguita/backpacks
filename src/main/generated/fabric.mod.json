@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "gbackpacks",
+  "version": "1.21.10-beta+5",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "com.macuguita.backpacks.datagen.GuitaBackpacksDatagen"
+    ],
+    "cardinal-components": [
+      "com.macuguita.backpacks.common.components.GuitaBackpacksComponents"
+    ],
+    "client": [
+      "com.macuguita.backpacks.client.GuitaBackpacksClient"
+    ],
+    "main": [
+      "com.macuguita.backpacks.common.GuitaBackpacks"
+    ]
+  },
+  "mixins": [
+    "gbackpacks.mixins.json"
+  ],
+  "accessWidener": "gbackpacks.accesswidener",
+  "depends": {
+    "fabricloader": "\u003e\u003d0.17.2",
+    "minecraft": "\u003e\u003d1.21.9",
+    "java": "\u003e\u003d21",
+    "fabric-api": "*",
+    "macu_lib": "\u003e\u003d1.0.5-1.21.9"
+  },
+  "suggests": {
+    "trinkets": "*"
+  },
+  "name": "guita\u0027s Backpacks",
+  "description": "backpacks!",
+  "authors": [
+    {
+      "name": "macuguita",
+      "contact": {
+        "discord": "macuguita"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://macuguita.com",
+    "sources": "https://github.com/macuguita/backpacks"
+  },
+  "license": "MIT",
+  "icon": "assets/gbackpacks/icon.png",
+  "custom": {
+    "cardinal-components": [
+      "gbackpacks:backpacks",
+      "gbackpacks:equipment"
+    ]
+  }
+}

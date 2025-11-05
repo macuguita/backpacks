@@ -25,10 +25,10 @@ package com.macuguita.backpacks.client.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.model.BlockStateModel;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -39,18 +39,18 @@ import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 @Environment(EnvType.CLIENT)
 public class GBModelLoadingPlugin implements ModelLoadingPlugin {
 
-	private static final Map<Identifier, ExtraModelKey<BlockStateModel>> blockStateModels = new HashMap<>();
+	private static final Map<ResourceLocation, ExtraModelKey<BlockStateModel>> blockStateModels = new HashMap<>();
 
 	@Override
 	public void initialize(Context context) {
-		ResourceManager resourceManager = MinecraftClient.getInstance().getResourceManager();
+		ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
 
-		var resources = resourceManager.findResources("models/backpacks", path -> path.getPath().endsWith(".json"));
+		var resources = resourceManager.listResources("models/backpacks", path -> path.getPath().endsWith(".json"));
 
 		resources.forEach((key, resource) -> {
 			String relPath = key.getPath()
 					.substring("models/".length(), key.getPath().length() - ".json".length());
-			Identifier id = Identifier.of(key.getNamespace(), relPath);
+			ResourceLocation id = ResourceLocation.fromNamespaceAndPath(key.getNamespace(), relPath);
 
 			ExtraModelKey<BlockStateModel> modelKey = ExtraModelKey.create(id::toString);
 
@@ -59,7 +59,7 @@ public class GBModelLoadingPlugin implements ModelLoadingPlugin {
 		});
 	}
 
-	public static Map<Identifier, ExtraModelKey<BlockStateModel>> getBlockStateModels() {
+	public static Map<ResourceLocation, ExtraModelKey<BlockStateModel>> getBlockStateModels() {
 		return blockStateModels;
 	}
 }
