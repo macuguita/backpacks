@@ -24,10 +24,9 @@ package com.macuguita.backpacks.common.payload;
 
 import com.macuguita.backpacks.client.gui.EquipmentScreenHandler;
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
+import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
+import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -35,6 +34,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -49,7 +49,7 @@ public record OpenEquipmentPayload() implements CustomPacketPayload {
 	public static final StreamCodec<RegistryFriendlyByteBuf, OpenEquipmentPayload> CODEC = StreamCodec.unit(new OpenEquipmentPayload());
 
 	@Override
-	public @NotNull Type<? extends CustomPacketPayload> type() {
+	public Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 
@@ -61,19 +61,24 @@ public record OpenEquipmentPayload() implements CustomPacketPayload {
 
 		@Override
 		public void receive(OpenEquipmentPayload payload, ServerPlayNetworking.Context context) {
-			if (EquipmentUtils.isTrinketsLoaded()) return;
+			if (EquipmentUtils.isAccessoriesLoaded()) return;
 			ServerPlayer player = context.player();
-			var factory = new MenuProvider() {
 
-				@Contract(value = " -> new", pure = true)
+			var factory = new MenuProvider() {
 				@Override
-				public @NotNull Component getDisplayName() {
+				public Component getDisplayName() {
 					return Component.empty();
 				}
 
 				@Override
-				public @NotNull AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-					return new EquipmentScreenHandler(syncId, playerInventory, GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getInventory());
+				public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+					// Get a working copy for the menu
+					SimpleContainer workingCopy = player.getAttachedOrCreate(
+							GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE,
+							() -> EquipmentAttachedData.DEFAULT
+					).getInventory();
+
+					return new EquipmentScreenHandler(syncId, playerInventory, workingCopy);
 				}
 			};
 

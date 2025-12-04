@@ -27,7 +27,6 @@ import com.macuguita.backpacks.client.render.state.BackpackBlockEntityRenderStat
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.Sheets;
@@ -45,6 +44,8 @@ import net.minecraft.world.phys.Vec3;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import java.util.Optional;
+
 @Environment(EnvType.CLIENT)
 public class BackpackBlockEntityRenderer implements BlockEntityRenderer<BackpackBlockEntity, BackpackBlockEntityRenderState> {
 
@@ -59,16 +60,16 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
 	}
 
 	@Override
-	public @NotNull BackpackBlockEntityRenderState createRenderState() {
+	public BackpackBlockEntityRenderState createRenderState() {
 		return new BackpackBlockEntityRenderState();
 	}
 
 	@Override
-	public void submit(@NotNull BackpackBlockEntityRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState) {
-		BlockStateModel model = GBModelReloadListener.INSTANCE.getModel(renderState.modelId);
+	public void submit(BackpackBlockEntityRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState) {
+		Optional<BlockStateModel> maybeModel = GBModelReloadListener.INSTANCE.getModel(renderState.modelId);
 		Direction direction = renderState.direction;
 
-		if (model == null)
+		if (maybeModel.isEmpty())
 			return;
 
 		poseStack.pushPose();
@@ -91,7 +92,7 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
 		nodeCollector.order(0).submitBlockModel(
 				poseStack,
 				Sheets.cutoutBlockSheet(),
-				model,
+				maybeModel.get(),
 				1, 1, 1,
 				renderState.lightCoords,
 				OverlayTexture.NO_OVERLAY,

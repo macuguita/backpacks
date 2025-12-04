@@ -23,7 +23,6 @@
 package com.macuguita.backpacks.client.gui.payload;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -43,7 +42,7 @@ public record BackpackInventoryPayload(int backpackSize, int slotIndex) implemen
 	);
 
 	@Override
-	public @NotNull Type<? extends CustomPacketPayload> type() {
+	public Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 }

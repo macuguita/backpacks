@@ -27,14 +27,12 @@ import java.util.UUID;
 import com.macuguita.backpacks.GBConfig;
 import com.macuguita.backpacks.client.gui.BackpackScreenHandler;
 import com.macuguita.backpacks.client.gui.payload.BackpackInventoryPayload;
+import com.macuguita.backpacks.common.attachments.BackpacksAttachedData;
+import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
-import com.macuguita.backpacks.common.components.BackpacksComponent;
-import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -74,7 +72,7 @@ public class BackpackItem extends BlockItem {
 		super(block, settings);
 	}
 
-	private static void toggleVisibility(@NotNull ItemStack stack) {
+	private static void toggleVisibility(ItemStack stack) {
 		Boolean visible = stack.get(GBComponents.VISIBLE.get());
 		boolean newValue = visible == null || !visible;
 		stack.set(GBComponents.VISIBLE.get(), newValue);
@@ -82,46 +80,51 @@ public class BackpackItem extends BlockItem {
 
 	public static void openOrCreateBackpackIfNotExists(Player player, int slotIndex) {
 		ItemStack backpack = EquipmentUtils.getBackpackFromSlotIndex(player, slotIndex);
+		Level level = player.level();
 
 		if (backpack.isEmpty()) {
 			return;
 		}
 
 		UUID uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
-		if (uuid == null && player.level() instanceof ServerLevel) {
+		if (uuid == null && level instanceof ServerLevel) {
 			if (!backpack.has(GBComponents.BACKPACK_UUID.get())) {
 				backpack.set(GBComponents.BACKPACK_UUID.get(), UUID.randomUUID());
 			}
 			uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
 		}
 
-		BackpacksComponent backpacksComponent = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(player.level().getScoreboard());
-		SimpleContainer inventory = backpacksComponent.getInventory(uuid);
+		BackpacksAttachedData backpacksAttachedData =
+				level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE,
+						() -> BackpacksAttachedData.DEFAULT);
+		SimpleContainer inventory = backpacksAttachedData.getInventory(uuid);
+
 		if (inventory == null) {
-			backpacksComponent.addInventory(uuid);
-			inventory = backpacksComponent.getInventory(uuid);
+			backpacksAttachedData = backpacksAttachedData.addInventory(uuid);
+			level.setAttached(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, backpacksAttachedData);
+			inventory = backpacksAttachedData.getInventory(uuid);
 		}
+
 		openBackpack(player, inventory, slotIndex);
+
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static void openBackpack(@NotNull Player player, SimpleContainer inventory, int slotIndex) {
+	public static void openBackpack(Player player, SimpleContainer inventory, int slotIndex) {
 		var factory = new ExtendedScreenHandlerFactory() {
 
 			@Override
-			public @NotNull AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+			public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
 				return new BackpackScreenHandler(syncId, playerInventory, inventory, slotIndex);
 			}
 
-			@Contract(value = " -> new", pure = true)
 			@Override
-			public @NotNull Component getDisplayName() {
+			public Component getDisplayName() {
 				return Component.translatable("gui.gbackpacks.backpack");
 			}
 
-			@Contract("_ -> new")
 			@Override
-			public @NotNull Object getScreenOpeningData(ServerPlayer player) {
+			public Object getScreenOpeningData(ServerPlayer player) {
 				return new BackpackInventoryPayload(inventory.getContainerSize(), slotIndex);
 			}
 		};
@@ -142,7 +145,7 @@ public class BackpackItem extends BlockItem {
 	}
 
 	@Override
-	public @NotNull InteractionResult use(Level level, @NotNull Player user, InteractionHand hand) {
+	public InteractionResult use(Level level, Player user, InteractionHand hand) {
 		ItemStack stack = user.getItemInHand(hand);
 		if (stack.has(GBComponents.BACKPACK_UUID.get())) {
 			if (level instanceof ServerLevel) {
@@ -168,7 +171,7 @@ public class BackpackItem extends BlockItem {
 	}
 
 	@Override
-	protected boolean updateCustomBlockEntityTag(BlockPos pos, @NotNull Level level, @Nullable Player player, ItemStack stack, BlockState state) {
+	protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, BlockState state) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack) {
 			if (stack.has(GBComponents.BACKPACK_UUID.get())) {
@@ -204,14 +207,16 @@ public class BackpackItem extends BlockItem {
 	public void onDestroyed(ItemEntity entity) {
 		super.onDestroyed(entity);
 		ItemStack stack = entity.getItem();
+		Level level = entity.level();
 		if (stack.has(GBComponents.BACKPACK_UUID.get())) {
 			UUID uuid = stack.get(GBComponents.BACKPACK_UUID.get());
 			if (Boolean.TRUE.equals(GBConfig.getBackpackDropItemsOnDestroyed())) {
-				SimpleContainer inv = GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.level().getScoreboard()).getInventory(uuid);
+				SimpleContainer inv = level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT).getInventory(uuid);
 				ItemUtils.onContainerDestroyed(entity, inv.items);
 			}
 			if (Boolean.TRUE.equals(GBConfig.getBackpackEntriesGetRemoved())) {
-				GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(entity.level().getScoreboard()).removeBackpack(uuid);
+				BackpacksAttachedData backpackAttachedData = level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT);
+				level.setAttached(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, backpackAttachedData.removeBackpack(uuid));
 			}
 		}
 	}

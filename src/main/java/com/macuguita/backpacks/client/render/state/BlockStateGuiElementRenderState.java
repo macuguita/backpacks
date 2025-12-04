@@ -22,7 +22,6 @@
 
 package com.macuguita.backpacks.client.render.state;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2f;
 
@@ -76,7 +75,7 @@ public record BlockStateGuiElementRenderState(
 	}
 
 	@Override
-	public @NotNull Matrix3x2f pose() {
+	public Matrix3x2f pose() {
 		return pose;
 	}
 }

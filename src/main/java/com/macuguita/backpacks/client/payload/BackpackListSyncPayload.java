@@ -27,7 +27,6 @@ import java.util.List;
 import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -51,7 +50,7 @@ public record BackpackListSyncPayload(
 	);
 
 	@Override
-	public CustomPacketPayload.@NotNull Type<? extends CustomPacketPayload> type() {
+	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 
@@ -62,7 +61,7 @@ public record BackpackListSyncPayload(
 	public static class Receiver implements ClientPlayNetworking.PlayPayloadHandler<BackpackListSyncPayload> {
 
 		@Override
-		public void receive(@NotNull BackpackListSyncPayload payload, ClientPlayNetworking.Context context) {
+		public void receive(BackpackListSyncPayload payload, ClientPlayNetworking.Context context) {
 			GuitaBackpacksClient.BACKPACKS.clear();
 			GuitaBackpacksClient.BACKPACKS.addAll(payload.list());
 		}

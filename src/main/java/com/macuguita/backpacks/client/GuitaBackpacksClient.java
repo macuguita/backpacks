@@ -39,6 +39,7 @@ import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.reg.GBBlockEntities;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
+import com.macuguita.backpacks.common.utils.AccessoriesStuff;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -80,6 +81,10 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 
 		BlockEntityRenderers.register(GBBlockEntities.BACKPACK, BackpackBlockEntityRenderer::new);
 
+		if (EquipmentUtils.isAccessoriesLoaded()) {
+			AccessoriesStuff.accessoriesClientInit();
+		}
+
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
 			if (entityRenderer instanceof AvatarRenderer<?> playerRenderer) {
 				registrationHelper.register(new BackpackFeatureRenderer<>(playerRenderer));
@@ -88,7 +93,7 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 
 		SpecialGuiElementRegistry.register(ctx -> new BlockStateGuiRenderer(ctx.vertexConsumers()));
 		MenuScreens.register(GuitaBackpacks.BACKPACK_SCREEN_HANDLER, BackpackScreen::new);
-		if (!EquipmentUtils.isTrinketsLoaded())
+		if (!EquipmentUtils.isAccessoriesLoaded())
 			MenuScreens.register(GuitaBackpacks.EQUIPMENT_SCREEN_HANDLER, EquipmentScreen::new);
 
 		ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, list) -> {

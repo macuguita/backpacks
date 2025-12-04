@@ -25,7 +25,6 @@ package com.macuguita.backpacks.common.payload;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -42,7 +41,7 @@ public record OpenBackpackPayload() implements CustomPacketPayload {
 	public static final StreamCodec<RegistryFriendlyByteBuf, OpenBackpackPayload> CODEC = StreamCodec.unit(new OpenBackpackPayload());
 
 	@Override
-	public @NotNull Type<? extends CustomPacketPayload> type() {
+	public Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 
@@ -53,7 +52,7 @@ public record OpenBackpackPayload() implements CustomPacketPayload {
 	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<OpenBackpackPayload> {
 
 		@Override
-		public void receive(OpenBackpackPayload payload, ServerPlayNetworking.@NotNull Context context) {
+		public void receive(OpenBackpackPayload payload, ServerPlayNetworking.Context context) {
 			ServerPlayer player = context.player();
 			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
 			if (backpackSlot != -1) {

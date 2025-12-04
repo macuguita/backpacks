@@ -27,6 +27,7 @@ import com.macuguita.backpacks.client.gui.BackpackScreenHandler;
 import com.macuguita.backpacks.client.gui.EquipmentScreenHandler;
 import com.macuguita.backpacks.client.gui.payload.BackpackInventoryPayload;
 import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
+import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.common.payload.OpenBackpackPayload;
 import com.macuguita.backpacks.common.payload.OpenEquipmentPayload;
@@ -36,8 +37,6 @@ import com.macuguita.backpacks.common.reg.GBItemGroups;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +64,7 @@ public class GuitaBackpacks implements ModInitializer {
 
 	public static final ResourceLocation DEFAULT_BACKPACK_MODEL_ID = GuitaBackpacks.id("backpacks/backpack");
 
-	@Contract("_ -> new")
-	public static @NotNull ResourceLocation id(String name) {
+	public static ResourceLocation id(String name) {
 		return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
 	}
 
@@ -79,6 +77,7 @@ public class GuitaBackpacks implements ModInitializer {
 		initRegistries();
 		initPayloads();
 		initEvents();
+		GBAttachmentTypes.init();
 		ResourceLoader.get(PackType.SERVER_DATA)
 				.registerReloader(BackpacksResourceReloadListener.ID, new BackpacksResourceReloadListener());
 	}

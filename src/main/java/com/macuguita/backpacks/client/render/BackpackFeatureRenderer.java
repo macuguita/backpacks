@@ -25,9 +25,9 @@ package com.macuguita.backpacks.client.render;
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.state.BackpackRenderState;
 import com.macuguita.backpacks.common.reg.GBComponents;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.model.HumanoidModel;
@@ -44,6 +44,8 @@ import net.minecraft.world.item.Items;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import java.util.Optional;
+
 @Environment(EnvType.CLIENT)
 public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
 
@@ -52,7 +54,9 @@ public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends Hu
 	}
 
 	@Override
-	public void submit(PoseStack poseStack, SubmitNodeCollector nodeCollector, int packedLight, @NotNull S renderState, float yRot, float xRot) {
+	public void submit(PoseStack poseStack, SubmitNodeCollector nodeCollector, int packedLight, S renderState, float yRot, float xRot) {
+		if (EquipmentUtils.isAccessoriesLoaded())
+			return;
 
 		@Nullable BackpackRenderState backpackRenderState = renderState.getData(BackpackRenderState.KEY);
 
@@ -72,9 +76,9 @@ public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends Hu
 		if (Boolean.FALSE.equals(backpack.get(GBComponents.VISIBLE.get())))
 			return;
 
-		BlockStateModel model = GBModelReloadListener.INSTANCE.getModel(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
+		Optional<BlockStateModel> maybeModel = GBModelReloadListener.INSTANCE.getModel(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
 
-		if (model == null)
+		if (maybeModel.isEmpty())
 			return;
 
 		poseStack.pushPose();
@@ -98,7 +102,7 @@ public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends Hu
 		nodeCollector.order(0).submitBlockModel(
 				poseStack,
 				Sheets.cutoutBlockSheet(),
-				model,
+				maybeModel.get(),
 				1, 1, 1,
 				packedLight,
 				OverlayTexture.NO_OVERLAY,

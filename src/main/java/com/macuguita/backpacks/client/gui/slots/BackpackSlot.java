@@ -35,11 +35,9 @@ import net.minecraft.world.item.ItemStack;
 
 public class BackpackSlot extends Slot {
 
-	@Nullable
-	private final TagKey<Item> backpackBlacklist;
-	@Nullable
-	private final Predicate<ItemStack> insertPredicate;
-	private final ItemStack backpack;
+	@Nullable private final TagKey<Item> backpackBlacklist;
+	@Nullable private final Predicate<ItemStack> insertPredicate;
+	@Nullable private final ItemStack backpack;
 
 	public BackpackSlot(Container inventory, int index, int x, int y, @Nullable Predicate<ItemStack> insertPredicate) {
 		this(inventory, index, x, y, null, null, insertPredicate);
@@ -49,7 +47,7 @@ public class BackpackSlot extends Slot {
 		this(inventory, index, x, y, backpack, backpackBlacklist, null);
 	}
 
-	public BackpackSlot(Container inventory, int index, int x, int y, ItemStack backpack, @Nullable TagKey<Item> backpackBlacklist, @Nullable Predicate<ItemStack> insertPredicate) {
+	public BackpackSlot(Container inventory, int index, int x, int y, @Nullable ItemStack backpack, @Nullable TagKey<Item> backpackBlacklist, @Nullable Predicate<ItemStack> insertPredicate) {
 		super(inventory, index, x, y);
 		this.backpack = backpack;
 		this.backpackBlacklist = backpackBlacklist;

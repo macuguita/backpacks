@@ -24,8 +24,11 @@ package com.macuguita.backpacks.client.gui;
 
 import com.macuguita.backpacks.client.gui.slots.BackpackSlot;
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
+import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.item.BackpackItem;
-import org.jetbrains.annotations.NotNull;
+
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -43,7 +46,7 @@ public class EquipmentScreenHandler extends AbstractContainerMenu {
 		this(syncId, playerInventory, new SimpleContainer(1));
 	}
 
-	public EquipmentScreenHandler(int syncId, @NotNull Inventory playerInventory, Container inventory) {
+	public EquipmentScreenHandler(int syncId, Inventory playerInventory, Container inventory) {
 		super(GuitaBackpacks.EQUIPMENT_SCREEN_HANDLER, syncId);
 		checkContainerSize(inventory, 1);
 		this.inventory = inventory;
@@ -64,7 +67,7 @@ public class EquipmentScreenHandler extends AbstractContainerMenu {
 	}
 
 	@Override
-	public @NotNull ItemStack quickMoveStack(Player player, int index) {
+	public ItemStack quickMoveStack(Player player, int index) {
 		ItemStack newStack = ItemStack.EMPTY;
 		Slot sourceSlot = this.slots.get(index);
 
@@ -97,5 +100,18 @@ public class EquipmentScreenHandler extends AbstractContainerMenu {
 	@Override
 	public boolean stillValid(Player player) {
 		return true;
+	}
+
+	@Override
+	public void removed(Player player) {
+		super.removed(player);
+
+		if (!player.level().isClientSide() && !EquipmentUtils.isAccessoriesLoaded()) {
+			// Save the container contents back to the attachment
+			if (this.inventory instanceof SimpleContainer simpleContainer) {
+				EquipmentAttachedData updatedData = new EquipmentAttachedData(simpleContainer);
+				player.setAttached(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, updatedData);
+			}
+		}
 	}
 }

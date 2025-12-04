@@ -25,7 +25,6 @@ package com.macuguita.backpacks.common.block.entity;
 import java.util.UUID;
 
 import com.macuguita.backpacks.common.reg.GBBlockEntities;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -93,7 +92,7 @@ public class BackpackBlockEntity extends BlockEntity {
 	}
 
 	@Override
-	public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registryLookup) {
+	public CompoundTag getUpdateTag(HolderLookup.Provider registryLookup) {
 		return this.saveWithoutMetadata(registryLookup);
 	}
 }

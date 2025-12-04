@@ -22,8 +22,10 @@
 
 package com.macuguita.backpacks.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import com.macuguita.backpacks.GBConfig;
-import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
+import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
+import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -42,8 +44,11 @@ public class PlayerMixin {
 			method = "dropEquipment",
 			at = @At("TAIL")
 	)
-	private void gbackpacks$dropInventory(CallbackInfo info) {
-		if (EquipmentUtils.isTrinketsLoaded()) return;
+	private void gbackpacks$dropInventory(
+			CallbackInfo info,
+			@Local(argsOnly = true) ServerLevel level
+	) {
+		if (EquipmentUtils.isAccessoriesLoaded()) return;
 		if (Boolean.FALSE.equals(GBConfig.getBackpackDropsOnDeath())) return;
 		Player player = (Player) (Object) this;
 		boolean keepInv = ((ServerLevel) player.level()).getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
@@ -51,7 +56,8 @@ public class PlayerMixin {
 		ItemStack stack = EquipmentUtils.getEquippedBackpack(player);
 		if (!keepInv && !stack.isEmpty()) {
 			player.drop(stack.copy(), true, false);
-			GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).clearInventory();
+			EquipmentAttachedData equipmentAttachedData = player.getAttachedOrCreate(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, () -> EquipmentAttachedData.DEFAULT);
+			player.setAttached(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, equipmentAttachedData.clear());
 		}
 	}
 }

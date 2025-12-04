@@ -22,13 +22,18 @@
 
 package com.macuguita.backpacks.common.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.macuguita.backpacks.common.reg.GBComponents;
-import org.jetbrains.annotations.NotNull;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.ItemStackWithSlot;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,7 +44,31 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 
 public class BackpackUtils {
 
-	public static void checkForDuplicateBackpacks(@NotNull Player player, UUID backpackUuid, ItemStack backpack) {
+	public static final Codec<SimpleContainer> SIMPLE_CONTAINER_CODEC =
+			RecordCodecBuilder.create(instance -> instance.group(
+					Codec.INT.fieldOf("size")
+							.forGetter(SimpleContainer::getContainerSize),
+					ItemStackWithSlot.CODEC.listOf()
+							.fieldOf("items")
+							.forGetter(container -> {
+								List<ItemStackWithSlot> list = new ArrayList<>();
+								for (int i = 0; i < container.getContainerSize(); i++) {
+									ItemStack stack = container.getItem(i);
+									if (!stack.isEmpty()) {
+										list.add(new ItemStackWithSlot(i, stack));
+									}
+								}
+								return list;
+							})
+			).apply(instance, (size, items) -> {
+				SimpleContainer container = new SimpleContainer(size);
+				for (ItemStackWithSlot isws : items) {
+					container.setItem(isws.slot(), isws.stack());
+				}
+				return container;
+			}));
+
+	public static void checkForDuplicateBackpacks(Player player, UUID backpackUuid, ItemStack backpack) {
 		Inventory inv = player.getInventory();
 		for (int i = 0; i < inv.getContainerSize(); i++) {
 			ItemStack other = inv.getItem(i);
@@ -53,7 +82,7 @@ public class BackpackUtils {
 		}
 	}
 
-	public static void dedupeBackpackItemEntity(@NotNull ItemEntity newEntity) {
+	public static void dedupeBackpackItemEntity(ItemEntity newEntity) {
 		ItemStack newStack = newEntity.getItem();
 		if (!newStack.has(GBComponents.BACKPACK_UUID.get())) return;
 

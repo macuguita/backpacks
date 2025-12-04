@@ -24,12 +24,15 @@ package com.macuguita.backpacks.client.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+
+import javax.annotation.Nullable;
 
 public class GBModelReloadListener implements ResourceManagerReloadListener {
 	public static final GBModelReloadListener INSTANCE = new GBModelReloadListener();
@@ -53,7 +56,7 @@ public class GBModelReloadListener implements ResourceManagerReloadListener {
 		}
 	}
 
-	public BlockStateModel getModel(ResourceLocation id) {
-		return loadedModels.get(id);
+	public Optional<BlockStateModel> getModel(@Nullable ResourceLocation id) {
+		return Optional.ofNullable(loadedModels.get(id));
 	}
 }

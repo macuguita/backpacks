@@ -50,31 +50,27 @@ base {
 }
 
 repositories {
-    maven {
-        name = "ParchmentMC"
-        url = uri("https://maven.parchmentmc.org")
-    }
-    maven {
-        name = "Shedaniel maven"
-        url = uri("https://maven.shedaniel.me/")
-    }
-    maven {
-        name = "TerraformersMC"
-        url = uri("https://maven.terraformersmc.com/")
-    }
-    maven {
-        name = "Ladysnake"
-        url = uri("https://maven.ladysnake.org/releases")
-    }
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = uri("https://api.modrinth.com/maven")
+    val exclusiveRepos = listOf(
+        Triple("ParchmentMC", "https://maven.parchmentmc.org", listOf("org.parchmentmc.data")),
+        Triple("Shedaniel", "https://maven.shedaniel.me/", listOf("me.shedaniel.cloth")),
+        Triple("TerraformersMC", "https://maven.terraformersmc.com/", listOf("com.terraformersmc", "dev.emi")),
+        Triple("Modrinth", "https://api.modrinth.com/maven", listOf("maven.modrinth")),
+        Triple("BlameJared", "https://maven.blamejared.com", listOf("net\\.darkhax\\..+", "mezz.jei")),
+        Triple("WispForest", "https://maven.wispforest.io/releases", listOf("io\\.wispforest(\\..+)?")),
+    )
+
+    exclusiveRepos.forEach { (name, url, groups) ->
+        exclusiveContent {
+            forRepository {
+                maven {
+                    this.name = name
+                    setUrl(url)
+                }
             }
-        }
-        filter {
-            includeGroup("maven.modrinth")
+            if (groups.isNotEmpty())
+                filter {
+                    groups.forEach { includeGroupByRegex(it) }
+                }
         }
     }
 }
@@ -101,41 +97,18 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:${BuildConfig.modMenuVersion}"){
         exclude("net.fabricmc.fabric-api")
     }
-//    modLocalRuntime("dev.emi:emi-fabric:${BuildConfig.emiVersion}"){
-//        exclude("net.fabricmc.fabric-api")
-//    }
+
     if (true) {
-        modImplementation("maven.modrinth:trinkets-canary:${BuildConfig.trinketsVersion}") {
+        modImplementation("io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}") {
             exclude("net.fabricmc.fabric-api")
-            exclude("org.ladysnake.cardinal-components-api")
         }
-        add("prodMods", "maven.modrinth:trinkets-canary:${BuildConfig.trinketsVersion}")
+        add("prodMods", "io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}")
     } else {
-        modCompileOnly("maven.modrinth:trinkets-canary:${BuildConfig.trinketsVersion}") {
+        modCompileOnly("io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}") {
             exclude("net.fabricmc.fabric-api")
-            exclude("org.ladysnake.cardinal-components-api")
         }
     }
-
-    modImplementation("org.ladysnake.cardinal-components-api:cardinal-components-base:${BuildConfig.ccaVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
-    modImplementation("org.ladysnake.cardinal-components-api:cardinal-components-scoreboard:${BuildConfig.ccaVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
-    modImplementation("org.ladysnake.cardinal-components-api:cardinal-components-entity:${BuildConfig.ccaVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
-
-    include("org.ladysnake.cardinal-components-api:cardinal-components-base:${BuildConfig.ccaVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
-    include("org.ladysnake.cardinal-components-api:cardinal-components-scoreboard:${BuildConfig.ccaVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
-    include("org.ladysnake.cardinal-components-api:cardinal-components-entity:${BuildConfig.ccaVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
+    compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
     add("prodMods", "net.fabricmc.fabric-api:fabric-api:${BuildConfig.fabricVersion}")
     add("prodMods", "maven.modrinth:macu-lib:${BuildConfig.maculibVersion}-fabric")
@@ -159,7 +132,7 @@ tasks.register<net.fabricmc.loom.task.prod.ClientProductionRunTask>("prodClient"
 }
 
 tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
-    outputFile = project.file("src/main/generated/fabric.mod.json")
+    outputFile = project.file("src/main/resources/fabric.mod.json")
 
     json {
         modId = BuildConfig.modId
@@ -184,7 +157,6 @@ tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
         entrypoint("main", "com.macuguita.backpacks.common.GuitaBackpacks")
         entrypoint("client", "com.macuguita.backpacks.client.GuitaBackpacksClient")
         entrypoint("fabric-datagen", "com.macuguita.backpacks.datagen.GuitaBackpacksDatagen")
-        entrypoint("cardinal-components", "com.macuguita.backpacks.common.components.GuitaBackpacksComponents")
 
         depends("fabricloader", ">=${BuildConfig.loaderVersion}")
         depends("minecraft", BuildConfig.minecraftVersionRange)
@@ -192,9 +164,7 @@ tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
         depends("fabric-api", "*")
         depends("macu_lib", ">=${BuildConfig.maculibVersion}")
 
-        suggests("trinkets", "*")
-
-        customData.put("cardinal-components", arrayOf("${BuildConfig.modId}:backpacks", "${BuildConfig.modId}:equipment"))
+        suggests("accessories", "*")
     }
 }
 
@@ -249,8 +219,7 @@ publishMods {
             minecraftVersions.add(version)
         requires("fabric-api")
         requires("macu-lib")
-        optional("trinkets-canary")
-        embeds("cardinal-components-api")
+        optional("accessories")
     }
     curseforge {
         projectId = "1361094"
@@ -264,15 +233,7 @@ publishMods {
         projectSlug = "guitas-backpacks"
         requires("fabric-api")
         requires("macu-lib")
-        embeds("cardinal-components-api")
-    }
-    github {
-        accessToken = providers.environmentVariable("GITHUB_TOKEN")
-        repository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("macuguita/dryRun")
-        commitish = providers.environmentVariable("GITHUB_REF_NAME").getOrElse("dryrun")
-
-        tagName = "release/${BuildConfig.modVersion}"
-        allowEmptyFiles = true
+        optional("accessories")
     }
 }
 

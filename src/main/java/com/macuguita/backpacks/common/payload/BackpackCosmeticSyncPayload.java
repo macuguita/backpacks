@@ -23,10 +23,10 @@
 package com.macuguita.backpacks.common.payload;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
+import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
+import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -52,7 +52,7 @@ public record BackpackCosmeticSyncPayload(int slotIndex, ResourceLocation newId)
 	);
 
 	@Override
-	public @NotNull Type<? extends CustomPacketPayload> type() {
+	public Type<? extends CustomPacketPayload> type() {
 		return ID;
 	}
 
@@ -63,7 +63,7 @@ public record BackpackCosmeticSyncPayload(int slotIndex, ResourceLocation newId)
 	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<BackpackCosmeticSyncPayload> {
 
 		@Override
-		public void receive(BackpackCosmeticSyncPayload payload, ServerPlayNetworking.@NotNull Context context) {
+		public void receive(BackpackCosmeticSyncPayload payload, ServerPlayNetworking.Context context) {
 			ServerPlayer player = context.player();
 
 			if (payload.slotIndex == -1) {
@@ -75,10 +75,18 @@ public record BackpackCosmeticSyncPayload(int slotIndex, ResourceLocation newId)
 				return;
 			}
 
+			System.out.println(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
 			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), payload.newId());
+			System.out.println(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
 
-			if (!EquipmentUtils.isTrinketsLoaded() && payload.slotIndex >= 20000) {
-				GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getInventory().setChanged();
+			if (!EquipmentUtils.isAccessoriesLoaded() && payload.slotIndex >= 20000) {
+				EquipmentAttachedData currentData = player.getAttachedOrCreate(
+						GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE,
+						() -> EquipmentAttachedData.DEFAULT
+				);
+
+				EquipmentAttachedData updatedData = currentData.setBackpack(backpack);
+				player.setAttached(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, updatedData);
 			}
 		}
 	}

@@ -26,7 +26,6 @@ import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.macuguita.lib.platform.registry.GuitaRegistries;
 import com.macuguita.lib.platform.registry.GuitaRegistry;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -45,7 +44,7 @@ public class GBBlockEntities {
 			"backpack", BackpackBlockEntity::new, GBObjects.BACKPACK_BLOCK.get()
 	);
 
-	private static <T extends BlockEntity> @NotNull BlockEntityType<T> register(
+	private static <T extends BlockEntity> BlockEntityType<T> register(
 			String name,
 			FabricBlockEntityTypeBuilder.Factory<? extends T> entityFactory,
 			Block... blocks

@@ -28,7 +28,6 @@ import com.macuguita.backpacks.client.gui.slots.CustomSlot;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.reg.GBItemTags;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -55,11 +54,11 @@ public class BackpackScreenHandler extends AbstractContainerMenu {
 	private int scrollOffset = 0;
 
 	// TODO: should probably migrate to PropertyDelegates https://wiki.fabricmc.net/tutorial:propertydelegates
-	public BackpackScreenHandler(int syncId, Inventory playerInventory, @NotNull BackpackInventoryPayload buf) {
+	public BackpackScreenHandler(int syncId, Inventory playerInventory, BackpackInventoryPayload buf) {
 		this(syncId, playerInventory, new SimpleContainer(buf.backpackSize()), buf.slotIndex());
 	}
 
-	public BackpackScreenHandler(int syncId, @NotNull Inventory playerInventory, Container inventory, int slotIndex) {
+	public BackpackScreenHandler(int syncId, Inventory playerInventory, Container inventory, int slotIndex) {
 		super(GuitaBackpacks.BACKPACK_SCREEN_HANDLER, syncId);
 		checkContainerSize(inventory, inventory.getContainerSize());
 		this.slotIndex = slotIndex;
@@ -157,7 +156,7 @@ public class BackpackScreenHandler extends AbstractContainerMenu {
 	}
 
 	@Override
-	public @NotNull ItemStack quickMoveStack(Player player, int invSlot) {
+	public ItemStack quickMoveStack(Player player, int invSlot) {
 		Slot slot = this.slots.get(invSlot);
 		if (!slot.hasItem()) return ItemStack.EMPTY;
 
@@ -185,7 +184,7 @@ public class BackpackScreenHandler extends AbstractContainerMenu {
 		return newStack;
 	}
 
-	private boolean insertItemIntoBackpack(@NotNull ItemStack stack) {
+	private boolean insertItemIntoBackpack(ItemStack stack) {
 		if (stack.is(GBItemTags.BACKPACK_BLACKLIST)) return false;
 		for (int i = 0; i < inventory.getContainerSize(); i++) {
 			ItemStack slotStack = inventory.getItem(i);

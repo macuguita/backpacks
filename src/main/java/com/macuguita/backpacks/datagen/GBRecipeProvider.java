@@ -25,7 +25,6 @@ package com.macuguita.backpacks.datagen;
 import java.util.concurrent.CompletableFuture;
 
 import com.macuguita.backpacks.common.reg.GBObjects;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -45,7 +44,7 @@ public class GBRecipeProvider extends FabricRecipeProvider {
 	}
 
 	@Override
-	protected @NotNull RecipeProvider createRecipeProvider(HolderLookup.Provider wrapperLookup, RecipeOutput recipeExporter) {
+	protected RecipeProvider createRecipeProvider(HolderLookup.Provider wrapperLookup, RecipeOutput recipeExporter) {
 		return new RecipeProvider(wrapperLookup, recipeExporter) {
 
 			@Override
@@ -64,7 +63,7 @@ public class GBRecipeProvider extends FabricRecipeProvider {
 	}
 
 	@Override
-	public @NotNull String getName() {
+	public String getName() {
 		return "guita's Backpacks";
 	}
 }

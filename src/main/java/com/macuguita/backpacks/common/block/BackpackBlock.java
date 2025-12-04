@@ -25,14 +25,14 @@ package com.macuguita.backpacks.common.block;
 import java.util.Map;
 import java.util.UUID;
 
+import com.macuguita.backpacks.common.attachments.BackpacksAttachedData;
+import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
-import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.mojang.serialization.MapCodec;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
@@ -75,7 +75,7 @@ public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 	}
 
 	@Override
-	protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+	protected MapCodec<? extends BaseEntityBlock> codec() {
 		return simpleCodec(BackpackBlock::new);
 	}
 
@@ -85,7 +85,7 @@ public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 	}
 
 	@Override
-	public @NotNull BlockState playerWillDestroy(@NotNull Level level, BlockPos pos, BlockState state, Player player) {
+	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack) {
 			ItemStack stack = new ItemStack(GBObjects.BACKPACK.get());
@@ -101,7 +101,7 @@ public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 	}
 
 	@Override
-	protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING);
 	}
 
@@ -130,53 +130,50 @@ public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 		return true;
 	}
 
-	private @Nullable SimpleContainer getInventory(@NotNull BlockGetter level, BlockPos pos, MinecraftServer server) {
+	private @Nullable SimpleContainer getInventory(Level level, BlockPos pos, MinecraftServer server) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack) {
 			UUID uuid = backpack.getUuid();
-			if (server != null) {
-				return GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(server.getScoreboard()).getInventory(uuid);
-			}
+			return level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT).getInventory(uuid);
 		}
 		return null;
 	}
 
 	@Override
-	public BlockState getStateForPlacement(@NotNull BlockPlaceContext ctx) {
+	public BlockState getStateForPlacement(BlockPlaceContext ctx) {
 		return this.defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
 	}
 
 	@Override
-	protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
 		if (level instanceof ServerLevel serverLevel) {
-			BlockEntity be = level.getBlockEntity(pos);
+			BlockEntity be = serverLevel.getBlockEntity(pos);
 			if (be instanceof BackpackBlockEntity backpackBe) {
 				UUID uuid = backpackBe.getUuid();
-				if (uuid != null) {
-					SimpleContainer inventory = getInventory(level, pos, player.level().getServer());
-					if (inventory == null) {
-						GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(serverLevel.getScoreboard()).addInventory(uuid);
-						inventory = getInventory(level, pos, player.level().getServer());
-					}
-					BackpackItem.openBackpack(player, inventory, -1);
-					return InteractionResult.SUCCESS_SERVER;
+				SimpleContainer inventory = getInventory(serverLevel, pos, player.level().getServer());
+				if (inventory == null) {
+					BackpacksAttachedData attachedData = serverLevel.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT);
+					serverLevel.setAttached(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, attachedData.addInventory(uuid));
+					inventory = getInventory(serverLevel, pos, player.level().getServer());
 				}
+				BackpackItem.openBackpack(player, inventory, -1);
+				return InteractionResult.SUCCESS_SERVER;
 			}
 		}
 		return InteractionResult.SUCCESS;
 	}
 
 	@Override
-	protected @NotNull BlockState rotate(@NotNull BlockState state, @NotNull Rotation rotation) {
+	protected BlockState rotate(BlockState state, Rotation rotation) {
 		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
 	}
 
 	@Override
-	protected @NotNull BlockState mirror(@NotNull BlockState state, @NotNull Mirror mirror) {
+	protected BlockState mirror(BlockState state, Mirror mirror) {
 		return state.rotate(mirror.getRotation(state.getValue(FACING)));
 	}
 
-	private VoxelShape getVoxelShape(@NotNull BlockGetter level, BlockPos pos) {
+	private VoxelShape getVoxelShape(BlockGetter level, BlockPos pos) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack && backpack.getItemModelId() != null) {
 			ResourceLocation modelId = backpack.getItemModelId();
@@ -197,12 +194,12 @@ public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 	}
 
 	@Override
-	protected @NotNull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+	protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		return getVoxelShape(level, pos);
 	}
 
 	@Override
-	protected @NotNull VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+	protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
 		return getVoxelShape(level, pos);
 	}
 }

@@ -23,7 +23,6 @@
 package com.macuguita.backpacks.client.gui;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -47,7 +46,7 @@ public class EquipmentScreen extends AbstractContainerScreen<EquipmentScreenHand
 	}
 
 	@Override
-	protected void renderBg(@NotNull GuiGraphics context, float delta, int mouseX, int mouseY) {
+	protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
 		int guiX = (this.width - this.imageWidth) / 2;
 		int guiY = (this.height - this.imageHeight) / 2;
 

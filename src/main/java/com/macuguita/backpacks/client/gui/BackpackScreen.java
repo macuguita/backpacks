@@ -25,7 +25,6 @@ package com.macuguita.backpacks.client.gui;
 import com.macuguita.backpacks.client.gui.widgets.CustomizationWidget;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -99,7 +98,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandle
 	}
 
 	@Override
-	protected void renderLabels(@NotNull GuiGraphics context, int mouseX, int mouseY) {
+	protected void renderLabels(GuiGraphics context, int mouseX, int mouseY) {
 		int backpackTitleY = 3;
 		context.drawString(this.font, this.title, SIDE_PADDING, backpackTitleY, CommonColors.DARK_GRAY, false);
 
@@ -108,7 +107,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandle
 	}
 
 	@Override
-	protected void renderBg(@NotNull GuiGraphics context, float delta, int mouseX, int mouseY) {
+	protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
 		int guiX = (this.width - this.imageWidth) / 2;
 		int guiY = (this.height - this.imageHeight) / 2;
 

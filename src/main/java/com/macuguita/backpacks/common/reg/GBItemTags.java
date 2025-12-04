@@ -23,7 +23,6 @@
 package com.macuguita.backpacks.common.reg;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -33,9 +32,9 @@ import net.minecraft.world.item.Item;
 public class GBItemTags {
 
 	public static final TagKey<Item> BACKPACK_BLACKLIST = createTag(GuitaBackpacks.id("backpack_blacklist"));
-	public static final TagKey<Item> TRINKETS_CHEST = createTag(ResourceLocation.fromNamespaceAndPath("trinkets", "chest/back"));
+	public static final TagKey<Item> ACCESSORIES_CHEST = createTag(ResourceLocation.fromNamespaceAndPath("accessories", "back"));
 
-	private static @NotNull TagKey<Item> createTag(ResourceLocation id) {
+	private static TagKey<Item> createTag(ResourceLocation id) {
 		return TagKey.create(Registries.ITEM, id);
 	}
 }

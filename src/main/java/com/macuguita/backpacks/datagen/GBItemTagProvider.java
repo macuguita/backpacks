@@ -43,8 +43,8 @@ public class GBItemTagProvider extends FabricTagProvider.ItemTagProvider {
 	protected void addTags(HolderLookup.Provider wrapperLookup) {
 		valueLookupBuilder(GBItemTags.BACKPACK_BLACKLIST)
 				.add(GBObjects.BACKPACK.get())
-				.forceAddTag(ConventionalItemTags.SHULKER_BOXES);
-		valueLookupBuilder(GBItemTags.TRINKETS_CHEST)
+				.addOptionalTag(ConventionalItemTags.SHULKER_BOXES);
+		valueLookupBuilder(GBItemTags.ACCESSORIES_CHEST)
 				.add(GBObjects.BACKPACK.get());
 	}
 }

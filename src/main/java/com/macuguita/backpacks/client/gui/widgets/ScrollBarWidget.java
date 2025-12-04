@@ -23,7 +23,6 @@
 package com.macuguita.backpacks.client.gui.widgets;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -65,7 +64,7 @@ public class ScrollBarWidget extends AbstractWidget {
 	}
 
 	@Override
-	protected void renderWidget(@NotNull GuiGraphics context, int mouseX, int mouseY, float delta) {
+	protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		int x = getX();
 		int y = getY();
 
@@ -121,7 +120,7 @@ public class ScrollBarWidget extends AbstractWidget {
 	}
 
 	@Override
-	public boolean mouseReleased(@NotNull MouseButtonEvent click) {
+	public boolean mouseReleased(MouseButtonEvent click) {
 		if (click.button() == 0) {
 			this.scrolling = false;
 		}
@@ -166,7 +165,7 @@ public class ScrollBarWidget extends AbstractWidget {
 	}
 
 	@Override
-	protected void updateWidgetNarration(@NotNull NarrationElementOutput builder) {
+	protected void updateWidgetNarration(NarrationElementOutput builder) {
 		builder.add(NarratedElementType.TITLE, Component.translatable("narration.gbackpacks.scroll_bar"));
 	}
 

@@ -34,7 +34,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.GsonHelper;
@@ -46,24 +45,20 @@ public class GBConfig {
 
 	private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("gbackpacks.json");
 
-	private static Configuration CONFIG = null;
+	private static @Nullable Configuration CONFIG = null;
 
-	@Contract(pure = true)
 	public static @Nullable Integer getDefaultBackpackSize() {
 		return CONFIG != null ? CONFIG.defaultBackpackSize : null;
 	}
 
-	@Contract(pure = true)
 	public static @Nullable Boolean getBackpackEntriesGetRemoved() {
 		return CONFIG != null ? CONFIG.backpackEntriesGetRemoved : null;
 	}
 
-	@Contract(pure = true)
 	public static @Nullable Boolean getBackpackDropItemsOnDestroyed() {
 		return CONFIG != null ? CONFIG.backpackDropItemsOnDestroyed : null;
 	}
 
-	@Contract(pure = true)
 	public static @Nullable Boolean getBackpackDropsOnDeath() {
 		return CONFIG != null ? CONFIG.backpackDropsOnDeath : null;
 	}

@@ -33,7 +33,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.TextureSetup;
@@ -60,7 +59,7 @@ public class BlockStateGuiRenderer extends PictureInPictureRenderer<BlockStateGu
 	}
 
 	@Override
-	public @NotNull Class<BlockStateGuiElementRenderState> getRenderStateClass() {
+	public Class<BlockStateGuiElementRenderState> getRenderStateClass() {
 		return BlockStateGuiElementRenderState.class;
 	}
 
@@ -103,12 +102,12 @@ public class BlockStateGuiRenderer extends PictureInPictureRenderer<BlockStateGu
 		matrices.scale(1, -1, 1);
 
 		var model = GBModelReloadListener.INSTANCE.getModel(renderState.modelId());
-		if (model != null) {
+		if (model.isPresent()) {
 			VertexConsumer buffer = bufferSource.getBuffer(Sheets.cutoutBlockSheet());
 			int light = 0xF000F0;
 			int overlay = OverlayTexture.NO_OVERLAY;
 
-			for (var part : model.collectParts(mc.level != null ? mc.level.random : RandomSource.create())) {
+			for (var part : model.get().collectParts(mc.level != null ? mc.level.random : RandomSource.create())) {
 				for (var dir : Direction.values()) {
 					for (var quad : part.getQuads(dir)) {
 						buffer.putBulkData(matrices.last(), quad, 1f, 1f, 1f, 1f, light, overlay);
@@ -149,7 +148,7 @@ public class BlockStateGuiRenderer extends PictureInPictureRenderer<BlockStateGu
 	protected void renderToTexture(BlockStateGuiElementRenderState renderState, PoseStack poseStack) {}
 
 	@Override
-	protected @NotNull String getTextureLabel() {
+	protected String getTextureLabel() {
 		return "blockstate gui renderer";
 	}
 }

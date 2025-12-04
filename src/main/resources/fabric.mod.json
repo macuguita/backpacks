@@ -1,14 +1,11 @@
 {
   "schemaVersion": 1,
   "id": "gbackpacks",
-  "version": "1.21.10-beta+5a",
+  "version": "1.21.10-beta+6",
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [
       "com.macuguita.backpacks.datagen.GuitaBackpacksDatagen"
-    ],
-    "cardinal-components": [
-      "com.macuguita.backpacks.common.components.GuitaBackpacksComponents"
     ],
     "client": [
       "com.macuguita.backpacks.client.GuitaBackpacksClient"
@@ -22,14 +19,14 @@
   ],
   "accessWidener": "gbackpacks.accesswidener",
   "depends": {
-    "fabricloader": "\u003e\u003d0.17.2",
+    "fabricloader": "\u003e\u003d0.18.1",
     "minecraft": "\u003e\u003d1.21.9",
     "java": "\u003e\u003d21",
     "fabric-api": "*",
     "macu_lib": "\u003e\u003d1.0.5-1.21.9"
   },
   "suggests": {
-    "trinkets": "*"
+    "accessories": "*"
   },
   "name": "guita\u0027s Backpacks",
   "description": "backpacks!",
@@ -46,11 +43,5 @@
     "sources": "https://github.com/macuguita/backpacks"
   },
   "license": "MIT",
-  "icon": "assets/gbackpacks/icon.png",
-  "custom": {
-    "cardinal-components": [
-      "gbackpacks:backpacks",
-      "gbackpacks:equipment"
-    ]
-  }
+  "icon": "assets/gbackpacks/icon.png"
 }

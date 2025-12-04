@@ -30,7 +30,6 @@ import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3x2f;
 
 import net.minecraft.client.Minecraft;
@@ -46,6 +45,10 @@ import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
+import javax.annotation.Nullable;
+
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class BackpackCustomizationScreen extends Screen {
@@ -67,18 +70,18 @@ public class BackpackCustomizationScreen extends Screen {
 	public final Screen parent;
 	private ResourceLocation selectedModelId;
 	private int scrollOffset = 0;
-	private ScrollBarWidget scrollBar;
+	private @Nullable ScrollBarWidget scrollBar = null;
 
 	public BackpackCustomizationScreen(Component title, Screen parent, int slotIndex) {
 		super(title);
 		this.parent = parent;
 		this.backpack = EquipmentUtils.getBackpackFromSlotIndex(Minecraft.getInstance().player, slotIndex);
 		this.slotIndex = slotIndex;
-		this.currentModelId = backpack.get(GBComponents.BACKPACK_MODEL_ID.get());
+		this.currentModelId = Objects.requireNonNull(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
 		this.selectedModelId = this.currentModelId;
 	}
 
-	public static void drawModelInGui(@NotNull GuiGraphics context, ResourceLocation modelId, int x, int y, float scale) {
+	public static void drawModelInGui(GuiGraphics context, ResourceLocation modelId, int x, int y, float scale) {
 		int size = 27;
 
 		float centerX = x + size / 2f;
@@ -126,6 +129,7 @@ public class BackpackCustomizationScreen extends Screen {
 
 					@Override
 					public int getMaxScrollOffset() {
+						if (scrollBar == null) return 0;
 						return Math.max(0, GuitaBackpacksClient.BACKPACKS.size() * (ITEM_HEIGHT + ITEM_LIST_GAP) - (scrollBar.getHeight() - 30));
 					}
 
@@ -164,7 +168,7 @@ public class BackpackCustomizationScreen extends Screen {
 		int listBgX = i + 10;
 		int listBgY = j + 10;
 		int listBgWidth = BACKGROUND_WIDTH - ScrollBarWidget.BACKGROUND_WIDTH - 23;
-		int listBgHeight = scrollBar.getHeight();
+		int listBgHeight = scrollBar != null ? scrollBar.getHeight() : 0;
 		context.fill(listBgX, listBgY, listBgX + listBgWidth, listBgY + listBgHeight, 0xFF373737);
 
 		context.enableScissor(listBgX, listBgY, listBgX + listBgWidth, listBgY + listBgHeight);
@@ -230,7 +234,7 @@ public class BackpackCustomizationScreen extends Screen {
 
 		int startX = i + 12;
 		int startY = j + 7;
-		int listHeight = scrollBar.getHeight() - 30;
+		int listHeight = scrollBar != null ? scrollBar.getHeight() - 30 : 0;
 
 		for (int index = 0; index < GuitaBackpacksClient.BACKPACKS.size(); index++) {
 			int y = startY + index * (ITEM_HEIGHT + ITEM_LIST_GAP) - scrollOffset;
@@ -241,7 +245,9 @@ public class BackpackCustomizationScreen extends Screen {
 				BackpacksResourceReloadListener.Backpack clicked = GuitaBackpacksClient.BACKPACKS.get(index);
 
 				this.selectedModelId = clicked.id();
-				this.scrollBar.updateScrollPercent();
+				if (this.scrollBar != null) {
+					this.scrollBar.updateScrollPercent();
+				}
 				return true;
 			}
 		}

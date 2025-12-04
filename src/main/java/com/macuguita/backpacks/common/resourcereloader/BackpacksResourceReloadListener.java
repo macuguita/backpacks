@@ -31,7 +31,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
@@ -50,7 +49,7 @@ public class BackpacksResourceReloadListener implements ResourceManagerReloadLis
 	public static final ResourceLocation ID = GuitaBackpacks.id("backpacks_resource_reload_listener");
 
 	@Override
-	public void onResourceManagerReload(@NotNull ResourceManager manager) {
+	public void onResourceManagerReload(ResourceManager manager) {
 		BACKPACKS.clear();
 
 		var resources = manager.listResources(BACKPACKS_DIR.getPath(), path -> path.getPath().endsWith(".json"));
