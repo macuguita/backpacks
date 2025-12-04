@@ -75,9 +75,7 @@ public record BackpackCosmeticSyncPayload(int slotIndex, ResourceLocation newId)
 				return;
 			}
 
-			System.out.println(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
 			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), payload.newId());
-			System.out.println(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
 
 			if (!EquipmentUtils.isAccessoriesLoaded() && payload.slotIndex >= 20000) {
 				EquipmentAttachedData currentData = player.getAttachedOrCreate(
