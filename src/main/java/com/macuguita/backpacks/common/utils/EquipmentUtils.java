@@ -22,36 +22,35 @@
 
 package com.macuguita.backpacks.common.utils;
 
+import java.util.Optional;
+
 import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.common.item.BackpackItem;
-import dev.emi.trinkets.api.TrinketComponent;
-import dev.emi.trinkets.api.TrinketInventory;
-import dev.emi.trinkets.api.TrinketsApi;
+import io.wispforest.accessories.api.AccessoriesCapability;
+import io.wispforest.accessories.api.slot.SlotEntryReference;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Pair;
 
 import net.fabricmc.loader.api.FabricLoader;
 
 public class EquipmentUtils {
 
-	private static final int TRINKET_SLOT_OFFSET = 10000;
+	private static final int ACCESSORIES_SLOT_OFFSET = 10000;
 	private static final int CUSTOM_EQUIPMENT_SLOT_OFFSET = 20000;
 
-	public static boolean isTrinketsLoaded() {
+	public static boolean isAccessoriesLoaded() {
 		return FabricLoader.getInstance().isModLoaded("trinkets");
 	}
 
 	public static ItemStack getEquippedBackpack(PlayerEntity player) {
-		if (!isTrinketsLoaded())
+		if (!isAccessoriesLoaded())
 			return GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getBackpack();
-		return TrinketsApi.getTrinketComponent(player)
-				.map(component -> component.getEquipped(stack -> stack.getItem() instanceof BackpackItem)
-						.stream()
-						.findFirst()
-						.map(Pair::getRight)
-						.orElse(ItemStack.EMPTY))
+		return AccessoriesCapability.getOptionally(player)
+				.map(c -> c.getEquipped(stack -> stack.getItem() instanceof BackpackItem))
+				.flatMap(list -> list.stream().findFirst())
+				.map(SlotEntryReference::stack)
+
 				.orElse(ItemStack.EMPTY);
 	}
 
@@ -66,8 +65,8 @@ public class EquipmentUtils {
 	 */
 	public static int getBackpackSlotIndex(PlayerEntity player) {
 
-		if (isTrinketsLoaded()) {
-			return getTrinketBackpackSlotIndex(player);
+		if (isAccessoriesLoaded()) {
+			return getAccessoriesBackpackSlotIndex(player);
 		}
 
 		ItemStack customBackpack = GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getBackpack();
@@ -85,30 +84,18 @@ public class EquipmentUtils {
 		return -1;
 	}
 
-	private static int getTrinketBackpackSlotIndex(PlayerEntity player) {
-		TrinketComponent trinketComponent = TrinketsApi.getTrinketComponent(player).orElse(null);
-		if (trinketComponent == null) {
-			return -1;
-		}
+	private static int getAccessoriesBackpackSlotIndex(PlayerEntity player) {
+		Optional<AccessoriesCapability> capOpt = AccessoriesCapability.getOptionally(player);
+		if (capOpt.isEmpty()) return -1;
+		AccessoriesCapability cap = capOpt.get();
 
-		int groupIndex = 0;
-		for (var groupEntry : trinketComponent.getGroups().entrySet()) {
-			String groupId = groupEntry.getKey();
-			int slotTypeIndex = 0;
-
-			for (var slotEntry : groupEntry.getValue().getSlots().entrySet()) {
-				String slotId = slotEntry.getKey();
-				TrinketInventory trinketInv = trinketComponent.getInventory().get(groupId).get(slotId);
-
-				for (int i = 0; i < trinketInv.size(); i++) {
-					ItemStack stack = trinketInv.getStack(i);
-					if (stack.getItem() instanceof BackpackItem) {
-						return TRINKET_SLOT_OFFSET + (groupIndex * 1000) + (slotTypeIndex * 100) + i;
-					}
-				}
-				slotTypeIndex++;
+		int index = 0;
+		for (SlotEntryReference ref : cap.getAllEquipped()) {
+			ItemStack stack = ref.stack();
+			if (stack.getItem() instanceof BackpackItem) {
+				return ACCESSORIES_SLOT_OFFSET + index;
 			}
-			groupIndex++;
+			index++;
 		}
 
 		return -1;
@@ -118,7 +105,7 @@ public class EquipmentUtils {
 	 * Gets the backpack ItemStack from a slot index.
 	 * Handles regular inventory slots, trinket slots, and custom equipment slots.
 	 *
-	 * @param player The player
+	 * @param player    The player
 	 * @param slotIndex The slot index (from getBackpackSlotIndex)
 	 * @return The ItemStack, or ItemStack.EMPTY if not found
 	 */
@@ -131,9 +118,9 @@ public class EquipmentUtils {
 			return GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getBackpack();
 		}
 
-		if (slotIndex >= TRINKET_SLOT_OFFSET) {
-			if (isTrinketsLoaded()) {
-				return getBackpackFromTrinketSlotIndex(player, slotIndex);
+		if (slotIndex >= ACCESSORIES_SLOT_OFFSET) {
+			if (isAccessoriesLoaded()) {
+				return getBackpackFromAccessorySlotIndex(player, slotIndex);
 			}
 			return ItemStack.EMPTY;
 		}
@@ -145,37 +132,18 @@ public class EquipmentUtils {
 		return ItemStack.EMPTY;
 	}
 
-	private static ItemStack getBackpackFromTrinketSlotIndex(PlayerEntity player, int slotIndex) {
-		TrinketComponent trinketComponent = TrinketsApi.getTrinketComponent(player).orElse(null);
-		if (trinketComponent == null) {
+	private static ItemStack getBackpackFromAccessorySlotIndex(PlayerEntity player, int slotIndex) {
+		Optional<AccessoriesCapability> capOpt = AccessoriesCapability.getOptionally(player);
+		if (capOpt.isEmpty()) return ItemStack.EMPTY;
+		AccessoriesCapability cap = capOpt.get();
+
+		int encodedIndex = slotIndex - ACCESSORIES_SLOT_OFFSET;
+		var allEquipped = cap.getAllEquipped();
+
+		if (encodedIndex < 0 || encodedIndex >= allEquipped.size()) {
 			return ItemStack.EMPTY;
 		}
-
-		int encoded = slotIndex - TRINKET_SLOT_OFFSET;
-		int targetGroupIndex = encoded / 1000;
-		int targetSlotTypeIndex = (encoded % 1000) / 100;
-		int targetSlot = encoded % 100;
-
-		int groupIndex = 0;
-		for (var groupEntry : trinketComponent.getGroups().entrySet()) {
-			if (groupIndex == targetGroupIndex) {
-				String groupId = groupEntry.getKey();
-				int slotTypeIndex = 0;
-				for (var slotEntry : groupEntry.getValue().getSlots().entrySet()) {
-					if (slotTypeIndex == targetSlotTypeIndex) {
-						String slotId = slotEntry.getKey();
-						TrinketInventory trinketInv = trinketComponent.getInventory().get(groupId).get(slotId);
-						if (targetSlot < trinketInv.size()) {
-							return trinketInv.getStack(targetSlot);
-						}
-						return ItemStack.EMPTY;
-					}
-					slotTypeIndex++;
-				}
-			}
-			groupIndex++;
-		}
-
-		return ItemStack.EMPTY;
+		ItemStack stack = allEquipped.get(encodedIndex).stack();
+		return stack.getItem() instanceof BackpackItem ? stack : ItemStack.EMPTY;
 	}
 }

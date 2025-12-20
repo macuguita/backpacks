@@ -32,7 +32,7 @@ import net.minecraft.util.Identifier;
 public class GBItemTags {
 
 	public static final TagKey<Item> BACKPACK_BLACKLIST = createTag(GuitaBackpacks.id("backpack_blacklist"));
-	public static final TagKey<Item> TRINKETS_CHEST = createTag(Identifier.of("trinkets", "chest/back"));
+	public static final TagKey<Item> ACCESSORIES_CHEST = createTag(Identifier.of("accessories", "back"));
 
 	private static TagKey<Item> createTag(Identifier id) {
 		return TagKey.of(RegistryKeys.ITEM, id);

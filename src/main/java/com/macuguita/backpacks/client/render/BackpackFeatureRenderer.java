@@ -25,7 +25,6 @@ package com.macuguita.backpacks.client.render;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
@@ -36,7 +35,6 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 
 import net.fabricmc.api.EnvType;
@@ -49,9 +47,9 @@ public class BackpackFeatureRenderer<T extends PlayerEntity, M extends PlayerEnt
 		super(context);
 	}
 
-	// README: Item syncing is UNREALIABLE in CREATIVE mode do NOT try to fix it
 	@Override
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T player, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
+		if (EquipmentUtils.isAccessoriesLoaded()) return;
 
 		ItemStack chestStack = player.getEquippedStack(EquipmentSlot.CHEST);
 		if (chestStack.getItem() == Items.ELYTRA)
@@ -66,7 +64,7 @@ public class BackpackFeatureRenderer<T extends PlayerEntity, M extends PlayerEnt
 		if (Boolean.FALSE.equals(backpack.get(GBComponents.VISIBLE.get())))
 			return;
 
-		BakedModel model = getModel(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
+		BakedModel model = BakedModelRenderer.getModel(backpack.get(GBComponents.BACKPACK_MODEL_ID.get()));
 		matrices.push();
 
 		// Transforms the pose to player's body
@@ -81,9 +79,5 @@ public class BackpackFeatureRenderer<T extends PlayerEntity, M extends PlayerEnt
 		BakedModelRenderer.drawBakedModel(model, matrices, vertexConsumers, light, 0xF000F0);
 
 		matrices.pop();
-	}
-
-	private BakedModel getModel(Identifier id) {
-		return MinecraftClient.getInstance().getItemRenderer().getModels().getModelManager().getModel(id);
 	}
 }

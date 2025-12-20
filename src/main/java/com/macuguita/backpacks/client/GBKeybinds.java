@@ -48,7 +48,7 @@ public class GBKeybinds {
 				"key.categories.gbackpacks"
 		));
 		Optional<KeyBinding> maybeOpenEquipmentKey = Optional.empty();
-		if (!EquipmentUtils.isTrinketsLoaded()) {
+		if (!EquipmentUtils.isAccessoriesLoaded()) {
 			maybeOpenEquipmentKey = Optional.of(KeyBindingHelper.registerKeyBinding(new KeyBinding(
 					"key.gbackpacks.open_equipment",
 					InputUtil.Type.KEYSYM,
@@ -76,7 +76,7 @@ public class GBKeybinds {
 					}
 				}
 			}
-			if (EquipmentUtils.isTrinketsLoaded()) return;
+			if (EquipmentUtils.isAccessoriesLoaded()) return;
 			finalMaybeOpenEquipmentKey.ifPresent(openEquipmentKey -> {
 				while (openEquipmentKey.wasPressed()) {
 					OpenEquipmentPayload.send();

@@ -34,6 +34,7 @@ import com.macuguita.backpacks.client.render.BackpackFeatureRenderer;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.reg.GBBlockEntities;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
+import com.macuguita.backpacks.common.utils.AccessoriesStuff;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
@@ -56,6 +57,10 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 
 		BlockEntityRendererFactories.register(GBBlockEntities.BACKPACK.get(), BackpackBlockEntityRenderer::new);
 
+		if (EquipmentUtils.isAccessoriesLoaded()) {
+			AccessoriesStuff.accessoriesClientInit();
+		}
+
 		ModelLoadingPlugin.register(new GBModelLoadingPlugin());
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
 			if (entityRenderer instanceof PlayerEntityRenderer playerEntityRenderer) {
@@ -64,7 +69,7 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 		});
 
 		HandledScreens.register(GuitaBackpacks.BACKPACK_SCREEN_HANDLER, BackpackScreen::new);
-		if (!EquipmentUtils.isTrinketsLoaded())
+		if (!EquipmentUtils.isAccessoriesLoaded())
 			HandledScreens.register(GuitaBackpacks.EQUIPMENT_SCREEN_HANDLER, EquipmentScreen::new);
 
 

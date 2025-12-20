@@ -21,16 +21,19 @@
             flite
             stdenv.cc.cc.lib
           ];
+
+          java = pkgs.jdk21;
         in
         {
           default = pkgs.mkShell {
             packages = with pkgs; [
-              jdk
+              java
               git
             ];
 
             buildInputs = libs;
 
+            JAVA_HOME = java.home;
             LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath libs;
           };
         });

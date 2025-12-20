@@ -60,7 +60,7 @@ public record OpenEquipmentPayload() implements CustomPayload {
 
 		@Override
 		public void receive(OpenEquipmentPayload payload, ServerPlayNetworking.Context context) {
-			if (EquipmentUtils.isTrinketsLoaded()) return;
+			if (EquipmentUtils.isAccessoriesLoaded()) return;
 			ServerPlayerEntity player = context.player();
 			var factory = new NamedScreenHandlerFactory() {
 

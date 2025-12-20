@@ -1,5 +1,5 @@
 plugins {
-    id("fabric-loom").version("1.13-SNAPSHOT")
+    id("net.fabricmc.fabric-loom-remap").version("1.14-SNAPSHOT")
     id("maven-publish")
     id("me.modmuss50.mod-publish-plugin").version("1.0.0")
 }
@@ -47,27 +47,28 @@ base {
 }
 
 repositories {
-    maven {
-        name = "Shedaniel maven"
-        url = uri("https://maven.shedaniel.me/")
-    }
-    maven {
-        name = "TerraformersMC"
-        url = uri("https://maven.terraformersmc.com/")
-    }
-    maven {
-        name = "Ladysnake"
-        url = uri("https://maven.ladysnake.org/releases")
-    }
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = "Modrinth"
-                url = uri("https://api.modrinth.com/maven")
+    val exclusiveRepos = listOf(
+        Triple("ParchmentMC", "https://maven.parchmentmc.org", listOf("org.parchmentmc.data")),
+        Triple("Shedaniel", "https://maven.shedaniel.me/", listOf("me.shedaniel.cloth")),
+        Triple("TerraformersMC", "https://maven.terraformersmc.com/", listOf("com.terraformersmc", "dev.emi")),
+        Triple("Ladysnake", "https://maven.ladysnake.org/releases", listOf("org\\.ladysnake(\\..+)?")),
+        Triple("Modrinth", "https://api.modrinth.com/maven", listOf("maven.modrinth")),
+        Triple("BlameJared", "https://maven.blamejared.com", listOf("net\\.darkhax\\..+", "mezz.jei")),
+        Triple("WispForest", "https://maven.wispforest.io/releases", listOf("io\\.wispforest(\\..+)?")),
+    )
+
+    exclusiveRepos.forEach { (name, url, groups) ->
+        exclusiveContent {
+            forRepository {
+                maven {
+                    this.name = name
+                    setUrl(url)
+                }
             }
-        }
-        filter {
-            includeGroup("maven.modrinth")
+            if (groups.isNotEmpty())
+                filter {
+                    groups.forEach { includeGroupByRegex(it) }
+                }
         }
     }
 }
@@ -87,20 +88,18 @@ dependencies {
     modImplementation("com.terraformersmc:modmenu:${BuildConfig.modMenuVersion}"){
         exclude("net.fabricmc.fabric-api")
     }
-    modLocalRuntime("dev.emi:emi-fabric:${BuildConfig.emiVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
+
     if (true) {
-        modImplementation("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
+        modImplementation("io.wispforest:accessories-fabric:${BuildConfig.accessoriesVersion}") {
             exclude("net.fabricmc.fabric-api")
-            exclude("org.ladysnake.cardinal-components-api")
         }
     } else {
-        modCompileOnly("dev.emi:trinkets:${BuildConfig.trinketsVersion}") {
+        modCompileOnly("io.wispforest:accessories-fabric:${BuildConfig.accessoriesVersion}") {
             exclude("net.fabricmc.fabric-api")
             exclude("org.ladysnake.cardinal-components-api")
         }
     }
+    compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
     modImplementation("org.ladysnake.cardinal-components-api:cardinal-components-base:${BuildConfig.ccaVersion}"){
         exclude("net.fabricmc.fabric-api")
@@ -218,14 +217,6 @@ publishMods {
         requires("macu-lib")
         optional("trinkets")
         embeds("cardinal-components-api")
-    }
-    github {
-        accessToken = providers.environmentVariable("GITHUB_TOKEN")
-        repository = providers.environmentVariable("GITHUB_REPOSITORY").getOrElse("macuguita/dryRun")
-        commitish = providers.environmentVariable("GITHUB_REF_NAME").getOrElse("dryrun")
-
-        tagName = "release/${BuildConfig.modVersion}"
-        allowEmptyFiles = true
     }
 }
 

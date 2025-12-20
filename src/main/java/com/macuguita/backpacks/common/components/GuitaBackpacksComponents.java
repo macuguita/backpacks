@@ -50,7 +50,7 @@ public class GuitaBackpacksComponents implements ScoreboardComponentInitializer,
 
 	@Override
 	public void registerEntityComponentFactories(EntityComponentFactoryRegistry entityComponentFactoryRegistry) {
-		if (!EquipmentUtils.isTrinketsLoaded()) {
+		if (!EquipmentUtils.isAccessoriesLoaded()) {
 			entityComponentFactoryRegistry.registerForPlayers(
 					GuitaBackpacksComponents.EQUIPMENT_COMPONENT,
 					EquipmentComponent::new,

@@ -44,7 +44,7 @@ public class GBItemTagProvider extends FabricTagProvider.ItemTagProvider {
 		getOrCreateTagBuilder(GBItemTags.BACKPACK_BLACKLIST)
 				.add(GBObjects.BACKPACK.get())
 				.forceAddTag(ConventionalItemTags.SHULKER_BOXES);
-		getOrCreateTagBuilder(GBItemTags.TRINKETS_CHEST)
+		getOrCreateTagBuilder(GBItemTags.ACCESSORIES_CHEST)
 				.add(GBObjects.BACKPACK.get());
 	}
 }

@@ -24,12 +24,14 @@ package com.macuguita.backpacks.client.render;
 
 import java.util.List;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.TexturedRenderLayers;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 
@@ -64,5 +66,9 @@ public class BakedModelRenderer {
 		for (BakedQuad quad : quads) {
 			consumer.quad(last, quad, 1f, 1f, 1f, 1f, light, overlay);
 		}
+	}
+
+	public static BakedModel getModel(Identifier id) {
+		return MinecraftClient.getInstance().getItemRenderer().getModels().getModelManager().getModel(id);
 	}
 }

@@ -76,7 +76,7 @@ public record BackpackCosmeticSyncPayload(ItemStack oldBackpack, Identifier newI
 
 			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), payload.newId());
 
-			if (!EquipmentUtils.isTrinketsLoaded() && backpackSlot >= 20000) {
+			if (!EquipmentUtils.isAccessoriesLoaded() && backpackSlot >= 20000) {
 				GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getInventory().markDirty();
 			}
 		}

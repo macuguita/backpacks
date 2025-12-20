@@ -42,7 +42,7 @@ public class PlayerEntityMixin {
 			at = @At("TAIL")
 	)
 	private void gbackpacks$dropInventory(CallbackInfo info) {
-		if (EquipmentUtils.isTrinketsLoaded()) return;
+		if (EquipmentUtils.isAccessoriesLoaded()) return;
 		if (Boolean.FALSE.equals(GBConfig.getBackpackDropsOnDeath())) return;
 		PlayerEntity player = (PlayerEntity) (Object) this;
 		boolean keepInv = player.getWorld().getGameRules().getBoolean(GameRules.KEEP_INVENTORY);
