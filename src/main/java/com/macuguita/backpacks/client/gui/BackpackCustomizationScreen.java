@@ -22,6 +22,10 @@
 
 package com.macuguita.backpacks.client.gui;
 
+import java.util.Objects;
+
+import javax.annotation.Nullable;
+
 import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 import com.macuguita.backpacks.client.render.state.BlockStateGuiElementRenderState;
@@ -40,20 +44,16 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
-import javax.annotation.Nullable;
-
-import java.util.Objects;
-
 @Environment(EnvType.CLIENT)
 public class BackpackCustomizationScreen extends Screen {
 
-	public static final ResourceLocation BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
+	public static final Identifier BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
 
 	private static final int BACKGROUND_WIDTH = 176;
 	private static final int BACKGROUND_HEIGHT = 166;
@@ -66,9 +66,9 @@ public class BackpackCustomizationScreen extends Screen {
 
 	final ItemStack backpack;
 	final int slotIndex;
-	private final ResourceLocation currentModelId;
+	private final Identifier currentModelId;
 	public final Screen parent;
-	private ResourceLocation selectedModelId;
+	private Identifier selectedModelId;
 	private int scrollOffset = 0;
 	private @Nullable ScrollBarWidget scrollBar = null;
 
@@ -81,7 +81,7 @@ public class BackpackCustomizationScreen extends Screen {
 		this.selectedModelId = this.currentModelId;
 	}
 
-	public static void drawModelInGui(GuiGraphics context, ResourceLocation modelId, int x, int y, float scale) {
+	public static void drawModelInGui(GuiGraphics context, Identifier modelId, int x, int y, float scale) {
 		int size = 27;
 
 		float centerX = x + size / 2f;

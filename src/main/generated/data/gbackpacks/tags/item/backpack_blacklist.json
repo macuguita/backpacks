@@ -1,6 +1,9 @@
 {
   "values": [
     "gbackpacks:backpack",
-    "#c:shulker_boxes"
+    {
+      "id": "#c:shulker_boxes",
+      "required": false
+    }
   ]
 }

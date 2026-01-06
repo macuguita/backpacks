@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.macuguita.backpacks.common.reg.GBComponents;
-
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 

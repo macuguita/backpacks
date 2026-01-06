@@ -24,6 +24,8 @@ package com.macuguita.backpacks.common.utils;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
 import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.item.BackpackItem;
@@ -34,8 +36,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.loader.api.FabricLoader;
-
-import javax.annotation.Nullable;
 
 public class EquipmentUtils {
 

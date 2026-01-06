@@ -22,6 +22,8 @@
 
 package com.macuguita.backpacks.client.render;
 
+import java.util.Optional;
+
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.state.BackpackBlockEntityRenderState;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
@@ -43,8 +45,6 @@ import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class BackpackBlockEntityRenderer implements BlockEntityRenderer<BackpackBlockEntity, BackpackBlockEntityRenderState> {

@@ -31,7 +31,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 import net.fabricmc.api.EnvType;
@@ -40,9 +40,9 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class ScrollBarWidget extends AbstractWidget {
 
-	private static final ResourceLocation SCROLLER_TEXTURE = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller");
-	private static final ResourceLocation SCROLLER_DISABLED_TEXTURE = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller_disabled");
-	private static final ResourceLocation SCROLLER_BACK_TEXTURE = GuitaBackpacks.id("scroll_back");
+	private static final Identifier SCROLLER_TEXTURE = Identifier.withDefaultNamespace("container/creative_inventory/scroller");
+	private static final Identifier SCROLLER_DISABLED_TEXTURE = Identifier.withDefaultNamespace("container/creative_inventory/scroller_disabled");
+	private static final Identifier SCROLLER_BACK_TEXTURE = GuitaBackpacks.id("scroll_back");
 
 	public static final int SCROLLER_WIDTH = 12;
 	public static final int BACKGROUND_WIDTH = 14;
@@ -79,7 +79,7 @@ public class ScrollBarWidget extends AbstractWidget {
 			scrollerY = y + 1 + (int) (scrollPercent * (innerHeight - SCROLLER_HEIGHT));
 		}
 
-		ResourceLocation scrollerTexture = callback.canScroll() ? SCROLLER_TEXTURE : SCROLLER_DISABLED_TEXTURE;
+		Identifier scrollerTexture = callback.canScroll() ? SCROLLER_TEXTURE : SCROLLER_DISABLED_TEXTURE;
 		context.blitSprite(RenderPipelines.GUI_TEXTURED, scrollerTexture, scrollerX, scrollerY, SCROLLER_WIDTH, SCROLLER_HEIGHT);
 	}
 

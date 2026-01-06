@@ -27,11 +27,11 @@ import org.joml.Matrix3x2f;
 
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.state.pip.PictureInPictureRenderState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record BlockStateGuiElementRenderState(
 		Matrix3x2f pose,
-		ResourceLocation modelId,
+		Identifier modelId,
 		int x,
 		int y,
 		ScreenRectangle bounds
@@ -39,7 +39,7 @@ public record BlockStateGuiElementRenderState(
 
 	private static final int SIZE = 27;
 
-	public BlockStateGuiElementRenderState(Matrix3x2f pose, ResourceLocation modelId, int x, int y) {
+	public BlockStateGuiElementRenderState(Matrix3x2f pose, Identifier modelId, int x, int y) {
 		this(pose, modelId, x, y, new ScreenRectangle(x, y, SIZE, SIZE).transformMaxBounds(pose));
 	}
 

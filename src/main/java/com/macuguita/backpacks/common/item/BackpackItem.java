@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -178,7 +178,7 @@ public class BackpackItem extends BlockItem {
 				backpack.setUuid(stack.get(GBComponents.BACKPACK_UUID.get()));
 			}
 			if (stack.has(GBComponents.BACKPACK_MODEL_ID.get())) {
-				ResourceLocation modelId = stack.get(GBComponents.BACKPACK_MODEL_ID.get());
+				Identifier modelId = stack.get(GBComponents.BACKPACK_MODEL_ID.get());
 				if (modelId == null) return super.updateCustomBlockEntityTag(pos, level, player, stack, state);
 				backpack.setItemModelId(modelId);
 
@@ -186,7 +186,7 @@ public class BackpackItem extends BlockItem {
 				String path = modelId.getPath();
 				path = path.replaceFirst("^backpacks/", "backpacks/blocks/");
 
-				ResourceLocation newModelId = ResourceLocation.fromNamespaceAndPath(namespace, path);
+				Identifier newModelId = Identifier.fromNamespaceAndPath(namespace, path);
 
 				backpack.setBlockModelId(newModelId);
 			}

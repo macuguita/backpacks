@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -62,10 +62,10 @@ public class GuitaBackpacks implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-	public static final ResourceLocation DEFAULT_BACKPACK_MODEL_ID = GuitaBackpacks.id("backpacks/backpack");
+	public static final Identifier DEFAULT_BACKPACK_MODEL_ID = GuitaBackpacks.id("backpacks/backpack");
 
-	public static ResourceLocation id(String name) {
-		return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
+	public static Identifier id(String name) {
+		return Identifier.fromNamespaceAndPath(MOD_ID, name);
 	}
 
 	public static final ExtendedScreenHandlerType<BackpackScreenHandler, BackpackInventoryPayload> BACKPACK_SCREEN_HANDLER = new ExtendedScreenHandlerType<>(BackpackScreenHandler::new, BackpackInventoryPayload.CODEC);

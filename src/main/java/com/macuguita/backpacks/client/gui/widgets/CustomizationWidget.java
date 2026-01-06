@@ -35,7 +35,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.api.EnvType;
@@ -44,7 +44,7 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class CustomizationWidget extends AbstractWidget {
 
-	public static final ResourceLocation WIDGET_ICON = GuitaBackpacks.id("textures/gui/widget/customize.png");
+	public static final Identifier WIDGET_ICON = GuitaBackpacks.id("textures/gui/widget/customize.png");
 	private final int slotIndex;
 	private final ItemStack backpack;
 	public final Screen parent;

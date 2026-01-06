@@ -25,16 +25,16 @@ package com.macuguita.backpacks.common.reg;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
 public class GBItemTags {
 
 	public static final TagKey<Item> BACKPACK_BLACKLIST = createTag(GuitaBackpacks.id("backpack_blacklist"));
-	public static final TagKey<Item> ACCESSORIES_CHEST = createTag(ResourceLocation.fromNamespaceAndPath("accessories", "back"));
+	public static final TagKey<Item> ACCESSORIES_CHEST = createTag(Identifier.fromNamespaceAndPath("accessories", "back"));
 
-	private static TagKey<Item> createTag(ResourceLocation id) {
+	private static TagKey<Item> createTag(Identifier id) {
 		return TagKey.create(Registries.ITEM, id);
 	}
 }

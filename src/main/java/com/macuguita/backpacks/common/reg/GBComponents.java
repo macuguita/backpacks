@@ -33,7 +33,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class GBComponents {
 
@@ -45,8 +45,8 @@ public class GBComponents {
 	public static final GuitaRegistryEntry<DataComponentType<Boolean>> VISIBLE = COMPONENTS.register("visible",
 			() -> DataComponentType.<Boolean>builder().persistent(Codec.BOOL).build());
 
-	public static final GuitaRegistryEntry<DataComponentType<ResourceLocation>> BACKPACK_MODEL_ID = COMPONENTS.register("backpack_model",
-			() -> DataComponentType.<ResourceLocation>builder().persistent(ResourceLocation.CODEC).build());
+	public static final GuitaRegistryEntry<DataComponentType<Identifier>> BACKPACK_MODEL_ID = COMPONENTS.register("backpack_model",
+			() -> DataComponentType.<Identifier>builder().persistent(Identifier.CODEC).build());
 
 	public static void init() {
 		COMPONENTS.init();

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "gbackpacks",
-  "version": "1.21.10-beta+6",
+  "version": "1.21.11-beta+6",
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [
@@ -19,11 +19,11 @@
   ],
   "accessWidener": "gbackpacks.accesswidener",
   "depends": {
-    "fabricloader": "\u003e\u003d0.18.1",
-    "minecraft": "\u003e\u003d1.21.9",
+    "fabricloader": "\u003e\u003d0.18.4",
+    "minecraft": "\u003e\u003d1.21.11",
     "java": "\u003e\u003d21",
     "fabric-api": "*",
-    "macu_lib": "\u003e\u003d1.0.5-1.21.9"
+    "macu_lib": "\u003e\u003d1.0.5-1.21.11"
   },
   "suggests": {
     "accessories": "*"

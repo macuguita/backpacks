@@ -23,13 +23,15 @@
 package com.macuguita.backpacks.mixin;
 
 import com.macuguita.backpacks.client.render.state.BackpackRenderState;
+
+import net.minecraft.client.model.player.PlayerModel;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.entity.ClientAvatarEntity;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;

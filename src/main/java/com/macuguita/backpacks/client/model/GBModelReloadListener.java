@@ -26,19 +26,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockStateModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 
-import javax.annotation.Nullable;
-
 public class GBModelReloadListener implements ResourceManagerReloadListener {
 	public static final GBModelReloadListener INSTANCE = new GBModelReloadListener();
-	public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("backpacks", "model_reload_listener");
+	public static final Identifier ID = Identifier.fromNamespaceAndPath("backpacks", "model_reload_listener");
 
-	private final Map<ResourceLocation, BlockStateModel> loadedModels = new HashMap<>();
+	private final Map<Identifier, BlockStateModel> loadedModels = new HashMap<>();
 
 	@Override
 	public void onResourceManagerReload(ResourceManager manager) {
@@ -47,7 +47,7 @@ public class GBModelReloadListener implements ResourceManagerReloadListener {
 		var client = Minecraft.getInstance();
 
 		for (var entry : GBModelLoadingPlugin.getBlockStateModels().entrySet()) {
-			ResourceLocation id = entry.getKey();
+			Identifier id = entry.getKey();
 			var key = entry.getValue();
 			BlockStateModel model = client.getModelManager().getModel(key);
 			if (model != null) {
@@ -56,7 +56,7 @@ public class GBModelReloadListener implements ResourceManagerReloadListener {
 		}
 	}
 
-	public Optional<BlockStateModel> getModel(@Nullable ResourceLocation id) {
+	public Optional<BlockStateModel> getModel(@Nullable Identifier id) {
 		return Optional.ofNullable(loadedModels.get(id));
 	}
 }

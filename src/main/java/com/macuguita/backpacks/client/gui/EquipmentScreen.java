@@ -28,7 +28,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 import net.fabricmc.api.EnvType;
@@ -37,9 +37,9 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public class EquipmentScreen extends AbstractContainerScreen<EquipmentScreenHandler> {
 
-	private static final ResourceLocation BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
-	private static final ResourceLocation INVENTORY_AND_HOTBAR_TEXTURE = GuitaBackpacks.id("inventory/inventory_and_hotbar");
-	private static final ResourceLocation SLOT_TEXTURE = ResourceLocation.withDefaultNamespace("container/slot");
+	private static final Identifier BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
+	private static final Identifier INVENTORY_AND_HOTBAR_TEXTURE = GuitaBackpacks.id("inventory/inventory_and_hotbar");
+	private static final Identifier SLOT_TEXTURE = Identifier.withDefaultNamespace("container/slot");
 
 	public EquipmentScreen(EquipmentScreenHandler handler, Inventory inventory, Component title) {
 		super(handler, inventory, title);

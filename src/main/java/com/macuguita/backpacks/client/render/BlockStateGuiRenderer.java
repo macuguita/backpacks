@@ -30,6 +30,7 @@ import com.macuguita.backpacks.client.render.state.BlockStateGuiElementRenderSta
 import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -126,7 +127,7 @@ public class BlockStateGuiRenderer extends PictureInPictureRenderer<BlockStateGu
 
 		guiRenderState.submitBlitToCurrentLayer(new BlitRenderState(
 				RenderPipelines.GUI_TEXTURED_PREMULTIPLIED_ALPHA,
-				TextureSetup.singleTexture(texture.textureView()),
+				TextureSetup.singleTexture(texture.textureView(), RenderSystem.getSamplerCache().getRepeat(FilterMode.NEAREST)),
 				renderState.pose(),
 				renderState.x0(),
 				renderState.y0(),

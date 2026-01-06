@@ -31,7 +31,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -39,27 +39,27 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 public class BackpackBlockEntity extends BlockEntity {
 
-	private ResourceLocation blockModelId;
-	private ResourceLocation itemModelId;
+	private Identifier blockModelId;
+	private Identifier itemModelId;
 	private UUID uuid;
 
 	public BackpackBlockEntity(BlockPos pos, BlockState state) {
 		super(GBBlockEntities.BACKPACK, pos, state);
 	}
 
-	public ResourceLocation getBlockModelId() {
+	public Identifier getBlockModelId() {
 		return blockModelId;
 	}
 
-	public void setBlockModelId(ResourceLocation modelId) {
+	public void setBlockModelId(Identifier modelId) {
 		this.blockModelId = modelId;
 	}
 
-	public ResourceLocation getItemModelId() {
+	public Identifier getItemModelId() {
 		return itemModelId;
 	}
 
-	public void setItemModelId(ResourceLocation itemModelId) {
+	public void setItemModelId(Identifier itemModelId) {
 		this.itemModelId = itemModelId;
 	}
 
@@ -83,8 +83,8 @@ public class BackpackBlockEntity extends BlockEntity {
 	protected void loadAdditional(ValueInput view) {
 		super.loadAdditional(view);
 		this.uuid = view.read("UUID", UUIDUtil.AUTHLIB_CODEC).orElse(null);
-		this.blockModelId = ResourceLocation.parse(view.getStringOr("Model", ""));
-		this.itemModelId = ResourceLocation.parse(view.getStringOr("ItemModel", ""));
+		this.blockModelId = Identifier.parse(view.getStringOr("Model", ""));
+		this.itemModelId = Identifier.parse(view.getStringOr("ItemModel", ""));
 	}
 
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {

@@ -22,6 +22,8 @@
 
 package com.macuguita.backpacks.client.render;
 
+import java.util.Optional;
+
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.state.BackpackRenderState;
 import com.macuguita.backpacks.common.reg.GBComponents;
@@ -43,8 +45,6 @@ import net.minecraft.world.item.Items;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {

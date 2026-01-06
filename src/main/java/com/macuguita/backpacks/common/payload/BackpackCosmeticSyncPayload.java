@@ -32,21 +32,21 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
-public record BackpackCosmeticSyncPayload(int slotIndex, ResourceLocation newId) implements CustomPacketPayload {
+public record BackpackCosmeticSyncPayload(int slotIndex, Identifier newId) implements CustomPacketPayload {
 
 	public static final CustomPacketPayload.Type<BackpackCosmeticSyncPayload> ID = new CustomPacketPayload.Type<>(GuitaBackpacks.id("backpack_cosmetic_sync"));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, BackpackCosmeticSyncPayload> CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT,
 			BackpackCosmeticSyncPayload::slotIndex,
-			ResourceLocation.STREAM_CODEC,
+			Identifier.STREAM_CODEC,
 			BackpackCosmeticSyncPayload::newId,
 			BackpackCosmeticSyncPayload::new
 	);
@@ -56,7 +56,7 @@ public record BackpackCosmeticSyncPayload(int slotIndex, ResourceLocation newId)
 		return ID;
 	}
 
-	public static void send(int slotIndex, ResourceLocation newId) {
+	public static void send(int slotIndex, Identifier newId) {
 		ClientPlayNetworking.send(new BackpackCosmeticSyncPayload(slotIndex, newId));
 	}
 

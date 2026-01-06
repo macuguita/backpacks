@@ -27,7 +27,6 @@ import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
 import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.item.BackpackItem;
-
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.world.Container;

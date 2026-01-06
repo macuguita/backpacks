@@ -29,7 +29,7 @@ import com.macuguita.lib.platform.registry.GuitaRegistry;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -49,7 +49,7 @@ public class GBBlockEntities {
 			FabricBlockEntityTypeBuilder.Factory<? extends T> entityFactory,
 			Block... blocks
 	) {
-		ResourceLocation id = GuitaBackpacks.id(name);
+		Identifier id = GuitaBackpacks.id(name);
 		return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, id, FabricBlockEntityTypeBuilder.<T>create(entityFactory, blocks).build());
 	}
 

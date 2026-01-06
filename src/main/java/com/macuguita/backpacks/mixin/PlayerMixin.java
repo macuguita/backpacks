@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 
 @Mixin(Player.class)
 public class PlayerMixin {
@@ -51,7 +51,7 @@ public class PlayerMixin {
 		if (EquipmentUtils.isAccessoriesLoaded()) return;
 		if (Boolean.FALSE.equals(GBConfig.getBackpackDropsOnDeath())) return;
 		Player player = (Player) (Object) this;
-		boolean keepInv = ((ServerLevel) player.level()).getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
+		boolean keepInv = ((ServerLevel) player.level()).getGameRules().get(GameRules.KEEP_INVENTORY);
 
 		ItemStack stack = EquipmentUtils.getEquippedBackpack(player);
 		if (!keepInv && !stack.isEmpty()) {

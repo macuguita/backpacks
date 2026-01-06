@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
@@ -176,7 +176,7 @@ public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 	private VoxelShape getVoxelShape(BlockGetter level, BlockPos pos) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack && backpack.getItemModelId() != null) {
-			ResourceLocation modelId = backpack.getItemModelId();
+			Identifier modelId = backpack.getItemModelId();
 
 			VoxelShape shape = Shapes.create(
 					BackpacksResourceReloadListener.BACKPACKS.stream()

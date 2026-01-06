@@ -24,10 +24,10 @@ package com.macuguita.backpacks.client.render.state;
 
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class BackpackBlockEntityRenderState extends BlockEntityRenderState {
 
-	public ResourceLocation modelId = null;
+	public Identifier modelId = null;
 	public Direction direction = Direction.NORTH;
 }

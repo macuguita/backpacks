@@ -1,5 +1,5 @@
 plugins {
-    id("fabric-loom").version("1.13-SNAPSHOT")
+    id("fabric-loom").version("1.14-SNAPSHOT")
     id("maven-publish")
     id("me.modmuss50.mod-publish-plugin").version("1.0.0")
 }
@@ -83,7 +83,7 @@ dependencies {
     minecraft("com.mojang:minecraft:${BuildConfig.minecraftVersion}")
     mappings(loom.layered {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${BuildConfig.minecraftVersion}:${BuildConfig.parchmentMappings}@zip")
+        BuildConfig.parchmentMappings?.let { parchment("org.parchmentmc.data:parchment-${BuildConfig.minecraftVersion}:${it}@zip") }
     })
     modImplementation("net.fabricmc:fabric-loader:${BuildConfig.loaderVersion}")
 
@@ -98,7 +98,7 @@ dependencies {
         exclude("net.fabricmc.fabric-api")
     }
 
-    if (true) {
+    if (false) {
         modImplementation("io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}") {
             exclude("net.fabricmc.fabric-api")
         }

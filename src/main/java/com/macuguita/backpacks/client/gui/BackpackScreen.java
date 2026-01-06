@@ -30,7 +30,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -40,18 +40,18 @@ import net.fabricmc.api.Environment;
 @Environment(value = EnvType.CLIENT)
 public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandler> {
 
-	private static final ResourceLocation BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
-	private static final ResourceLocation SLOT_TEXTURE = ResourceLocation.withDefaultNamespace("container/slot");
-	private static final ResourceLocation SCROLL_ADDON_TEXTURE = GuitaBackpacks.id("scroll_addon");
-	private static final ResourceLocation INVENTORY_AND_HOTBAR_TEXTURE = GuitaBackpacks.id("inventory/inventory_and_hotbar");
+	private static final Identifier BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
+	private static final Identifier SLOT_TEXTURE = Identifier.withDefaultNamespace("container/slot");
+	private static final Identifier SCROLL_ADDON_TEXTURE = GuitaBackpacks.id("scroll_addon");
+	private static final Identifier INVENTORY_AND_HOTBAR_TEXTURE = GuitaBackpacks.id("inventory/inventory_and_hotbar");
 
-	private static final ResourceLocation SLOTS_ROW1_TEXTURE = GuitaBackpacks.id("inventory/slots_row1");
-	private static final ResourceLocation SLOTS_ROW2_TEXTURE = GuitaBackpacks.id("inventory/slots_row2");
-	private static final ResourceLocation SLOTS_ROW3_TEXTURE = GuitaBackpacks.id("inventory/slots_row3");
-	private static final ResourceLocation SLOTS_ROW4_TEXTURE = GuitaBackpacks.id("inventory/slots_row4");
-	private static final ResourceLocation SLOTS_ROW5_TEXTURE = GuitaBackpacks.id("inventory/slots_row5");
-	private static final ResourceLocation SLOTS_ROW6_TEXTURE = GuitaBackpacks.id("inventory/slots_row6");
-	private static final ResourceLocation[] SLOTS_ROW = {
+	private static final Identifier SLOTS_ROW1_TEXTURE = GuitaBackpacks.id("inventory/slots_row1");
+	private static final Identifier SLOTS_ROW2_TEXTURE = GuitaBackpacks.id("inventory/slots_row2");
+	private static final Identifier SLOTS_ROW3_TEXTURE = GuitaBackpacks.id("inventory/slots_row3");
+	private static final Identifier SLOTS_ROW4_TEXTURE = GuitaBackpacks.id("inventory/slots_row4");
+	private static final Identifier SLOTS_ROW5_TEXTURE = GuitaBackpacks.id("inventory/slots_row5");
+	private static final Identifier SLOTS_ROW6_TEXTURE = GuitaBackpacks.id("inventory/slots_row6");
+	private static final Identifier[] SLOTS_ROW = {
 			SLOTS_ROW1_TEXTURE,
 			SLOTS_ROW2_TEXTURE,
 			SLOTS_ROW3_TEXTURE,

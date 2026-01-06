@@ -31,22 +31,27 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+
+import net.minecraft.resources.Identifier;
+
+import net.minecraft.util.Util;
+
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
-import net.minecraft.Util;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.phys.AABB;
 
+import org.joml.Vector3fc;
+
 public class BackpacksResourceReloadListener implements ResourceManagerReloadListener {
 
 	public static final List<Backpack> BACKPACKS = new ArrayList<>();
-	private static final ResourceLocation BACKPACKS_DIR = GuitaBackpacks.id("backpacks");
-	public static final ResourceLocation ID = GuitaBackpacks.id("backpacks_resource_reload_listener");
+	private static final Identifier BACKPACKS_DIR = GuitaBackpacks.id("backpacks");
+	public static final Identifier ID = GuitaBackpacks.id("backpacks_resource_reload_listener");
 
 	@Override
 	public void onResourceManagerReload(ResourceManager manager) {
@@ -68,7 +73,7 @@ public class BackpacksResourceReloadListener implements ResourceManagerReloadLis
 		}
 	}
 
-	public record Backpack(ResourceLocation id, String translationKey, Vector2i guiDisplacement, float guiScale,
+	public record Backpack(Identifier id, String translationKey, Vector2i guiDisplacement, float guiScale,
 						   AABB blockCollisionShape) {
 
 		public static final Codec<Vector2i> VECTOR2I_CODEC =
@@ -82,11 +87,11 @@ public class BackpacksResourceReloadListener implements ResourceManagerReloadLis
 				ExtraCodecs.VECTOR3F.listOf().comapFlatMap(
 						list -> Util.fixedSize(list, 2)
 								.map(listv3f -> {
-									Vector3f min = listv3f.get(0);
-									Vector3f max = listv3f.get(1);
+									Vector3fc min = listv3f.get(0);
+									Vector3fc max = listv3f.get(1);
 									return new AABB(
-											min.x / 16.0, min.y / 16.0, min.z / 16.0,
-											max.x / 16.0, max.y / 16.0, max.z / 16.0
+											min.x() / 16.0, min.y() / 16.0, min.z() / 16.0,
+											max.x() / 16.0, max.y() / 16.0, max.z() / 16.0
 									);
 								}),
 						box -> List.of(
@@ -96,7 +101,7 @@ public class BackpacksResourceReloadListener implements ResourceManagerReloadLis
 				);
 
 		public static final Codec<Backpack> CODEC = RecordCodecBuilder.create(i -> i.group(
-				ResourceLocation.CODEC.fieldOf("id").forGetter(Backpack::id),
+				Identifier.CODEC.fieldOf("id").forGetter(Backpack::id),
 				Codec.STRING.fieldOf("translation_key").forGetter(Backpack::translationKey),
 				VECTOR2I_CODEC.optionalFieldOf("gui_displacement", new Vector2i(0, 0))
 						.forGetter(Backpack::guiDisplacement),

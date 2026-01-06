@@ -33,7 +33,6 @@ public record GpuTexture(
 		int width, int height, com.mojang.blaze3d.textures.GpuTexture texture, GpuTextureView textureView,
 		com.mojang.blaze3d.textures.GpuTexture depthTexture, GpuTextureView depthTextureView
 ) {
-
 	public static GpuTexture create(int size) {
 		return create(size, size);
 	}
@@ -49,7 +48,6 @@ public record GpuTexture(
 				1,
 				1
 		);
-		texture.setTextureFilter(FilterMode.NEAREST, false);
 		GpuTextureView textureView = gpuDevice.createTextureView(texture);
 		com.mojang.blaze3d.textures.GpuTexture depthTexture = gpuDevice.createTexture(
 				() -> "UI Item Transform depth texture",
