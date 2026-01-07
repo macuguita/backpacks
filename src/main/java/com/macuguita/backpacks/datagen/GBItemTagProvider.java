@@ -27,15 +27,15 @@ import java.util.concurrent.CompletableFuture;
 import com.macuguita.backpacks.common.reg.GBItemTags;
 import com.macuguita.backpacks.common.reg.GBObjects;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.minecraft.core.HolderLookup;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
-public class GBItemTagProvider extends FabricTagProvider.ItemTagProvider {
+public class GBItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 
-	public GBItemTagProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> completableFuture) {
+	public GBItemTagProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> completableFuture) {
 		super(output, completableFuture);
 	}
 

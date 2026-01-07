@@ -1,5 +1,5 @@
 plugins {
-    id("fabric-loom").version("1.14-SNAPSHOT")
+    id("net.fabricmc.fabric-loom").version("1.14-SNAPSHOT")
     id("maven-publish")
     id("me.modmuss50.mod-publish-plugin").version("1.0.0")
 }
@@ -57,6 +57,7 @@ repositories {
         Triple("Modrinth", "https://api.modrinth.com/maven", listOf("maven.modrinth")),
         Triple("BlameJared", "https://maven.blamejared.com", listOf("net\\.darkhax\\..+", "mezz.jei")),
         Triple("WispForest", "https://maven.wispforest.io/releases", listOf("io\\.wispforest(\\..+)?")),
+        Triple("Sleeping town", "https://repo.sleeping.town/", listOf("folk.sisby")),
     )
 
     exclusiveRepos.forEach { (name, url, groups) ->
@@ -73,6 +74,7 @@ repositories {
                 }
         }
     }
+    mavenLocal()
 }
 
 configurations {
@@ -81,33 +83,32 @@ configurations {
 
 dependencies {
     minecraft("com.mojang:minecraft:${BuildConfig.minecraftVersion}")
-    mappings(loom.layered {
-        officialMojangMappings()
-        BuildConfig.parchmentMappings?.let { parchment("org.parchmentmc.data:parchment-${BuildConfig.minecraftVersion}:${it}@zip") }
-    })
-    modImplementation("net.fabricmc:fabric-loader:${BuildConfig.loaderVersion}")
+    implementation("net.fabricmc:fabric-loader:${BuildConfig.loaderVersion}")
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${BuildConfig.fabricVersion}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${BuildConfig.fabricVersion}")
 
-    modImplementation("maven.modrinth:macu-lib:${BuildConfig.maculibVersion}-fabric"){
+//    implementation("maven.modrinth:macu-lib:${BuildConfig.maculibVersion}-fabric"){
+//        exclude("net.fabricmc.fabric-api")
+//    }
+    implementation("com.macuguita:macu_lib-fabric:${BuildConfig.maculibVersion}"){
         exclude("net.fabricmc.fabric-api")
     }
 
-    modImplementation("com.terraformersmc:modmenu:${BuildConfig.modMenuVersion}"){
-        exclude("net.fabricmc.fabric-api")
-    }
+//    implementation("com.terraformersmc:modmenu:${BuildConfig.modMenuVersion}"){
+//        exclude("net.fabricmc.fabric-api")
+//    }
 
-    if (false) {
-        modImplementation("io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}") {
-            exclude("net.fabricmc.fabric-api")
-        }
-        add("prodMods", "io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}")
-    } else {
-        modCompileOnly("io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}") {
-            exclude("net.fabricmc.fabric-api")
-        }
-    }
+//    if (false) {
+//        implementation("io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}") {
+//            exclude("net.fabricmc.fabric-api")
+//        }
+//        add("prodMods", "io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}")
+//    } else {
+//        compileOnly("io.wispforest:accessories-fabric:${BuildConfig.accessoriessVersion}") {
+//            exclude("net.fabricmc.fabric-api")
+//        }
+//    }
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
 
     add("prodMods", "net.fabricmc.fabric-api:fabric-api:${BuildConfig.fabricVersion}")
@@ -126,7 +127,7 @@ tasks.register<net.fabricmc.loom.task.prod.ClientProductionRunTask>("prodClient"
 
     javaLauncher.set(
         javaToolchains.launcherFor {
-            languageVersion.set(JavaLanguageVersion.of(21))
+            languageVersion.set(JavaLanguageVersion.of(25))
         }
     )
 }
@@ -160,7 +161,7 @@ tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
 
         depends("fabricloader", ">=${BuildConfig.loaderVersion}")
         depends("minecraft", BuildConfig.minecraftVersionRange)
-        depends("java", ">=21")
+        depends("java", ">=25")
         depends("fabric-api", "*")
         depends("macu_lib", ">=${BuildConfig.maculibVersion}")
 
@@ -169,7 +170,7 @@ tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(21)
+    options.release.set(25)
 }
 
 java {
@@ -178,8 +179,8 @@ java {
     // If you remove this line, sources will not be generated.
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks.processResources {
@@ -200,8 +201,8 @@ val changelogText: String = rootProject.file("CHANGELOG.md").readText()
 
 publishMods {
     changelog = changelogText
-    file.set(tasks.remapJar.get().archiveFile)
-    additionalFiles.from(tasks.remapSourcesJar.get().archiveFile)
+    file = tasks.jar.map { it.archiveFile.get() }
+    additionalFiles.from(tasks.named<org.gradle.jvm.tasks.Jar>("sourcesJar").map { it.archiveFile.get() })
     displayName = BuildConfig.modName + " " + BuildConfig.modVersion
     version = BuildConfig.modVersion
     type = if (BuildConfig.modVersion.contains("beta")) {
@@ -227,7 +228,7 @@ publishMods {
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
         for (version in BuildConfig.supportedVersions)
             minecraftVersions.add(version)
-        javaVersions.add(JavaVersion.VERSION_21)
+        javaVersions.add(JavaVersion.VERSION_25)
         clientRequired = true
         serverRequired = true
         projectSlug = "guitas-backpacks"

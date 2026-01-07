@@ -37,6 +37,7 @@ import com.macuguita.backpacks.common.reg.GBItemGroups;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
 
 public class GuitaBackpacks implements ModInitializer {
 	public static final String MOD_ID = "gbackpacks";
@@ -68,7 +69,7 @@ public class GuitaBackpacks implements ModInitializer {
 		return Identifier.fromNamespaceAndPath(MOD_ID, name);
 	}
 
-	public static final ExtendedScreenHandlerType<BackpackScreenHandler, BackpackInventoryPayload> BACKPACK_SCREEN_HANDLER = new ExtendedScreenHandlerType<>(BackpackScreenHandler::new, BackpackInventoryPayload.CODEC);
+	public static final ExtendedMenuType<BackpackScreenHandler, BackpackInventoryPayload> BACKPACK_SCREEN_HANDLER = new ExtendedMenuType<>(BackpackScreenHandler::new, BackpackInventoryPayload.CODEC);
 	public static final MenuType<EquipmentScreenHandler> EQUIPMENT_SCREEN_HANDLER = Registry.register(BuiltInRegistries.MENU, id("equipment"), new MenuType<>(EquipmentScreenHandler::new, FeatureFlagSet.of()));
 
 	@Override
@@ -79,7 +80,7 @@ public class GuitaBackpacks implements ModInitializer {
 		initEvents();
 		GBAttachmentTypes.init();
 		ResourceLoader.get(PackType.SERVER_DATA)
-				.registerReloader(BackpacksResourceReloadListener.ID, new BackpacksResourceReloadListener());
+				.registerReloadListener(BackpacksResourceReloadListener.ID, new BackpacksResourceReloadListener());
 	}
 
 	private void initEvents() {
@@ -106,12 +107,12 @@ public class GuitaBackpacks implements ModInitializer {
 
 	private void initPayloads() {
 		// Client
-		PayloadTypeRegistry.playS2C().register(BackpackInventoryPayload.ID, BackpackInventoryPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(BackpackListSyncPayload.ID, BackpackListSyncPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(BackpackInventoryPayload.ID, BackpackInventoryPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(BackpackListSyncPayload.ID, BackpackListSyncPayload.CODEC);
 		// Server
-		PayloadTypeRegistry.playC2S().register(OpenBackpackPayload.ID, OpenBackpackPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(OpenEquipmentPayload.ID, OpenEquipmentPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(BackpackCosmeticSyncPayload.ID, BackpackCosmeticSyncPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(OpenBackpackPayload.ID, OpenBackpackPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(OpenEquipmentPayload.ID, OpenEquipmentPayload.CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(BackpackCosmeticSyncPayload.ID, BackpackCosmeticSyncPayload.CODEC);
 		// Receivers
 		ServerPlayNetworking.registerGlobalReceiver(OpenBackpackPayload.ID, new OpenBackpackPayload.Receiver());
 		ServerPlayNetworking.registerGlobalReceiver(OpenEquipmentPayload.ID, new OpenEquipmentPayload.Receiver());

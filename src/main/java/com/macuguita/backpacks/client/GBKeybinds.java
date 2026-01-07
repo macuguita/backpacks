@@ -37,14 +37,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 
 public class GBKeybinds {
 
 	public static void init() {
 		var category = KeyMapping.Category.register(GuitaBackpacks.id("backpacks"));
 
-		KeyMapping openBackpackKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+		KeyMapping openBackpackKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.gbackpacks.open_backpack",
 				InputConstants.Type.KEYSYM,
 				GLFW.GLFW_KEY_B,
@@ -52,7 +52,7 @@ public class GBKeybinds {
 		));
 		Optional<KeyMapping> maybeOpenEquipmentKey = Optional.empty();
 		if (!EquipmentUtils.isAccessoriesLoaded()) {
-			maybeOpenEquipmentKey = Optional.of(KeyBindingHelper.registerKeyBinding(new KeyMapping(
+			maybeOpenEquipmentKey = Optional.of(KeyMappingHelper.registerKeyMapping(new KeyMapping(
 					"key.gbackpacks.open_equipment",
 					InputConstants.Type.KEYSYM,
 					GLFW.GLFW_KEY_G,

@@ -87,7 +87,7 @@ public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends Hu
 		// Align with body
 		playerModel.body.translateAndRotate(poseStack);
 
-		// Fix model placement
+		// Fix modelId placement
 		poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
 		poseStack.scale(1.1F, -1.1F, -1.1F);
 		poseStack.translate(0, -0.06, 0.125);
@@ -97,7 +97,7 @@ public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends Hu
 		// FIXME 1.21.9
 		// Fabric had this in their example leaving this to remind me later of when it is fixed
 		// https://github.com/FabricMC/fabric/blob/0.134.1%2B1.21.10/fabric-model-loading-api-v1/src/testmodClient/java/net/fabricmc/fabric/test/model/loading/BakedModelFeatureRenderer.java
-		// FabricBlockModelRenderer.render(matrices.peek(), RenderLayerHelper.entityDelegate(vertexConsumers), model, 1, 1, 1, light, OverlayTexture.DEFAULT_UV, EmptyBlockRenderView.INSTANCE, BlockPos.ORIGIN, Blocks.AIR.getDefaultState());
+		// FabricBlockModelRenderer.render(matrices.peek(), RenderLayerHelper.entityDelegate(vertexConsumers), modelId, 1, 1, 1, light, OverlayTexture.DEFAULT_UV, EmptyBlockRenderView.INSTANCE, BlockPos.ORIGIN, Blocks.AIR.getDefaultState());
 
 		nodeCollector.order(0).submitBlockModel(
 				poseStack,

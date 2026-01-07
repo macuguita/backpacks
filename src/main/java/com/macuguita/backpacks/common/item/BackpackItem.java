@@ -64,7 +64,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 
 public class BackpackItem extends BlockItem {
 
@@ -111,7 +111,7 @@ public class BackpackItem extends BlockItem {
 
 	@SuppressWarnings("rawtypes")
 	public static void openBackpack(Player player, SimpleContainer inventory, int slotIndex) {
-		var factory = new ExtendedScreenHandlerFactory() {
+		var factory = new ExtendedMenuProvider() {
 
 			@Override
 			public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {

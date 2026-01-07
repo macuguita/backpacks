@@ -28,23 +28,28 @@ import javax.annotation.Nullable;
 
 import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
-import com.macuguita.backpacks.client.render.state.BlockStateGuiElementRenderState;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-import org.joml.Matrix3x2f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.api.EnvType;
@@ -55,7 +60,8 @@ public class BackpackCustomizationScreen extends Screen {
 
 	public static final Identifier BACKGROUND_TEXTURE = GuitaBackpacks.id("background");
 
-	private static final int BACKGROUND_WIDTH = 176;
+	private static final int GUI_SHIFT_X = 25;
+	private static final int BACKGROUND_WIDTH = 150;
 	private static final int BACKGROUND_HEIGHT = 166;
 	private static final int ITEM_LIST_GAP = 2;
 	private static final int DEFAULT_ITEM_TEXT_COLOR = 0xFFCCCCCC;
@@ -81,35 +87,11 @@ public class BackpackCustomizationScreen extends Screen {
 		this.selectedModelId = this.currentModelId;
 	}
 
-	public static void drawModelInGui(GuiGraphics context, Identifier modelId, int x, int y, float scale) {
-		int size = 27;
-
-		float centerX = x + size / 2f;
-		float centerY = y + size / 2f;
-
-		Matrix3x2f pose = new Matrix3x2f()
-				.translate(centerX, centerY)
-				.scale(scale)
-				.translate(-centerX, -centerY);
-
-		ScreenRectangle rect = new ScreenRectangle(x, y, size, size).transformMaxBounds(pose);
-
-		BlockStateGuiElementRenderState renderState = new BlockStateGuiElementRenderState(
-				pose,
-				modelId,
-				x,
-				y,
-				rect
-		);
-
-		context.guiRenderState.submitPicturesInPictureState(renderState);
-	}
-
 	@Override
 	protected void init() {
 		super.init();
 
-		int i = (this.width - BACKGROUND_WIDTH) / 2;
+		int i = (this.width - BACKGROUND_WIDTH) / 2 + GUI_SHIFT_X;
 		int j = (this.height - BACKGROUND_HEIGHT) / 2;
 
 		int scrollBarX = i + BACKGROUND_WIDTH - ScrollBarWidget.BACKGROUND_WIDTH - 10;
@@ -146,7 +128,7 @@ public class BackpackCustomizationScreen extends Screen {
 		);
 
 		this.addRenderableWidget(
-				Button.builder(Component.translatable("gui.done"), button -> {
+				Button.builder(Component.translatable("gui.done"), _ -> {
 							if (!this.selectedModelId.equals(this.currentModelId)) {
 								BackpackCosmeticSyncPayload.send(this.slotIndex, this.selectedModelId);
 							}
@@ -160,7 +142,8 @@ public class BackpackCustomizationScreen extends Screen {
 	@Override
 	public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
 		super.renderBackground(context, mouseX, mouseY, delta);
-		int i = (this.width - BACKGROUND_WIDTH) / 2;
+
+		int i = (this.width - BACKGROUND_WIDTH) / 2 + GUI_SHIFT_X;
 		int j = (this.height - BACKGROUND_HEIGHT) / 2;
 
 		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i, j, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
@@ -198,21 +181,43 @@ public class BackpackCustomizationScreen extends Screen {
 				context.fill(startX, y + ITEM_HEIGHT - 1, startX + slotWidth, y + ITEM_HEIGHT, 0xFF2A70C2);
 			}
 
-			int modelX = startX + backpackItem.guiDisplacement().x;
-			int modelY = y + backpackItem.guiDisplacement().y - 2;
-
-			drawModelInGui(context, backpackItem.id(), modelX,
-					modelY, backpackItem.guiScale());
-
 			int textColor = isSelected ? SELECTED_ITEM_TEXT_COLOR :
 					isHovered ? HOVERED_ITEM_TEXT_COLOR :
 							DEFAULT_ITEM_TEXT_COLOR;
 
 			context.drawString(this.font, Component.translatable(backpackItem.translationKey()),
-					startX + 28, y + 8, textColor, isSelected);
+					startX + 8, y + 8, textColor, isSelected);
 		}
-
 		context.disableScissor();
+
+		int spacing = 10;
+		int playerPadding = 10;
+		int playerWidth = 100;
+		int playerHeight = BACKGROUND_HEIGHT - 2 * playerPadding;
+		float yOffset = 0.2625F;
+		int renderSize = 120;
+
+		int renderX0 = i - playerWidth - playerPadding - spacing;
+		int renderY0 = j + playerPadding;
+		int renderX1 = renderX0 + playerWidth;
+		int renderY1 = renderY0 + playerHeight;
+
+		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i - playerWidth - playerPadding*2 - spacing, j, playerWidth + playerPadding*2, BACKGROUND_HEIGHT);
+
+		context.fill(renderX0, renderY0, renderX1, renderY1, 0xFF373737);
+
+		renderEntityInInventoryFollowsMouse(
+				context,
+				renderX0,
+				renderY0,
+				renderX1,
+				renderY1,
+				renderSize,
+				yOffset,
+				mouseX,
+				mouseY,
+				this.minecraft.player
+		);
 	}
 
 	@Override
@@ -245,6 +250,7 @@ public class BackpackCustomizationScreen extends Screen {
 				BackpacksResourceReloadListener.Backpack clicked = GuitaBackpacksClient.BACKPACKS.get(index);
 
 				this.selectedModelId = clicked.id();
+				BackpackCosmeticSyncPayload.send(this.slotIndex, this.selectedModelId);
 				if (this.scrollBar != null) {
 					this.scrollBar.updateScrollPercent();
 				}
@@ -262,7 +268,57 @@ public class BackpackCustomizationScreen extends Screen {
 
 	@Override
 	public void onClose() {
-		if (this.minecraft == null) return;
 		this.minecraft.setScreen(this.parent);
+	}
+
+	public static void renderEntityInInventoryFollowsMouse(
+			final GuiGraphics graphics,
+			final int x0,
+			final int y0,
+			final int x1,
+			final int y1,
+			final int size,
+			final float offsetY,
+			final float mouseX,
+			final float mouseY,
+			final LivingEntity entity
+	) {
+		float centerX = (x0 + x1) / 2.0F;
+		float centerY = (y0 + y1) / 2.0F;
+
+		float xAngle = (float) -Math.atan((centerX - mouseX) / 40.0F);
+		float yAngle = (float) Math.atan((centerY - mouseY) / 40.0F);
+
+		Quaternionf rotation = new Quaternionf().rotateZ((float) Math.PI)
+				.rotateY((float) Math.PI);
+		Quaternionf xRotation = new Quaternionf().rotateX(yAngle * 20.0F * (float) (Math.PI / 180.0));
+
+		rotation.mul(xRotation);
+		EntityRenderState renderState = extractRenderState(entity);
+		if (renderState instanceof LivingEntityRenderState livingRenderState) {
+			livingRenderState.bodyRot = 180.0F + xAngle * 20.0F;
+			livingRenderState.yRot = xAngle * 20.0F;
+			if (livingRenderState.pose != Pose.FALL_FLYING) {
+				livingRenderState.xRot = -yAngle * 20.0F;
+			} else {
+				livingRenderState.xRot = 0.0F;
+			}
+
+			livingRenderState.boundingBoxWidth = livingRenderState.boundingBoxWidth / livingRenderState.scale;
+			livingRenderState.boundingBoxHeight = livingRenderState.boundingBoxHeight / livingRenderState.scale;
+			livingRenderState.scale = 1.0F;
+		}
+
+		Vector3f translation = new Vector3f(0.0F, renderState.boundingBoxHeight / 2.0F + offsetY, 0.0F);
+		graphics.submitEntityRenderState(renderState, size, translation, rotation, xRotation, x0, y0, x1, y1);
+	}
+
+	private static EntityRenderState extractRenderState(final LivingEntity entity) {
+		EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+		EntityRenderer<? super LivingEntity, ?> renderer = entityRenderDispatcher.getRenderer(entity);
+		EntityRenderState renderState = renderer.createRenderState(entity, 1.0F);
+		renderState.shadowPieces.clear();
+		renderState.outlineColor = 0;
+		return renderState;
 	}
 }

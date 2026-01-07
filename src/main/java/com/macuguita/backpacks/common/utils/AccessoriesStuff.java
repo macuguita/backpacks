@@ -3,7 +3,7 @@ package com.macuguita.backpacks.common.utils;
 import com.macuguita.backpacks.client.render.BackpackAccessoryRenderer;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.reg.GBObjects;
-import io.wispforest.accessories.api.client.AccessoriesRendererRegistry;
+//import io.wispforest.accessories.api.client.AccessoriesRendererRegistry;
 
 import net.minecraft.resources.Identifier;
 
@@ -16,6 +16,6 @@ public class AccessoriesStuff {
 
 	@Environment(EnvType.CLIENT)
 	public static void accessoriesClientInit() {
-		AccessoriesRendererRegistry.bindItemToRenderer(GBObjects.BACKPACK.get(), BACKPACK_RENDERER, BackpackAccessoryRenderer::new);
+//		AccessoriesRendererRegistry.bindItemToRenderer(GBObjects.BACKPACK.get(), BACKPACK_RENDERER, BackpackAccessoryRenderer::new);
 	}
 }

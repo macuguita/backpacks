@@ -29,8 +29,8 @@ import javax.annotation.Nullable;
 import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
 import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.item.BackpackItem;
-import io.wispforest.accessories.api.AccessoriesCapability;
-import io.wispforest.accessories.api.slot.SlotEntryReference;
+//import io.wispforest.accessories.api.AccessoriesCapability;
+//import io.wispforest.accessories.api.slot.SlotEntryReference;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -47,14 +47,14 @@ public class EquipmentUtils {
 	}
 
 	public static ItemStack getEquippedBackpack(Player player) {
-		if (!isAccessoriesLoaded())
+//		if (!isAccessoriesLoaded())
 			return player.getAttachedOrCreate(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, () -> EquipmentAttachedData.DEFAULT).getBackpack();
 
-		return AccessoriesCapability.getOptionally(player)
-				.map(c -> c.getEquipped(stack -> stack.getItem() instanceof BackpackItem))
-				.flatMap(list -> list.stream().findFirst())
-				.map(SlotEntryReference::stack)
-				.orElse(ItemStack.EMPTY);
+//		return AccessoriesCapability.getOptionally(player)
+//				.map(c -> c.getEquipped(stack -> stack.getItem() instanceof BackpackItem))
+//				.flatMap(list -> list.stream().findFirst())
+//				.map(SlotEntryReference::stack)
+//				.orElse(ItemStack.EMPTY);
 	}
 
 	/**
@@ -92,19 +92,19 @@ public class EquipmentUtils {
 	}
 
 	private static int getAccessoriesBackpackSlotIndex(Player player) {
-		Optional<AccessoriesCapability> capOpt = AccessoriesCapability.getOptionally(player);
-		if (capOpt.isEmpty()) return -1;
-
-		AccessoriesCapability cap = capOpt.get();
-
-		int index = 0;
-		for (SlotEntryReference ref : cap.getAllEquipped()) {
-			ItemStack stack = ref.stack();
-			if (stack.getItem() instanceof BackpackItem) {
-				return ACCESSORIES_SLOT_OFFSET + index;
-			}
-			index++;
-		}
+//		Optional<AccessoriesCapability> capOpt = AccessoriesCapability.getOptionally(player);
+//		if (capOpt.isEmpty()) return -1;
+//
+//		AccessoriesCapability cap = capOpt.get();
+//
+//		int index = 0;
+//		for (SlotEntryReference ref : cap.getAllEquipped()) {
+//			ItemStack stack = ref.stack();
+//			if (stack.getItem() instanceof BackpackItem) {
+//				return ACCESSORIES_SLOT_OFFSET + index;
+//			}
+//			index++;
+//		}
 
 		return -1;
 	}
@@ -141,19 +141,20 @@ public class EquipmentUtils {
 	}
 
 	private static ItemStack getBackpackFromAccessorySlotIndex(Player player, int slotIndex) {
-		Optional<AccessoriesCapability> capOpt = AccessoriesCapability.getOptionally(player);
-		if (capOpt.isEmpty()) return ItemStack.EMPTY;
-
-		AccessoriesCapability cap = capOpt.get();
-
-		int encodedIndex = slotIndex - ACCESSORIES_SLOT_OFFSET;
-		var allEquipped = cap.getAllEquipped();
-
-		if (encodedIndex < 0 || encodedIndex >= allEquipped.size()) {
-			return ItemStack.EMPTY;
-		}
-
-		ItemStack stack = allEquipped.get(encodedIndex).stack();
-		return stack.getItem() instanceof BackpackItem ? stack : ItemStack.EMPTY;
+//		Optional<AccessoriesCapability> capOpt = AccessoriesCapability.getOptionally(player);
+//		if (capOpt.isEmpty()) return ItemStack.EMPTY;
+//
+//		AccessoriesCapability cap = capOpt.get();
+//
+//		int encodedIndex = slotIndex - ACCESSORIES_SLOT_OFFSET;
+//		var allEquipped = cap.getAllEquipped();
+//
+//		if (encodedIndex < 0 || encodedIndex >= allEquipped.size()) {
+//			return ItemStack.EMPTY;
+//		}
+//
+//		ItemStack stack = allEquipped.get(encodedIndex).stack();
+//		return stack.getItem() instanceof BackpackItem ? stack : ItemStack.EMPTY;
+		return ItemStack.EMPTY;
 	}
 }

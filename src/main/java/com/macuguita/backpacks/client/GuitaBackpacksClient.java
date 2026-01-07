@@ -33,7 +33,6 @@ import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
 import com.macuguita.backpacks.client.render.BackpackBlockEntityRenderer;
 import com.macuguita.backpacks.client.render.BackpackFeatureRenderer;
-import com.macuguita.backpacks.client.render.BlockStateGuiRenderer;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.reg.GBBlockEntities;
@@ -43,6 +42,7 @@ import com.macuguita.backpacks.common.utils.AccessoriesStuff;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.mojang.blaze3d.platform.InputConstants;
 
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -55,8 +55,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.SpecialGuiElementRegistry;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.reloader.ResourceReloaderKeys;
 
@@ -76,8 +74,8 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 
 		// Might have to do something with this, look at the link above
 		ResourceLoader resourceLoader = ResourceLoader.get(PackType.CLIENT_RESOURCES);
-		resourceLoader.registerReloader(GBModelReloadListener.ID, GBModelReloadListener.INSTANCE);
-		resourceLoader.addReloaderOrdering(ResourceReloaderKeys.Client.MODELS, GBModelReloadListener.ID);
+		resourceLoader.registerReloadListener(GBModelReloadListener.ID, GBModelReloadListener.INSTANCE);
+		resourceLoader.addListenerOrdering(ResourceReloaderKeys.Client.MODELS, GBModelReloadListener.ID);
 
 		BlockEntityRenderers.register(GBBlockEntities.BACKPACK, BackpackBlockEntityRenderer::new);
 
@@ -85,18 +83,17 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 			AccessoriesStuff.accessoriesClientInit();
 		}
 
-		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
+		LivingEntityRenderLayerRegistrationCallback.EVENT.register((_, entityRenderer, registrationHelper, _) -> {
 			if (entityRenderer instanceof AvatarRenderer<?> playerRenderer) {
 				registrationHelper.register(new BackpackFeatureRenderer<>(playerRenderer));
 			}
 		});
 
-		SpecialGuiElementRegistry.register(ctx -> new BlockStateGuiRenderer(ctx.vertexConsumers()));
 		MenuScreens.register(GuitaBackpacks.BACKPACK_SCREEN_HANDLER, BackpackScreen::new);
 		if (!EquipmentUtils.isAccessoriesLoaded())
 			MenuScreens.register(GuitaBackpacks.EQUIPMENT_SCREEN_HANDLER, EquipmentScreen::new);
 
-		ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, list) -> {
+		ItemTooltipCallback.EVENT.register((itemStack, _, _, list) -> {
 			if (!(itemStack.getItem() instanceof BackpackItem)) return;
 
 			if (itemStack.has(GBComponents.VISIBLE.get())) {

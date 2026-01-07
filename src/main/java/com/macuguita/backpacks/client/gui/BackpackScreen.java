@@ -26,6 +26,8 @@ import com.macuguita.backpacks.client.gui.widgets.CustomizationWidget;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 
+import com.macuguita.backpacks.mixin.AbstractContainerScreenAccessor;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -83,11 +85,12 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandle
 		this.backpackStartY = handler.getBackpackStartY();
 		this.playerInventoryStartY = handler.getPlayerInventoryStartY();
 
-		this.imageWidth = SIDE_PADDING + (9 * SLOT_SIZE) + SIDE_PADDING;
-		this.imageHeight = TOP_PADDING +
+		this.imageWidth = (SIDE_PADDING + (9 * SLOT_SIZE) + SIDE_PADDING);
+		this.imageHeight = (TOP_PADDING +
 				(visibleBackpackRows * SLOT_SIZE) +
 				GAP_BETWEEN_BACKPACK_AND_PLAYER +
-				(3 * SLOT_SIZE) + 4 + SLOT_SIZE + BOTTOM_PADDING;
+				(3 * SLOT_SIZE) + 4 + SLOT_SIZE + BOTTOM_PADDING
+		);
 	}
 
 	@Override

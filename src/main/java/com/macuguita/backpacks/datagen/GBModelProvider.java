@@ -29,11 +29,11 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ModelTemplates;
 
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 
 public class GBModelProvider extends FabricModelProvider {
 
-	public GBModelProvider(FabricDataOutput output) {
+	public GBModelProvider(FabricPackOutput output) {
 		super(output);
 	}
 
