@@ -49,16 +49,16 @@ base {
 
 repositories {
     val exclusiveRepos = listOf(
-        Triple("macuguita", "https://maven.macuguita.com", listOf("com.macuguita")),
         Triple("ParchmentMC", "https://maven.parchmentmc.org", listOf("org.parchmentmc.data")),
+        Triple("macuguita", "https://maven.macuguita.com/releases/", listOf("com.macuguita")),
         Triple("Shedaniel", "https://maven.shedaniel.me/", listOf("me.shedaniel.cloth")),
         Triple("TerraformersMC", "https://maven.terraformersmc.com/", listOf("com.terraformersmc", "dev.emi")),
-        Triple("Ladysnake", "https://maven.ladysnake.org/releases", listOf("org\\.ladysnake(\\..+)?")),
+        Triple("Ladysnake", "https://maven.ladysnake.org/releases", listOf("org.ladysnake")),
         Triple("Modrinth", "https://api.modrinth.com/maven", listOf("maven.modrinth")),
-        Triple("BlameJared", "https://maven.blamejared.com", listOf("net\\.darkhax\\..+", "mezz.jei")),
+        Triple("BlameJared", "https://maven.blamejared.com", listOf("net.darkhax", "mezz.jei")),
         Triple("Sisby Maven", "https://repo.sleeping.town/", listOf("folk.sisby")),
         Triple("Xander Maven", "https://maven.isxander.dev/releases/", listOf("dev.isxander", "org.quiltmc.parsers")),
-        Triple("WispForest", "https://maven.wispforest.io/releases", listOf("io\\.wispforest(\\..+)?")),
+        Triple("WispForest", "https://maven.wispforest.io/releases", listOf("io.wispforest")),
     )
 
     exclusiveRepos.forEach { (name, url, groups) ->

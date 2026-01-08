@@ -137,7 +137,7 @@ public class GuitaBackpacks implements ModInitializer {
 			}
 		});
 		NetworkManager.registerC2S(OpenEquipmentPayload.ID, OpenEquipmentPayload.CODEC, (payload, player) -> {
-			if (EquipmentUtils.isTrinketsLoaded()) return;
+			if (EquipmentUtils.isAccessoriesLoaded()) return;
 			var factory = new NamedScreenHandlerFactory() {
 
 				@Override
@@ -166,7 +166,7 @@ public class GuitaBackpacks implements ModInitializer {
 
 			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), payload.newId());
 
-			if (!EquipmentUtils.isTrinketsLoaded() && backpackSlot >= 20000) {
+			if (!EquipmentUtils.isAccessoriesLoaded() && backpackSlot >= 20000) {
 				GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getInventory().markDirty();
 			}
 		});

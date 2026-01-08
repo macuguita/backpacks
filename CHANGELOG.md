@@ -1,1 +1,2 @@
-- Updated backpack item texture
+- Updated to use accessories
+- Updated to new version of macu lib

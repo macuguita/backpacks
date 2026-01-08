@@ -40,7 +40,7 @@ public class EquipmentUtils {
 	private static final int CUSTOM_EQUIPMENT_SLOT_OFFSET = 20000;
 
 	public static boolean isAccessoriesLoaded() {
-		return FabricLoader.getInstance().isModLoaded("trinkets");
+		return FabricLoader.getInstance().isModLoaded("accessories");
 	}
 
 	public static ItemStack getEquippedBackpack(PlayerEntity player) {

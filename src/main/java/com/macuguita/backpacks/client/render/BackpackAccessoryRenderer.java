@@ -41,8 +41,6 @@ public class BackpackAccessoryRenderer implements SimpleAccessoryRenderer {
 		BakedModelRenderer.drawBakedModel(backpackModel, matrices, multiBufferSource, light, 0xF000F0);
 
 		matrices.pop();
-
-		SimpleAccessoryRenderer.super.render(backpack, reference, matrices, model, multiBufferSource, light, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
 	}
 
 	@Override
@@ -52,9 +50,8 @@ public class BackpackAccessoryRenderer implements SimpleAccessoryRenderer {
 
 		// Fix model placement
 		matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0F));
-		matrixStack.scale(2.15F, 2.15F, 2.15F);
+		matrixStack.scale(2.2F, 2.2F, 2.2F);
 		matrixStack.translate(0.0F, 0.3F, 0.0F);
 
-		matrixStack.translate(-0.5F, -0.5F, -0.5F);
 	}
 }
