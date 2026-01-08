@@ -57,28 +57,4 @@ public record BackpackCosmeticSyncPayload(ItemStack oldBackpack, Identifier newI
 	public static void send(ItemStack oldBackpack, Identifier newId) {
 		ClientPlayNetworking.send(new BackpackCosmeticSyncPayload(oldBackpack, newId));
 	}
-
-	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<BackpackCosmeticSyncPayload> {
-
-		@Override
-		public void receive(BackpackCosmeticSyncPayload payload, ServerPlayNetworking.Context context) {
-			ServerPlayerEntity player = context.player();
-
-			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
-			if (backpackSlot == -1) {
-				return;
-			}
-
-			ItemStack backpack = EquipmentUtils.getBackpackFromSlotIndex(player, backpackSlot);
-			if (backpack.isEmpty() || !backpack.contains(GBComponents.BACKPACK_MODEL_ID.get())) {
-				return;
-			}
-
-			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), payload.newId());
-
-			if (!EquipmentUtils.isAccessoriesLoaded() && backpackSlot >= 20000) {
-				GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getInventory().markDirty();
-			}
-		}
-	}
 }

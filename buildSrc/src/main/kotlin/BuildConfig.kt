@@ -6,7 +6,7 @@ object BuildConfig {
     val loaderVersion: String = "0.18.3"
 
     val modVersion: String = minecraftVersion + "-beta+3"
-    val mavenGroup: String = "com.macuguita.backpacks"
+    val mavenGroup: String = "com.macuguita"
     val modId: String = "gbackpacks"
     val modName: String = "guita's Backpacks"
     val description: String = "backpacks!"
@@ -15,7 +15,7 @@ object BuildConfig {
     val fabricVersion: String = "0.116.7+" + minecraftVersion
     val modMenuVersion: String = "11.0.3"
 
-    val maculibVersion: String = "1.0.5-" + minecraftVersion
+    val maculibVersion: String = "2.0.0+" + minecraftVersion
     val accessoriesVersion: String = "1.1.0-beta.52+$minecraftVersion"
     val ccaVersion: String = "6.1.2"
 }

@@ -56,13 +56,4 @@ public record BackpackListSyncPayload(List<BackpacksResourceReloadListener.Backp
 	public static void send(ServerPlayerEntity player, List<BackpacksResourceReloadListener.Backpack> list) {
 		ServerPlayNetworking.send(player, new BackpackListSyncPayload(list));
 	}
-
-	public static class Receiver implements ClientPlayNetworking.PlayPayloadHandler<BackpackListSyncPayload> {
-
-		@Override
-		public void receive(BackpackListSyncPayload payload, ClientPlayNetworking.Context context) {
-			GuitaBackpacksClient.BACKPACKS.clear();
-			GuitaBackpacksClient.BACKPACKS.addAll(payload.list());
-		}
-	}
 }

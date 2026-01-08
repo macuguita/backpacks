@@ -55,27 +55,4 @@ public record OpenEquipmentPayload() implements CustomPayload {
 	public static void send() {
 		ClientPlayNetworking.send(new OpenEquipmentPayload());
 	}
-
-	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<OpenEquipmentPayload> {
-
-		@Override
-		public void receive(OpenEquipmentPayload payload, ServerPlayNetworking.Context context) {
-			if (EquipmentUtils.isAccessoriesLoaded()) return;
-			ServerPlayerEntity player = context.player();
-			var factory = new NamedScreenHandlerFactory() {
-
-				@Override
-				public Text getDisplayName() {
-					return Text.empty();
-				}
-
-				@Override
-				public @NotNull ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-					return new EquipmentScreenHandler(syncId, playerInventory, GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(player).getInventory());
-				}
-			};
-
-			player.openHandledScreen(factory);
-		}
-	}
 }

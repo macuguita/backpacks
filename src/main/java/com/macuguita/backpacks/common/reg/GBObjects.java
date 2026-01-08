@@ -25,9 +25,9 @@ package com.macuguita.backpacks.common.reg;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.block.BackpackBlock;
 import com.macuguita.backpacks.common.item.BackpackItem;
-import com.macuguita.lib.platform.registry.GuitaRegistries;
-import com.macuguita.lib.platform.registry.GuitaRegistry;
-import com.macuguita.lib.platform.registry.GuitaRegistryEntry;
+import com.macuguita.lib.reg.GuitaRegistries;
+import com.macuguita.lib.reg.GuitaRegistry;
+import com.macuguita.lib.reg.GuitaRegistryEntry;
 
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;

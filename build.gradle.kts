@@ -1,5 +1,6 @@
 plugins {
     id("net.fabricmc.fabric-loom-remap").version("1.14-SNAPSHOT")
+    id("co.uzzu.dotenv.gradle").version("4.0.0")
     id("maven-publish")
     id("me.modmuss50.mod-publish-plugin").version("1.0.0")
 }
@@ -48,27 +49,36 @@ base {
 
 repositories {
     val exclusiveRepos = listOf(
+        Triple("macuguita", "https://maven.macuguita.com", listOf("com.macuguita")),
         Triple("ParchmentMC", "https://maven.parchmentmc.org", listOf("org.parchmentmc.data")),
         Triple("Shedaniel", "https://maven.shedaniel.me/", listOf("me.shedaniel.cloth")),
         Triple("TerraformersMC", "https://maven.terraformersmc.com/", listOf("com.terraformersmc", "dev.emi")),
         Triple("Ladysnake", "https://maven.ladysnake.org/releases", listOf("org\\.ladysnake(\\..+)?")),
         Triple("Modrinth", "https://api.modrinth.com/maven", listOf("maven.modrinth")),
         Triple("BlameJared", "https://maven.blamejared.com", listOf("net\\.darkhax\\..+", "mezz.jei")),
+        Triple("Sisby Maven", "https://repo.sleeping.town/", listOf("folk.sisby")),
+        Triple("Xander Maven", "https://maven.isxander.dev/releases/", listOf("dev.isxander", "org.quiltmc.parsers")),
         Triple("WispForest", "https://maven.wispforest.io/releases", listOf("io\\.wispforest(\\..+)?")),
     )
 
     exclusiveRepos.forEach { (name, url, groups) ->
-        exclusiveContent {
-            forRepository {
-                maven {
-                    this.name = name
-                    setUrl(url)
+        if (groups.isNotEmpty()) {
+            exclusiveContent {
+                forRepository {
+                    maven {
+                        this.name = name
+                        setUrl(url)
+                    }
+                }
+                filter {
+                    groups.forEach { includeGroupAndSubgroups(it) }
                 }
             }
-            if (groups.isNotEmpty())
-                filter {
-                    groups.forEach { includeGroupByRegex(it) }
-                }
+        } else {
+            maven {
+                this.name = name
+                setUrl(url)
+            }
         }
     }
 }
@@ -81,7 +91,7 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${BuildConfig.fabricVersion}")
 
-    modImplementation("maven.modrinth:macu-lib:${BuildConfig.maculibVersion}-fabric"){
+    modImplementation("com.macuguita:macu_lib-fabric:${BuildConfig.maculibVersion}"){
         exclude("net.fabricmc.fabric-api")
     }
 
@@ -132,7 +142,7 @@ dependencies {
 tasks.processResources {
     filesMatching("fabric.mod.json") {
         expand(
-            "version"  to BuildConfig.modVersion,
+            "version"               to BuildConfig.modVersion,
             "modId"                 to BuildConfig.modId,
             "modName"               to BuildConfig.modName,
             "description"           to BuildConfig.description,
@@ -224,16 +234,22 @@ publishMods {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
+            groupId = BuildConfig.mavenGroup
             artifactId = BuildConfig.modId
+            version = BuildConfig.modVersion
             from(components["java"])
         }
     }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
+        mavenLocal()
+        maven {
+            name = "macuguita"
+            url = uri("https://maven.macuguita.com/releases")
+
+            credentials {
+                username = env.MAVEN_USERNAME.orNull()
+                password = env.MAVEN_KEY.orNull()
+            }
+        }
     }
 }
