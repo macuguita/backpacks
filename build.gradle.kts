@@ -52,7 +52,7 @@ base {
 repositories {
     mavenLocal()
     val exclusiveRepos = listOf(
-        Triple("macuguita Maven", "https://maven.macuguita.com/releases", listOf("folk.sisby", "org.quiltmc.parsers")),
+        Triple("macuguita Maven", "https://maven.macuguita.com/releases", listOf("com.macuguita", "folk.sisby", "org.quiltmc.parsers")),
         Triple("ParchmentMC", "https://maven.parchmentmc.org", listOf("org.parchmentmc.data")),
         Triple("Shedaniel", "https://maven.shedaniel.me/", listOf("me.shedaniel.cloth")),
         Triple("TerraformersMC", "https://maven.terraformersmc.com/", listOf("com.terraformersmc", "dev.emi")),
