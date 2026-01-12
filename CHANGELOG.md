@@ -1,3 +1,3 @@
-- No longer needs cardinal components API
-- Now uses Accessories instead of Trinkets Canary because it is more widely used
-- There is a small bug where the backpack model won't sync automatically when using accessories and will need to be re-equipped for other players to see
+- Update to 26.1
+- Update macu_lib dependency
+- Change the customization backpack screen to show player
