@@ -48,16 +48,4 @@ public record OpenBackpackPayload() implements CustomPacketPayload {
 	public static void send() {
 		ClientPlayNetworking.send(new OpenBackpackPayload());
 	}
-
-	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<OpenBackpackPayload> {
-
-		@Override
-		public void receive(OpenBackpackPayload payload, ServerPlayNetworking.Context context) {
-			ServerPlayer player = context.player();
-			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
-			if (backpackSlot != -1) {
-				BackpackItem.openOrCreateBackpackIfNotExists(player, backpackSlot);
-			}
-		}
-	}
 }

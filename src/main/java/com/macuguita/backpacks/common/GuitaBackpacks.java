@@ -23,11 +23,14 @@
 package com.macuguita.backpacks.common;
 
 import com.macuguita.backpacks.GBConfig;
+import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.client.gui.BackpackScreenHandler;
 import com.macuguita.backpacks.client.gui.EquipmentScreenHandler;
 import com.macuguita.backpacks.client.gui.payload.BackpackInventoryPayload;
 import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
+import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
 import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
+import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.common.payload.OpenBackpackPayload;
 import com.macuguita.backpacks.common.payload.OpenEquipmentPayload;
@@ -37,6 +40,18 @@ import com.macuguita.backpacks.common.reg.GBItemGroups;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
+
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import com.macuguita.lib.network.NetworkManager;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+
+import net.minecraft.world.item.ItemStack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,15 +122,62 @@ public class GuitaBackpacks implements ModInitializer {
 
 	private void initPayloads() {
 		// Client
-		PayloadTypeRegistry.clientboundPlay().register(BackpackInventoryPayload.ID, BackpackInventoryPayload.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(BackpackListSyncPayload.ID, BackpackListSyncPayload.CODEC);
+		NetworkManager.registerS2C(BackpackInventoryPayload.ID, BackpackInventoryPayload.CODEC);
+		NetworkManager.registerS2C(BackpackListSyncPayload.ID, BackpackListSyncPayload.CODEC, pkt -> {
+			GuitaBackpacksClient.BACKPACKS.clear();
+			GuitaBackpacksClient.BACKPACKS.addAll(pkt.list());
+		});
 		// Server
-		PayloadTypeRegistry.serverboundPlay().register(OpenBackpackPayload.ID, OpenBackpackPayload.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(OpenEquipmentPayload.ID, OpenEquipmentPayload.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(BackpackCosmeticSyncPayload.ID, BackpackCosmeticSyncPayload.CODEC);
-		// Receivers
-		ServerPlayNetworking.registerGlobalReceiver(OpenBackpackPayload.ID, new OpenBackpackPayload.Receiver());
-		ServerPlayNetworking.registerGlobalReceiver(OpenEquipmentPayload.ID, new OpenEquipmentPayload.Receiver());
-		ServerPlayNetworking.registerGlobalReceiver(BackpackCosmeticSyncPayload.ID, new BackpackCosmeticSyncPayload.Receiver());
+		NetworkManager.registerC2S(OpenBackpackPayload.ID, OpenBackpackPayload.CODEC, (pkt, player) -> {
+			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
+			if (backpackSlot != -1) {
+				BackpackItem.openOrCreateBackpackIfNotExists(player, backpackSlot);
+			}
+		});
+		NetworkManager.registerC2S(OpenEquipmentPayload.ID, OpenEquipmentPayload.CODEC, (pkt, player) -> {
+			if (EquipmentUtils.isAccessoriesLoaded()) return;
+
+			var factory = new MenuProvider() {
+				@Override
+				public Component getDisplayName() {
+					return Component.empty();
+				}
+
+				@Override
+				public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
+					// Get a working copy for the menu
+					SimpleContainer workingCopy = player.getAttachedOrCreate(
+							GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE,
+							() -> EquipmentAttachedData.DEFAULT
+					).getInventory();
+
+					return new EquipmentScreenHandler(syncId, playerInventory, workingCopy);
+				}
+			};
+
+			player.openMenu(factory);
+		});
+		NetworkManager.registerC2S(BackpackCosmeticSyncPayload.ID, BackpackCosmeticSyncPayload.CODEC, (pkt, player) -> {
+			if (pkt.slotIndex() == -1) {
+				return;
+			}
+
+			ItemStack backpack = EquipmentUtils.getBackpackFromSlotIndex(player, pkt.slotIndex());
+			if (backpack.isEmpty() || !backpack.has(GBComponents.BACKPACK_MODEL_ID.get())) {
+				return;
+			}
+
+			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), pkt.newId());
+
+			if (!EquipmentUtils.isAccessoriesLoaded() && pkt.slotIndex() >= 20000) {
+				EquipmentAttachedData currentData = player.getAttachedOrCreate(
+						GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE,
+						() -> EquipmentAttachedData.DEFAULT
+				);
+
+				EquipmentAttachedData updatedData = currentData.setBackpack(backpack);
+				player.setAttached(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, updatedData);
+			}
+		});
 	}
 }

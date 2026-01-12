@@ -59,33 +59,4 @@ public record BackpackCosmeticSyncPayload(int slotIndex, Identifier newId) imple
 	public static void send(int slotIndex, Identifier newId) {
 		ClientPlayNetworking.send(new BackpackCosmeticSyncPayload(slotIndex, newId));
 	}
-
-	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<BackpackCosmeticSyncPayload> {
-
-		@Override
-		public void receive(BackpackCosmeticSyncPayload payload, ServerPlayNetworking.Context context) {
-			ServerPlayer player = context.player();
-
-			if (payload.slotIndex == -1) {
-				return;
-			}
-
-			ItemStack backpack = EquipmentUtils.getBackpackFromSlotIndex(player, payload.slotIndex);
-			if (backpack.isEmpty() || !backpack.has(GBComponents.BACKPACK_MODEL_ID.get())) {
-				return;
-			}
-
-			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), payload.newId());
-
-			if (!EquipmentUtils.isAccessoriesLoaded() && payload.slotIndex >= 20000) {
-				EquipmentAttachedData currentData = player.getAttachedOrCreate(
-						GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE,
-						() -> EquipmentAttachedData.DEFAULT
-				);
-
-				EquipmentAttachedData updatedData = currentData.setBackpack(backpack);
-				player.setAttached(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, updatedData);
-			}
-		}
-	}
 }

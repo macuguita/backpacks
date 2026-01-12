@@ -50,14 +50,15 @@ base {
 }
 
 repositories {
+    mavenLocal()
     val exclusiveRepos = listOf(
+        Triple("macuguita Maven", "https://maven.macuguita.com/releases", listOf("folk.sisby", "org.quiltmc.parsers")),
         Triple("ParchmentMC", "https://maven.parchmentmc.org", listOf("org.parchmentmc.data")),
         Triple("Shedaniel", "https://maven.shedaniel.me/", listOf("me.shedaniel.cloth")),
         Triple("TerraformersMC", "https://maven.terraformersmc.com/", listOf("com.terraformersmc", "dev.emi")),
         Triple("Modrinth", "https://api.modrinth.com/maven", listOf("maven.modrinth")),
         Triple("BlameJared", "https://maven.blamejared.com", listOf("net\\.darkhax\\..+", "mezz.jei")),
         Triple("WispForest", "https://maven.wispforest.io/releases", listOf("io\\.wispforest(\\..+)?")),
-        Triple("Sleeping town", "https://repo.sleeping.town/", listOf("folk.sisby")),
     )
 
     exclusiveRepos.forEach { (name, url, groups) ->
@@ -74,7 +75,6 @@ repositories {
                 }
         }
     }
-    mavenLocal()
 }
 
 configurations {

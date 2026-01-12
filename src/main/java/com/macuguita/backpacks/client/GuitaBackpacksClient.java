@@ -70,8 +70,6 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 		// Sources: https://github.com/FabricMC/fabric/tree/0.134.1%2B1.21.10/fabric-model-loading-api-v1/src/testmodClient/java/net/fabricmc/fabric/test/model/loading
 		ModelLoadingPlugin.register(new GBModelLoadingPlugin());
 
-		ClientPlayNetworking.registerGlobalReceiver(BackpackListSyncPayload.ID, new BackpackListSyncPayload.Receiver());
-
 		// Might have to do something with this, look at the link above
 		ResourceLoader resourceLoader = ResourceLoader.get(PackType.CLIENT_RESOURCES);
 		resourceLoader.registerReloadListener(GBModelReloadListener.ID, GBModelReloadListener.INSTANCE);

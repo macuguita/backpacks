@@ -56,33 +56,4 @@ public record OpenEquipmentPayload() implements CustomPacketPayload {
 	public static void send() {
 		ClientPlayNetworking.send(new OpenEquipmentPayload());
 	}
-
-	public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<OpenEquipmentPayload> {
-
-		@Override
-		public void receive(OpenEquipmentPayload payload, ServerPlayNetworking.Context context) {
-			if (EquipmentUtils.isAccessoriesLoaded()) return;
-			ServerPlayer player = context.player();
-
-			var factory = new MenuProvider() {
-				@Override
-				public Component getDisplayName() {
-					return Component.empty();
-				}
-
-				@Override
-				public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
-					// Get a working copy for the menu
-					SimpleContainer workingCopy = player.getAttachedOrCreate(
-							GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE,
-							() -> EquipmentAttachedData.DEFAULT
-					).getInventory();
-
-					return new EquipmentScreenHandler(syncId, playerInventory, workingCopy);
-				}
-			};
-
-			player.openMenu(factory);
-		}
-	}
 }
