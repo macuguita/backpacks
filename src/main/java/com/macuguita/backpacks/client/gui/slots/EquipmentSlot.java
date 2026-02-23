@@ -30,7 +30,7 @@ public class EquipmentSlot extends Slot {
 
 	@Override
 	public boolean canTakeItems(PlayerEntity playerEntity) {
-		ItemStack stack = GuitaBackpacksComponents.EQUIPMENT_COMPONENT.get(playerEntity).getBackpack();
+		ItemStack stack = this.getStack();
 		if (this.canTakePredicate != null && !canTakePredicate.test(stack)) {
 			return false;
 		}
