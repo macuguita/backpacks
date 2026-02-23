@@ -36,7 +36,9 @@ import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.reg.GBItemGroups;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
+import com.macuguita.backpacks.common.utils.AccessoriesStuff;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +82,8 @@ public class GuitaBackpacks implements ModInitializer {
 		GBAttachmentTypes.init();
 		ResourceLoader.get(PackType.SERVER_DATA)
 				.registerReloader(BackpacksResourceReloadListener.ID, new BackpacksResourceReloadListener());
+		if (EquipmentUtils.isAccessoriesLoaded())
+			AccessoriesStuff.accessoriesCommonInit();
 	}
 
 	private void initEvents() {

@@ -34,11 +34,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import org.jetbrains.annotations.Nullable;
+
+import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.util.GsonHelper;
 
-import net.fabricmc.loader.api.FabricLoader;
+import org.jspecify.annotations.Nullable;
 
 @SuppressWarnings("CallToPrintStackTrace")
 public class GBConfig {
@@ -57,6 +58,14 @@ public class GBConfig {
 
 	public static @Nullable Boolean getBackpackDropItemsOnDestroyed() {
 		return CONFIG != null ? CONFIG.backpackDropItemsOnDestroyed : null;
+	}
+
+	public static @Nullable Boolean getBackpackCanBeOpenedWithHand() {
+		return CONFIG != null ? CONFIG.backpackCanBeOpenedWithHand : null;
+	}
+
+	public static @Nullable Boolean getBackpackCanBeUnequippedWhenFull() {
+		return CONFIG != null ? CONFIG.backpackCanBeUnequippedWhenFull : null;
 	}
 
 	public static @Nullable Boolean getBackpackDropsOnDeath() {
@@ -87,6 +96,22 @@ public class GBConfig {
 				CONFIG = result.resultOrPartial(msg ->
 						GuitaBackpacks.LOGGER.error("Config parse error after regeneration: {}", msg)
 				).orElse(null);
+
+				// TODO: kaleido config for 26.1
+				if (CONFIG != null) {
+					try {
+						var encoded = Configuration.CODEC.encodeStart(JsonOps.INSTANCE, CONFIG);
+						var jsonElement = encoded.getOrThrow();
+						var obj = jsonElement.getAsJsonObject();
+						if (!obj.has("backpack_can_be_opened_with_hand"))
+							obj.addProperty("backpack_can_be_opened_with_hand", CONFIG.backpackCanBeOpenedWithHand());
+						if (!obj.has("backpack_can_be_unequipped_when_full"))
+							obj.addProperty("backpack_can_be_unequipped_when_full", CONFIG.backpackCanBeUnequippedWhenFull());
+						writePrettyJson(jsonElement, CONFIG_PATH);
+					} catch (Exception e) {
+						GuitaBackpacks.LOGGER.warn("Failed to rewrite config during migration: {}", e.getMessage());
+					}
+				}
 			}
 
 		} catch (Exception e) {
@@ -98,6 +123,8 @@ public class GBConfig {
 	private static void createDefaultConfig() throws IOException {
 		Configuration defaultConfig = new Configuration(
 				27,
+				true,
+				true,
 				true,
 				true,
 				true
@@ -128,7 +155,9 @@ public class GBConfig {
 			int defaultBackpackSize,
 			boolean backpackEntriesGetRemoved,
 			boolean backpackDropItemsOnDestroyed,
-			boolean backpackDropsOnDeath
+			boolean backpackDropsOnDeath,
+			boolean backpackCanBeOpenedWithHand,
+			boolean backpackCanBeUnequippedWhenFull
 	) {
 
 		public static final Codec<Configuration> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -140,7 +169,9 @@ public class GBConfig {
 				).forGetter(Configuration::defaultBackpackSize),
 				Codec.BOOL.fieldOf("backpack_entries_get_removed").forGetter(Configuration::backpackEntriesGetRemoved),
 				Codec.BOOL.fieldOf("backpack_drop_items_on_destroyed").forGetter(Configuration::backpackDropItemsOnDestroyed),
-				Codec.BOOL.fieldOf("backpack_drops_on_death").forGetter(Configuration::backpackDropsOnDeath)
+				Codec.BOOL.fieldOf("backpack_drops_on_death").forGetter(Configuration::backpackDropsOnDeath),
+				Codec.BOOL.optionalFieldOf("backpack_can_be_opened_with_hand", true).forGetter(Configuration::backpackCanBeOpenedWithHand),
+				Codec.BOOL.optionalFieldOf("backpack_can_be_unequipped_when_full", true).forGetter(Configuration::backpackCanBeUnequippedWhenFull)
 		).apply(instance, Configuration::new));
 	}
 }

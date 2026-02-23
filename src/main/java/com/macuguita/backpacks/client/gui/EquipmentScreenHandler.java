@@ -22,11 +22,15 @@
 
 package com.macuguita.backpacks.client.gui;
 
+import com.macuguita.backpacks.GBConfig;
 import com.macuguita.backpacks.client.gui.slots.BackpackSlot;
+import com.macuguita.backpacks.client.gui.slots.EquipmentSlot;
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.attachments.BackpacksAttachedData;
 import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
 import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.item.BackpackItem;
+import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.world.Container;
@@ -36,6 +40,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.UUID;
 
 public class EquipmentScreenHandler extends AbstractContainerMenu {
 
@@ -53,7 +59,15 @@ public class EquipmentScreenHandler extends AbstractContainerMenu {
 
 		int m;
 		int l;
-		this.addSlot(new BackpackSlot(inventory, 0, 80, 43, stack -> stack.getItem() instanceof BackpackItem));
+		this.addSlot(new EquipmentSlot(inventory, 0, 80, 43, stack -> stack.getItem() instanceof BackpackItem, backpack -> {
+			UUID uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
+			if (uuid == null) return true;
+			BackpacksAttachedData attachedData = playerInventory.player.level().getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT);
+			if (attachedData == null) return true;
+			Container container = attachedData.getInventory(uuid);
+			if (container == null) return true;
+			return container.isEmpty();
+		}));
 
 		for (m = 0; m < 3; ++m) {
 			for (l = 0; l < 9; ++l) {

@@ -22,6 +22,7 @@
 
 package com.macuguita.backpacks.common.payload;
 
+import com.macuguita.backpacks.GBConfig;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
@@ -56,6 +57,7 @@ public record OpenBackpackPayload() implements CustomPacketPayload {
 			ServerPlayer player = context.player();
 			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
 			if (backpackSlot != -1) {
+				if (Boolean.FALSE.equals(GBConfig.getBackpackCanBeOpenedWithHand()) && backpackSlot >= 0 && backpackSlot < player.getInventory().getContainerSize()) return;
 				BackpackItem.openOrCreateBackpackIfNotExists(player, backpackSlot);
 			}
 		}

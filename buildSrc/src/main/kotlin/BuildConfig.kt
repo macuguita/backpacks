@@ -12,7 +12,7 @@ object BuildConfig {
     val description: String = "backpacks!"
     val license: String = "MIT"
 
-    val fabricVersion: String = "0.141.1+$minecraftVersion"
+    val fabricVersion: String = "0.141.3+$minecraftVersion"
     val modMenuVersion: String = "17.0.0-beta.1"
     //val emiVersion: String = "1.1.22+" + minecraftVersion
 

@@ -15,6 +15,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.SimpleContainer;
 
+import org.jspecify.annotations.Nullable;
+
 public record BackpacksAttachedData(Map<UUID, SimpleContainer> backpacks) {
 
 	public static Codec<BackpacksAttachedData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -48,7 +50,7 @@ public record BackpacksAttachedData(Map<UUID, SimpleContainer> backpacks) {
 		return addInventory(uuid, defaultSize);
 	}
 
-	public SimpleContainer getInventory(UUID uuid) {
+	public @Nullable SimpleContainer getInventory(UUID uuid) {
 		return backpacks.get(uuid);
 	}
 
