@@ -38,6 +38,7 @@ import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.reg.GBItemGroups;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
+import com.macuguita.backpacks.common.utils.AccessoriesStuff;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.macuguita.lib.network.NetworkManager;
@@ -94,6 +95,8 @@ public class GuitaBackpacks implements ModInitializer {
 		initEvents();
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA)
 				.registerReloadListener(new BackpacksResourceReloadListener());
+		if (EquipmentUtils.isAccessoriesLoaded())
+			AccessoriesStuff.accessoriesCommonInit();
 	}
 
 	private void initEvents() {
@@ -133,6 +136,7 @@ public class GuitaBackpacks implements ModInitializer {
 		NetworkManager.registerC2S(OpenBackpackPayload.ID, OpenBackpackPayload.CODEC, (payload, player) -> {
 			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
 			if (backpackSlot != -1) {
+				if (Boolean.FALSE.equals(GBConfig.getBackpackCanBeOpenedWithHand()) && backpackSlot >= 0 && backpackSlot < player.getInventory().size()) return;
 				BackpackItem.openOrCreateBackpackIfNotExists(player, backpackSlot);
 			}
 		});

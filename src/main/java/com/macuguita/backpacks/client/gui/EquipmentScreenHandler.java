@@ -22,9 +22,12 @@
 
 package com.macuguita.backpacks.client.gui;
 
-import com.macuguita.backpacks.client.gui.slots.BackpackSlot;
+import com.macuguita.backpacks.client.gui.slots.EquipmentSlot;
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.components.GuitaBackpacksComponents;
 import com.macuguita.backpacks.common.item.BackpackItem;
+
+import com.macuguita.backpacks.common.reg.GBComponents;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -33,6 +36,8 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+
+import java.util.UUID;
 
 public class EquipmentScreenHandler extends ScreenHandler {
 
@@ -50,7 +55,11 @@ public class EquipmentScreenHandler extends ScreenHandler {
 
 		int m;
 		int l;
-		this.addSlot(new BackpackSlot(inventory, 0, 80, 43, stack -> stack.getItem() instanceof BackpackItem));
+		this.addSlot(new EquipmentSlot(inventory, 0, 80, 43, stack -> stack.getItem() instanceof BackpackItem, backpack -> {
+			UUID uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
+			if (uuid == null) return true;
+			return GuitaBackpacksComponents.BACKPACKS_COMPONENT.get(playerInventory.player.getEntityWorld().getScoreboard()).isEmpty(uuid);
+		}));
 
 		for (m = 0; m < 3; ++m) {
 			for (l = 0; l < 9; ++l) {

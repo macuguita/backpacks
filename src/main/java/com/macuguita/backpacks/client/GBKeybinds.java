@@ -24,6 +24,7 @@ package com.macuguita.backpacks.client;
 
 import java.util.Optional;
 
+import com.macuguita.backpacks.GBConfig;
 import com.macuguita.backpacks.common.payload.OpenBackpackPayload;
 import com.macuguita.backpacks.common.payload.OpenEquipmentPayload;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
@@ -64,6 +65,7 @@ public class GBKeybinds {
 				if (client.player != null && client.world != null) {
 					int backpackSlot = EquipmentUtils.getBackpackSlotIndex(client.player);
 					if (backpackSlot != -1) {
+						if (Boolean.FALSE.equals(GBConfig.getBackpackCanBeOpenedWithHand()) && backpackSlot >= 0 && backpackSlot < client.player.getInventory().size()) return;
 						Vec3d pos = client.player.getPos();
 						client.world.playSound(
 								pos.x, pos.y, pos.z,

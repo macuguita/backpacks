@@ -146,6 +146,7 @@ public class BackpackItem extends BlockItem {
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		ItemStack stack = user.getStackInHand(hand);
+		if (Boolean.FALSE.equals(GBConfig.getBackpackCanBeOpenedWithHand())) return TypedActionResult.pass(stack);
 		if (stack.contains(GBComponents.BACKPACK_UUID.get())) {
 			if (world instanceof ServerWorld) {
 				// Find the slot index of the backpack

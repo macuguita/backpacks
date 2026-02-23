@@ -66,6 +66,13 @@ public class BackpacksComponent implements Component {
 		return backpacks.get(uuid);
 	}
 
+	public boolean isEmpty(UUID uuid) {
+		if (uuid == null) return true;
+		SimpleInventory inventory = this.getInventory(uuid);
+		if (inventory == null) return true;
+		return inventory.isEmpty();
+	}
+
 	public boolean growBackpack(UUID uuid, int newSize) {
 		if (uuid == null) return false;
 		SimpleInventory oldInventory = backpacks.get(uuid);
