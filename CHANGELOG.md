@@ -1,2 +1,1 @@
-- Updated to use accessories
-- Updated to new version of macu lib
+- Added more config entries from suggestion [#2](https://github.com/macuguita/backpacks/issues/2)
