@@ -1,1 +1,1 @@
-- Added more config entries from suggestion [#2](https://github.com/macuguita/backpacks/issues/2)
+- Update macu_lib versions
