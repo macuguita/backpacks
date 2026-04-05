@@ -30,8 +30,8 @@ loom {
             }
         }
     }
-    if (project.file("src/main/resources/${BuildConfig.modId}.accesswidener").exists()) {
-        accessWidenerPath = project.file("src/main/resources/${BuildConfig.modId}.accesswidener")
+    if (project.file("src/main/resources/${BuildConfig.modId}.classtweaker").exists()) {
+        accessWidenerPath = project.file("src/main/resources/${BuildConfig.modId}.classtweaker")
     }
 }
 
@@ -152,7 +152,7 @@ tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
         licenses = listOf(BuildConfig.license)
         icon("assets/${BuildConfig.modId}/icon.png")
         mixin("${BuildConfig.modId}.mixins.json")
-        accessWidener = "${BuildConfig.modId}.accesswidener"
+        accessWidener = "${BuildConfig.modId}.classtweaker"
         environment = "*"
 
         entrypoint("main", "com.macuguita.backpacks.common.GuitaBackpacks")
@@ -165,7 +165,7 @@ tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
         depends("fabric-api", "*")
         depends("macu_lib", ">=${BuildConfig.maculibVersion}")
 
-        suggests("accessories", "*")
+//        suggests("accessories", "*")
     }
 }
 
@@ -220,7 +220,7 @@ publishMods {
             minecraftVersions.add(version)
         requires("fabric-api")
         requires("macu-lib")
-        optional("accessories")
+//        optional("accessories")
     }
     curseforge {
         projectId = "1361094"
@@ -234,7 +234,7 @@ publishMods {
         projectSlug = "guitas-backpacks"
         requires("fabric-api")
         requires("macu-lib")
-        optional("accessories")
+//        optional("accessories")
     }
 }
 

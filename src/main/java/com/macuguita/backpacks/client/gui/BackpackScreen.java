@@ -28,8 +28,9 @@ import com.macuguita.backpacks.common.GuitaBackpacks;
 
 import com.macuguita.backpacks.mixin.AbstractContainerScreenAccessor;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -94,34 +95,27 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandle
 	}
 
 	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-		renderBackground(context, mouseX, mouseY, delta);
-		super.render(context, mouseX, mouseY, delta);
-		renderTooltip(context, mouseX, mouseY);
-	}
-
-	@Override
-	protected void renderLabels(GuiGraphics context, int mouseX, int mouseY) {
+	protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
 		int backpackTitleY = 3;
-		context.drawString(this.font, this.title, SIDE_PADDING, backpackTitleY, CommonColors.DARK_GRAY, false);
+		graphics.text(this.font, this.title, SIDE_PADDING, backpackTitleY, CommonColors.DARK_GRAY, false);
 
 		int playerTitleY = backpackStartY + visibleBackpackRows * SLOT_SIZE + GAP_BETWEEN_BACKPACK_AND_PLAYER / 2 - (this.font.lineHeight / 2);
-		context.drawString(this.font, this.playerInventoryTitle, SIDE_PADDING, playerTitleY, CommonColors.DARK_GRAY, false);
+		graphics.text(this.font, this.playerInventoryTitle, SIDE_PADDING, playerTitleY, CommonColors.DARK_GRAY, false);
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
+	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		int guiX = (this.width - this.imageWidth) / 2;
 		int guiY = (this.height - this.imageHeight) / 2;
 
 		int backpackRows = Math.min(menu.getTotalRows(), VISIBLE_ROWS);
 
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY - 2, this.imageWidth, this.imageHeight + 2);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY - 2, this.imageWidth, this.imageHeight + 2);
 
 		if (menu.needsScrolling()) {
 			int scrollAddonX = guiX + SIDE_PADDING + 9 * SLOT_SIZE + 4;
 			int scrollAddonY = guiY + backpackStartY - 4;
-			context.blitSprite(RenderPipelines.GUI_TEXTURED, SCROLL_ADDON_TEXTURE, scrollAddonX, scrollAddonY,
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SCROLL_ADDON_TEXTURE, scrollAddonX, scrollAddonY,
 					ScrollBarWidget.BACKGROUND_WIDTH + 5, backpackRows * SLOT_SIZE + 8);
 		}
 
@@ -139,19 +133,19 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandle
 			int rowTextureIndex = Math.min(fullRows - 1, SLOTS_ROW.length - 1);
 			int rowsInTexture = rowTextureIndex + 1;
 
-			context.blitSprite(RenderPipelines.GUI_TEXTURED, SLOTS_ROW[rowTextureIndex], rowX, rowY, 9 * SLOT_SIZE, rowsInTexture * SLOT_SIZE);
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOTS_ROW[rowTextureIndex], rowX, rowY, 9 * SLOT_SIZE, rowsInTexture * SLOT_SIZE);
 
 			rowY += rowsInTexture * SLOT_SIZE;
 		}
 
 		for (int col = 0; col < leftoverSlots; col++) {
 			int slotX = rowX + col * SLOT_SIZE;
-			context.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, slotX, rowY, SLOT_SIZE, SLOT_SIZE);
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, slotX, rowY, SLOT_SIZE, SLOT_SIZE);
 		}
 
 		int inventoryX = guiX + SIDE_PADDING - 1;
 		int inventoryY = guiY + playerInventoryStartY - 1;
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, inventoryX, inventoryY, 162, 76);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, inventoryX, inventoryY, 162, 76);
 	}
 
 	@Override

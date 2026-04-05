@@ -22,6 +22,7 @@
 
 package com.macuguita.backpacks.client.render;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
@@ -29,15 +30,21 @@ import com.macuguita.backpacks.client.render.state.BackpackBlockEntityRenderStat
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+
+import net.minecraft.util.RandomSource;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.LecternBlock;
@@ -89,15 +96,19 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
 
 		poseStack.translate(-0.5, -0.5, -0.5);
 
+		List<BlockStateModelPart> parts = List.of();
+		maybeModel.get().collectParts(RandomSource.create(), parts);
+
 		nodeCollector.order(0).submitBlockModel(
 				poseStack,
 				Sheets.cutoutBlockSheet(),
-				maybeModel.get(),
-				1, 1, 1,
+				parts,
+				new int[]{1, 1, 1},
 				renderState.lightCoords,
 				OverlayTexture.NO_OVERLAY,
 				0
 		);
+
 		poseStack.popPose();
 	}
 }

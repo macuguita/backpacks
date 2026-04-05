@@ -27,7 +27,7 @@ import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -57,9 +57,9 @@ public class CustomizationWidget extends AbstractWidget {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		if (backpack.isEmpty()) return;
-		context.blit(RenderPipelines.GUI_TEXTURED, WIDGET_ICON, getX(), getY(), 0, 0,
+		graphics.blit(RenderPipelines.GUI_TEXTURED, WIDGET_ICON, getX(), getY(), 0, 0,
 				this.width, this.height, 10, 10);
 	}
 

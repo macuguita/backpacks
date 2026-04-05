@@ -33,11 +33,13 @@ import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -140,21 +142,21 @@ public class BackpackCustomizationScreen extends Screen {
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
-		super.renderBackground(context, mouseX, mouseY, delta);
+	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		super.extractBackground(graphics, mouseX, mouseY, a);
 
 		int i = (this.width - BACKGROUND_WIDTH) / 2 + GUI_SHIFT_X;
 		int j = (this.height - BACKGROUND_HEIGHT) / 2;
 
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i, j, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i, j, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
 
 		int listBgX = i + 10;
 		int listBgY = j + 10;
 		int listBgWidth = BACKGROUND_WIDTH - ScrollBarWidget.BACKGROUND_WIDTH - 23;
 		int listBgHeight = scrollBar != null ? scrollBar.getHeight() : 0;
-		context.fill(listBgX, listBgY, listBgX + listBgWidth, listBgY + listBgHeight, 0xFF373737);
+		graphics.fill(listBgX, listBgY, listBgX + listBgWidth, listBgY + listBgHeight, 0xFF373737);
 
-		context.enableScissor(listBgX, listBgY, listBgX + listBgWidth, listBgY + listBgHeight);
+		graphics.enableScissor(listBgX, listBgY, listBgX + listBgWidth, listBgY + listBgHeight);
 
 		int padding = 2;
 		int slotWidth = listBgWidth - (padding * 2);
@@ -173,22 +175,22 @@ public class BackpackCustomizationScreen extends Screen {
 
 			int bgColor = isSelected ? 0xFF4A90E2 :
 					isHovered ? 0xFF5A5A5A :
-							0xFF454545;
-			context.fill(startX, y, startX + slotWidth, y + ITEM_HEIGHT, bgColor);
+					0xFF454545;
+			graphics.fill(startX, y, startX + slotWidth, y + ITEM_HEIGHT, bgColor);
 
 			if (isSelected) {
-				context.fill(startX, y, startX + slotWidth, y + 1, 0xFF6AB0FF);
-				context.fill(startX, y + ITEM_HEIGHT - 1, startX + slotWidth, y + ITEM_HEIGHT, 0xFF2A70C2);
+				graphics.fill(startX, y, startX + slotWidth, y + 1, 0xFF6AB0FF);
+				graphics.fill(startX, y + ITEM_HEIGHT - 1, startX + slotWidth, y + ITEM_HEIGHT, 0xFF2A70C2);
 			}
 
 			int textColor = isSelected ? SELECTED_ITEM_TEXT_COLOR :
 					isHovered ? HOVERED_ITEM_TEXT_COLOR :
-							DEFAULT_ITEM_TEXT_COLOR;
+					DEFAULT_ITEM_TEXT_COLOR;
 
-			context.drawString(this.font, Component.translatable(backpackItem.translationKey()),
+			graphics.text(this.font, Component.translatable(backpackItem.translationKey()),
 					startX + 8, y + 8, textColor, isSelected);
 		}
-		context.disableScissor();
+		graphics.disableScissor();
 
 		int spacing = 10;
 		int playerPadding = 10;
@@ -202,12 +204,12 @@ public class BackpackCustomizationScreen extends Screen {
 		int renderX1 = renderX0 + playerWidth;
 		int renderY1 = renderY0 + playerHeight;
 
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i - playerWidth - playerPadding*2 - spacing, j, playerWidth + playerPadding*2, BACKGROUND_HEIGHT);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i - playerWidth - playerPadding*2 - spacing, j, playerWidth + playerPadding*2, BACKGROUND_HEIGHT);
 
-		context.fill(renderX0, renderY0, renderX1, renderY1, 0xFF373737);
+		graphics.fill(renderX0, renderY0, renderX1, renderY1, 0xFF373737);
 
 		renderEntityInInventoryFollowsMouse(
-				context,
+				graphics,
 				renderX0,
 				renderY0,
 				renderX1,
@@ -272,7 +274,7 @@ public class BackpackCustomizationScreen extends Screen {
 	}
 
 	public static void renderEntityInInventoryFollowsMouse(
-			final GuiGraphics graphics,
+			final GuiGraphicsExtractor graphics,
 			final int x0,
 			final int y0,
 			final int x1,
@@ -310,7 +312,7 @@ public class BackpackCustomizationScreen extends Screen {
 		}
 
 		Vector3f translation = new Vector3f(0.0F, renderState.boundingBoxHeight / 2.0F + offsetY, 0.0F);
-		graphics.submitEntityRenderState(renderState, size, translation, rotation, xRotation, x0, y0, x1, y1);
+		graphics.entity(renderState, size, translation, rotation, xRotation, x0, y0, x1, y1);
 	}
 
 	private static EntityRenderState extractRenderState(final LivingEntity entity) {

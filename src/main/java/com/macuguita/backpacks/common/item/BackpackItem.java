@@ -212,7 +212,7 @@ public class BackpackItem extends BlockItem {
 			UUID uuid = stack.get(GBComponents.BACKPACK_UUID.get());
 			if (Boolean.TRUE.equals(GBConfig.getBackpackDropItemsOnDestroyed())) {
 				SimpleContainer inv = level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT).getInventory(uuid);
-				ItemUtils.onContainerDestroyed(entity, inv.items);
+				ItemUtils.onContainerDestroyed(entity, inv.items.stream());
 			}
 			if (Boolean.TRUE.equals(GBConfig.getBackpackEntriesGetRemoved())) {
 				BackpacksAttachedData backpackAttachedData = level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT);

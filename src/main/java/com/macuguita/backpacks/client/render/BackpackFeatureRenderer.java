@@ -22,6 +22,7 @@
 
 package com.macuguita.backpacks.client.render;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
@@ -30,12 +31,16 @@ import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.util.RandomSource;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.model.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
@@ -99,13 +104,10 @@ public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends Hu
 		// https://github.com/FabricMC/fabric/blob/0.134.1%2B1.21.10/fabric-model-loading-api-v1/src/testmodClient/java/net/fabricmc/fabric/test/model/loading/BakedModelFeatureRenderer.java
 		// FabricBlockModelRenderer.render(matrices.peek(), RenderLayerHelper.entityDelegate(vertexConsumers), modelId, 1, 1, 1, light, OverlayTexture.DEFAULT_UV, EmptyBlockRenderView.INSTANCE, BlockPos.ORIGIN, Blocks.AIR.getDefaultState());
 
-		nodeCollector.order(0).submitBlockModel(
+		nodeCollector.order(0).submitBreakingBlockModel(
 				poseStack,
-				Sheets.cutoutBlockSheet(),
 				maybeModel.get(),
-				1, 1, 1,
-				packedLight,
-				OverlayTexture.NO_OVERLAY,
+				0,
 				0
 		);
 

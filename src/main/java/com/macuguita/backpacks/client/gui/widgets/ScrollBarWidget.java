@@ -24,7 +24,7 @@ package com.macuguita.backpacks.client.gui.widgets;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -64,11 +64,11 @@ public class ScrollBarWidget extends AbstractWidget {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		int x = getX();
 		int y = getY();
 
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, SCROLLER_BACK_TEXTURE, x, y, this.width, this.height);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SCROLLER_BACK_TEXTURE, x, y, this.width, this.height);
 
 		int scrollerX = x + (this.width - SCROLLER_WIDTH) / 2;
 
@@ -80,7 +80,7 @@ public class ScrollBarWidget extends AbstractWidget {
 		}
 
 		Identifier scrollerTexture = callback.canScroll() ? SCROLLER_TEXTURE : SCROLLER_DISABLED_TEXTURE;
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, scrollerTexture, scrollerX, scrollerY, SCROLLER_WIDTH, SCROLLER_HEIGHT);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, scrollerTexture, scrollerX, scrollerY, SCROLLER_WIDTH, SCROLLER_HEIGHT);
 	}
 
 	@Override

@@ -24,7 +24,7 @@ package com.macuguita.backpacks.client.gui;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -46,21 +46,14 @@ public class EquipmentScreen extends AbstractContainerScreen<EquipmentScreenHand
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics context, float delta, int mouseX, int mouseY) {
+	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		int guiX = (this.width - this.imageWidth) / 2;
 		int guiY = (this.height - this.imageHeight) / 2;
 
 		int yDisplacement = 66;
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY + yDisplacement, this.imageWidth, this.imageHeight - yDisplacement);
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX + 75, guiY + 38, 26, 26);
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, guiX + 7, guiY + 83, 162, 76);
-		context.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, guiX + 79, guiY + 42, 18, 18);
-	}
-
-	@Override
-	public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
-		renderBackground(context, mouseX, mouseY, delta);
-		super.render(context, mouseX, mouseY, delta);
-		renderTooltip(context, mouseX, mouseY);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX, guiY + yDisplacement, this.imageWidth, this.imageHeight - yDisplacement);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, guiX + 75, guiY + 38, 26, 26);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, INVENTORY_AND_HOTBAR_TEXTURE, guiX + 7, guiY + 83, 162, 76);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_TEXTURE, guiX + 79, guiY + 42, 18, 18);
 	}
 }

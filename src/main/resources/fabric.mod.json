@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "gbackpacks",
-  "version": "26.1-snapshot-2-alpha+6",
+  "version": "26.1.1-alpha+7",
   "environment": "*",
   "entrypoints": {
     "fabric-datagen": [
@@ -17,16 +17,13 @@
   "mixins": [
     "gbackpacks.mixins.json"
   ],
-  "accessWidener": "gbackpacks.accesswidener",
+  "accessWidener": "gbackpacks.classtweaker",
   "depends": {
-    "fabricloader": "\u003e\u003d0.18.4",
-    "minecraft": "\u003e1.21.11",
+    "fabricloader": "\u003e\u003d0.18.6",
+    "minecraft": "~26.1-",
     "java": "\u003e\u003d25",
     "fabric-api": "*",
-    "macu_lib": "\u003e\u003d2.0.1+26.1-snapshot-2"
-  },
-  "suggests": {
-    "accessories": "*"
+    "macu_lib": "\u003e\u003d2.0.2+26.1"
   },
   "name": "guita\u0027s Backpacks",
   "description": "backpacks!",
