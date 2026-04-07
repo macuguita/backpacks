@@ -22,12 +22,17 @@
 
 package com.macuguita.backpacks.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
+import com.macuguita.backpacks.client.payload.BackpackAttachmentSyncPayload;
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
-import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
+import com.macuguita.backpacks.common.attachments.PlayerBackpackAttachment;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+
+import net.minecraft.server.level.ServerPlayer;
+
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -36,18 +41,46 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 @Mixin(Player.class)
-public class PlayerMixin {
+public class PlayerMixin extends LivingEntityMixin implements PlayerBackpackAttachment.Provider {
+
+	@Unique
+	private final PlayerBackpackAttachment playerBackpackAttachment = new PlayerBackpackAttachment((Player) (Object) this);
+
+	@Unique
+	private ItemStack gbackpacks$lastBackpack = ItemStack.EMPTY;
+
+	@Override
+	public PlayerBackpackAttachment gbackpacks$getAttachment() {
+		return playerBackpackAttachment;
+	}
+
+	@Inject(
+			method = "readAdditionalSaveData",
+			at = @At("TAIL")
+	)
+	private void gbackpacks$readBackpackAttachment(ValueInput input, CallbackInfo ci) {
+		if (input.contains("gbackpacks")) {
+			this.playerBackpackAttachment.readData(input.childOrEmpty("gbackpacks"));
+		}
+	}
+
+	@Inject(
+			method = "addAdditionalSaveData",
+			at = @At("TAIL")
+	)
+	private void gbackpacks$writeBackpackAttachment(ValueOutput output, CallbackInfo ci) {
+		this.playerBackpackAttachment.writeData(output.child("gbackpacks"));
+	}
 
 	@Inject(
 			method = "dropEquipment",
 			at = @At("TAIL")
 	)
-	private void gbackpacks$dropInventory(
-			CallbackInfo info,
-			@Local(argsOnly = true) ServerLevel level
-	) {
+	private void gbackpacks$dropInventory(CallbackInfo info) {
 		if (EquipmentUtils.isAccessoriesLoaded()) return;
 		if (!GuitaBackpacks.CONFIG.backpackDropsOnDeath) return;
 		Player player = (Player) (Object) this;
@@ -56,8 +89,27 @@ public class PlayerMixin {
 		ItemStack stack = EquipmentUtils.getEquippedBackpack(player);
 		if (!keepInv && !stack.isEmpty()) {
 			player.drop(stack.copy(), true, false);
-			EquipmentAttachedData equipmentAttachedData = player.getAttachedOrCreate(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, () -> EquipmentAttachedData.DEFAULT);
-			player.setAttached(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, equipmentAttachedData.clear());
+			PlayerBackpackAttachment.get(player).clear();
+		}
+	}
+
+	@Override
+	protected void gbackpacks$onDetectEquipmentUpdates(CallbackInfo ci) {
+		Player player = (Player) (Object) this;
+		if (player.level().isClientSide()) return;
+
+		ItemStack current = this.playerBackpackAttachment.getBackpack();
+		ItemStack previous = this.gbackpacks$lastBackpack;
+
+		if (!ItemStack.isSameItemSameComponents(current, previous)) {
+			this.gbackpacks$lastBackpack = current.isEmpty() ? ItemStack.EMPTY : current.copy();
+
+			PlayerLookup.tracking(player)
+					.forEach(receiver -> BackpackAttachmentSyncPayload.send(receiver, player.getUUID(), current));
+
+			if (player instanceof ServerPlayer serverPlayer) {
+				BackpackAttachmentSyncPayload.send(serverPlayer, player.getUUID(), current);
+			}
 		}
 	}
 }

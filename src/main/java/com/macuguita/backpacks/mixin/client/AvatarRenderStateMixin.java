@@ -1,4 +1,4 @@
-package com.macuguita.backpacks.mixin;
+package com.macuguita.backpacks.mixin.client;
 
 import com.macuguita.backpacks.pond.AvatarRenderStateDuck;
 

@@ -23,7 +23,10 @@
 package com.macuguita.backpacks.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.macuguita.backpacks.client.gui.BackpackScreen;
@@ -33,12 +36,15 @@ import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.BackpackBlockEntityRenderer;
 import com.macuguita.backpacks.client.render.BackpackFeatureRenderer;
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import com.macuguita.backpacks.common.attachments.PlayerBackpackAttachment;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.reg.GBBlockEntities;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.mojang.blaze3d.platform.InputConstants;
+
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -55,9 +61,13 @@ import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegist
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.reloader.ResourceReloaderKeys;
 
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
 public class GuitaBackpacksClient implements ClientModInitializer {
 
 	public static final List<BackpacksResourceReloadListener.Backpack> BACKPACKS = new ArrayList<>();
+	public static final Map<UUID, ItemStack> PENDING = new HashMap<>();
 
 	@Override
 	public void onInitializeClient() {
@@ -119,6 +129,22 @@ public class GuitaBackpacksClient implements ClientModInitializer {
 						list.add(Component.translatable("item.gbackpacks.backpack.tooltip.uuid", uuid)
 								.withStyle(ChatFormatting.GOLD));
 					}
+				}
+			}
+		});
+
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			if (client.level == null) return;
+
+			Iterator<Map.Entry<UUID, ItemStack>> it = PENDING.entrySet().iterator();
+
+			while (it.hasNext()) {
+				var entry = it.next();
+				Player player = client.level.getPlayerByUUID(entry.getKey());
+
+				if (player != null) {
+					PlayerBackpackAttachment.get(player).setBackpack(entry.getValue());
+					it.remove();
 				}
 			}
 		});

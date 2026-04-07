@@ -4,8 +4,14 @@
   "package": "com.macuguita.backpacks.mixin",
   "plugin": "com.macuguita.backpacks.GuitaBackpacksMixinPlugin",
   "compatibilityLevel": "JAVA_25",
+  "mixinextras": {
+    "minVersion": "0.5.3"
+  },
   "mixins": [
+    "LivingEntityMixin",
+    "PlayerListMixin",
     "PlayerMixin",
+    "ServerPlayerMixin",
     "SlotMixin"
   ],
   "injectors": {
@@ -15,7 +21,7 @@
     "requireAnnotations": true
   },
   "client": [
-    "AvatarRendererMixin",
-    "AvatarRenderStateMixin"
+    "client.AvatarRendererMixin",
+    "client.AvatarRenderStateMixin"
   ]
 }

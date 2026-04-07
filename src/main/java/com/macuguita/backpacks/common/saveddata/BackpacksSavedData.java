@@ -49,12 +49,10 @@ public class BackpacksSavedData extends SavedData {
 		return server.getDataStorage().computeIfAbsent(TYPE);
 	}
 
-	public boolean removeBackpack(UUID uuid) {
+	public void removeBackpack(UUID uuid) {
 		if (backpacks.remove(uuid) != null) {
 			setDirty();
-			return true;
 		}
-		return false;
 	}
 
 	public void addInventory(UUID uuid, int size) {

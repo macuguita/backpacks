@@ -24,8 +24,7 @@ package com.macuguita.backpacks.common.utils;
 
 import javax.annotation.Nullable;
 
-import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
-import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
+import com.macuguita.backpacks.common.attachments.PlayerBackpackAttachment;
 import com.macuguita.backpacks.common.item.BackpackItem;
 
 import eu.pb4.trinkets.api.TrinketAttachment;
@@ -76,7 +75,7 @@ public class EquipmentUtils {
 					.orElse(ItemStack.EMPTY);
 		}
 
-		return player.getAttachedOrCreate(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, () -> EquipmentAttachedData.DEFAULT).getBackpack();
+		return PlayerBackpackAttachment.get(player).getBackpack();
 	}
 
 	/**
@@ -98,7 +97,7 @@ public class EquipmentUtils {
 			result = getTrinketsBackpackSlotIndex(player);
 		} else {
 
-			ItemStack customBackpack = player.getAttachedOrCreate(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, () -> EquipmentAttachedData.DEFAULT).getBackpack();
+			ItemStack customBackpack = PlayerBackpackAttachment.get(player).getBackpack();
 			if (!customBackpack.isEmpty() && customBackpack.getItem() instanceof BackpackItem) {
 				result = CUSTOM_EQUIPMENT_SLOT_OFFSET;
 			}
@@ -188,7 +187,7 @@ public class EquipmentUtils {
 		}
 
 		if (slotIndex >= CUSTOM_EQUIPMENT_SLOT_OFFSET) {
-			return player.getAttachedOrCreate(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, () -> EquipmentAttachedData.DEFAULT).getBackpack();
+			return PlayerBackpackAttachment.get(player).getBackpack();
 		}
 
 		if (slotIndex >= MODDED_SLOT_OFFSET) {

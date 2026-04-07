@@ -28,8 +28,8 @@ import com.macuguita.backpacks.client.gui.BackpackScreenHandler;
 import com.macuguita.backpacks.client.gui.EquipmentScreenHandler;
 import com.macuguita.backpacks.client.gui.payload.BackpackInventoryPayload;
 import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
-import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
-import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
+import com.macuguita.backpacks.client.payload.BackpackAttachmentSyncPayload;
+import com.macuguita.backpacks.common.attachments.PlayerBackpackAttachment;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.common.payload.OpenBackpackPayload;
@@ -44,6 +44,15 @@ import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.macuguita.lib.Platform;
 import com.macuguita.lib.network.NetworkManager;
 import folk.sisby.kaleido.api.WrappedConfig;
+
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+
+import net.minecraft.client.Minecraft;
+
+import net.minecraft.client.player.LocalPlayer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +99,6 @@ public class GuitaBackpacks implements ModInitializer {
 		initRegistries();
 		initPayloads();
 		initEvents();
-		GBAttachmentTypes.init();
 		ResourceLoader.get(PackType.SERVER_DATA)
 				.registerReloadListener(BackpacksResourceReloadListener.ID, new BackpacksResourceReloadListener());
 	}
@@ -124,6 +132,20 @@ public class GuitaBackpacks implements ModInitializer {
 			GuitaBackpacksClient.BACKPACKS.clear();
 			GuitaBackpacksClient.BACKPACKS.addAll(pkt.list());
 		});
+		NetworkManager.registerS2C(BackpackAttachmentSyncPayload.ID, BackpackAttachmentSyncPayload.CODEC, pkt -> {
+			Minecraft client = Minecraft.getInstance();
+			LocalPlayer receiver = client.player;
+
+			if (receiver == null) return;
+
+			Player player = receiver.level().getPlayerByUUID(pkt.playerId());
+
+			if (player != null) {
+				PlayerBackpackAttachment.get(player).setBackpack(pkt.backpack());
+			} else {
+				GuitaBackpacksClient.PENDING.put(pkt.playerId(), pkt.backpack());
+			}
+		});
 		// Server
 		NetworkManager.registerC2S(OpenBackpackPayload.ID, OpenBackpackPayload.CODEC, (pkt, player) -> {
 			int backpackSlot = EquipmentUtils.getBackpackSlotIndex(player);
@@ -143,10 +165,7 @@ public class GuitaBackpacks implements ModInitializer {
 				@Override
 				public AbstractContainerMenu createMenu(int syncId, Inventory playerInventory, Player player) {
 					// Get a working copy for the menu
-					SimpleContainer workingCopy = player.getAttachedOrCreate(
-							GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE,
-							() -> EquipmentAttachedData.DEFAULT
-					).getInventory();
+					SimpleContainer workingCopy = PlayerBackpackAttachment.get(player).getInventory();
 
 					return new EquipmentScreenHandler(syncId, playerInventory, workingCopy);
 				}
@@ -167,13 +186,9 @@ public class GuitaBackpacks implements ModInitializer {
 			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), pkt.newId());
 
 			if (!EquipmentUtils.isCompatibleModLoaded() && pkt.slotIndex() >= EquipmentUtils.CUSTOM_EQUIPMENT_SLOT_OFFSET) {
-				EquipmentAttachedData currentData = player.getAttachedOrCreate(
-						GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE,
-						() -> EquipmentAttachedData.DEFAULT
-				);
+				PlayerBackpackAttachment currentData = PlayerBackpackAttachment.get(player);
 
-				EquipmentAttachedData updatedData = currentData.setBackpack(backpack);
-				player.setAttached(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, updatedData);
+				currentData.setBackpack(backpack);
 			}
 		});
 	}

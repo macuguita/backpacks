@@ -24,8 +24,7 @@ package com.macuguita.backpacks.client.gui;
 
 import com.macuguita.backpacks.client.gui.slots.BackpackSlot;
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
-import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
+import com.macuguita.backpacks.common.attachments.PlayerBackpackAttachment;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
@@ -108,8 +107,7 @@ public class EquipmentScreenHandler extends AbstractContainerMenu {
 		if (!player.level().isClientSide() && !EquipmentUtils.isCompatibleModLoaded()) {
 			// Save the container contents back to the attachment
 			if (this.inventory instanceof SimpleContainer simpleContainer) {
-				EquipmentAttachedData updatedData = new EquipmentAttachedData(simpleContainer);
-				player.setAttached(GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE, updatedData);
+				PlayerBackpackAttachment.get(player).setInventory(simpleContainer);
 			}
 		}
 	}

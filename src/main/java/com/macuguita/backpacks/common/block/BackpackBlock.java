@@ -25,7 +25,6 @@ package com.macuguita.backpacks.common.block;
 import java.util.Map;
 import java.util.UUID;
 
-import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.reg.GBComponents;
