@@ -24,13 +24,12 @@ package com.macuguita.backpacks.common.item;
 
 import java.util.UUID;
 
-import com.macuguita.backpacks.GBConfig;
 import com.macuguita.backpacks.client.gui.BackpackScreenHandler;
 import com.macuguita.backpacks.client.gui.payload.BackpackInventoryPayload;
-import com.macuguita.backpacks.common.attachments.BackpacksAttachedData;
-import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.macuguita.backpacks.common.reg.GBComponents;
+import com.macuguita.backpacks.common.saveddata.BackpacksSavedData;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +65,7 @@ import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 
+@SuppressWarnings("resource")
 public class BackpackItem extends BlockItem {
 
 	public BackpackItem(Block block, Properties settings) {
@@ -87,25 +87,27 @@ public class BackpackItem extends BlockItem {
 		}
 
 		UUID uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
-		if (uuid == null && level instanceof ServerLevel) {
-			if (!backpack.has(GBComponents.BACKPACK_UUID.get())) {
-				backpack.set(GBComponents.BACKPACK_UUID.get(), UUID.randomUUID());
+		if (level instanceof ServerLevel serverLevel) {
+			if (uuid == null) {
+				if (!backpack.has(GBComponents.BACKPACK_UUID.get())) {
+					backpack.set(GBComponents.BACKPACK_UUID.get(), UUID.randomUUID());
+				}
+				uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
 			}
-			uuid = backpack.get(GBComponents.BACKPACK_UUID.get());
+			if (uuid != null) {
+				var savedData = BackpacksSavedData.get(serverLevel.getServer());
+				SimpleContainer inventory = savedData.getInventory(uuid);
+
+				if (inventory == null) {
+					savedData.addInventory(uuid);
+					inventory = savedData.getInventory(uuid);
+				}
+				if (inventory != null) {
+					openBackpack(player, inventory, slotIndex);
+				}
+			}
 		}
 
-		BackpacksAttachedData backpacksAttachedData =
-				level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE,
-						() -> BackpacksAttachedData.DEFAULT);
-		SimpleContainer inventory = backpacksAttachedData.getInventory(uuid);
-
-		if (inventory == null) {
-			backpacksAttachedData = backpacksAttachedData.addInventory(uuid);
-			level.setAttached(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, backpacksAttachedData);
-			inventory = backpacksAttachedData.getInventory(uuid);
-		}
-
-		openBackpack(player, inventory, slotIndex);
 
 	}
 
@@ -203,20 +205,21 @@ public class BackpackItem extends BlockItem {
 		return super.overrideOtherStackedOnMe(stack, otherStack, slot, clickType, player, cursorStackReference);
 	}
 
+	@SuppressWarnings("resource")
 	@Override
 	public void onDestroyed(ItemEntity entity) {
 		super.onDestroyed(entity);
 		ItemStack stack = entity.getItem();
 		Level level = entity.level();
-		if (stack.has(GBComponents.BACKPACK_UUID.get())) {
+		if (stack.has(GBComponents.BACKPACK_UUID.get()) && level instanceof ServerLevel serverLevel) {
 			UUID uuid = stack.get(GBComponents.BACKPACK_UUID.get());
-			if (Boolean.TRUE.equals(GBConfig.getBackpackDropItemsOnDestroyed())) {
-				SimpleContainer inv = level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT).getInventory(uuid);
+			var attachedData = BackpacksSavedData.get(serverLevel.getServer());
+			if (GuitaBackpacks.CONFIG.backpackDropItemsOnDestroyed) {
+				SimpleContainer inv = attachedData.getInventory(uuid);
 				ItemUtils.onContainerDestroyed(entity, inv.items.stream());
 			}
-			if (Boolean.TRUE.equals(GBConfig.getBackpackEntriesGetRemoved())) {
-				BackpacksAttachedData backpackAttachedData = level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT);
-				level.setAttached(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, backpackAttachedData.removeBackpack(uuid));
+			if (GuitaBackpacks.CONFIG.backpackDropItemsOnDestroyed) {
+				attachedData.removeBackpack(uuid);
 			}
 		}
 	}

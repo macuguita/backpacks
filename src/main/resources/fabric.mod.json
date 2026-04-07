@@ -25,6 +25,9 @@
     "fabric-api": "*",
     "macu_lib": "\u003e\u003d2.0.2+26.1"
   },
+  "suggests": {
+    "trinkets": "*"
+  },
   "name": "guita\u0027s Backpacks",
   "description": "backpacks!",
   "authors": [

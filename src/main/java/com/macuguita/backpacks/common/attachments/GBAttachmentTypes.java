@@ -8,12 +8,6 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 
 public class GBAttachmentTypes {
 
-	public static final AttachmentType<BackpacksAttachedData> BACKPACKS_ATTACHMENT_TYPE = AttachmentRegistry.create(
-			GuitaBackpacks.id("backpacks"),
-			builder -> builder
-					.initializer(() -> BackpacksAttachedData.DEFAULT)
-					.persistent(BackpacksAttachedData.CODEC));
-
 	public static final AttachmentType<EquipmentAttachedData> EQUIPMENT_ATTACHMENT_TYPE = AttachmentRegistry.create(
 			GuitaBackpacks.id("equipment"),
 			builder -> builder

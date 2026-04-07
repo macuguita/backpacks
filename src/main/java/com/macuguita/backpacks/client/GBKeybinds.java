@@ -51,7 +51,7 @@ public class GBKeybinds {
 				category
 		));
 		Optional<KeyMapping> maybeOpenEquipmentKey = Optional.empty();
-		if (!EquipmentUtils.isAccessoriesLoaded()) {
+		if (!EquipmentUtils.isCompatibleModLoaded()) {
 			maybeOpenEquipmentKey = Optional.of(KeyMappingHelper.registerKeyMapping(new KeyMapping(
 					"key.gbackpacks.open_equipment",
 					InputConstants.Type.KEYSYM,
@@ -78,7 +78,7 @@ public class GBKeybinds {
 					}
 				}
 			}
-			if (EquipmentUtils.isAccessoriesLoaded()) return;
+			if (EquipmentUtils.isCompatibleModLoaded()) return;
 			finalMaybeOpenEquipmentKey.ifPresent(openEquipmentKey -> {
 				while (openEquipmentKey.consumeClick()) {
 					OpenEquipmentPayload.send();

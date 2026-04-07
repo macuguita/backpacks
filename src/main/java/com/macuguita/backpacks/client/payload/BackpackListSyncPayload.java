@@ -24,7 +24,6 @@ package com.macuguita.backpacks.client.payload;
 
 import java.util.List;
 
-import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 
@@ -34,7 +33,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 public record BackpackListSyncPayload(

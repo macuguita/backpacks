@@ -22,7 +22,6 @@
 
 package com.macuguita.backpacks.client.render;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
@@ -30,31 +29,35 @@ import com.macuguita.backpacks.client.render.state.BackpackBlockEntityRenderStat
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-
-import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
-
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
-
-import net.minecraft.util.RandomSource;
-
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LecternBlock;
 import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
 
 @Environment(EnvType.CLIENT)
 public class BackpackBlockEntityRenderer implements BlockEntityRenderer<BackpackBlockEntity, BackpackBlockEntityRenderState> {
+	private static final Matrix4fc IDENTITY_MATRIX4FC = new Matrix4f();
+	public static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
 
 	public BackpackBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
 	}
@@ -72,9 +75,9 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
 	}
 
 	@Override
-	public void submit(BackpackBlockEntityRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState) {
-		Optional<BlockStateModel> maybeModel = GBModelReloadListener.INSTANCE.getModel(renderState.modelId);
-		Direction direction = renderState.direction;
+	public void submit(BackpackBlockEntityRenderState state, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState) {
+		Optional<BlockStateModel> maybeModel = GBModelReloadListener.INSTANCE.getModel(state.modelId);
+		Direction direction = state.direction;
 
 		if (maybeModel.isEmpty())
 			return;
@@ -96,18 +99,21 @@ public class BackpackBlockEntityRenderer implements BlockEntityRenderer<Backpack
 
 		poseStack.translate(-0.5, -0.5, -0.5);
 
-		List<BlockStateModelPart> parts = List.of();
-		maybeModel.get().collectParts(RandomSource.create(), parts);
+		// Source for this: https://github.com/FabricMC/fabric-api/blob/26.1.1/fabric-model-loading-api-v1/src/testmodClient/java/net/fabricmc/fabric/test/model/loading/BakedModelRenderLayer.java
+		// if it wasn't for FAPI I probably wouldn't know how to do this
 
-		nodeCollector.order(0).submitBlockModel(
-				poseStack,
-				Sheets.cutoutBlockSheet(),
-				parts,
-				new int[]{1, 1, 1},
-				renderState.lightCoords,
-				OverlayTexture.NO_OVERLAY,
-				0
+		BlockStateModel model = maybeModel.get();
+		BlockModelRenderState renderState = new BlockModelRenderState();
+		QuadEmitter emitter = renderState.setupMesh(IDENTITY_MATRIX4FC, model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT));
+		model.emitQuads(
+				emitter,
+				BlockAndTintGetter.EMPTY,
+				BlockPos.ZERO,
+				Blocks.AIR.defaultBlockState(),
+				renderState.scratchRandomSource(42L),
+				_ -> false
 		);
+		renderState.submit(poseStack, nodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 
 		poseStack.popPose();
 	}

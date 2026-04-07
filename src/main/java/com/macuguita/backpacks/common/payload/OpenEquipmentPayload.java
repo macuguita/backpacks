@@ -22,25 +22,13 @@
 
 package com.macuguita.backpacks.common.payload;
 
-import com.macuguita.backpacks.client.gui.EquipmentScreenHandler;
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
-import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
-import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 public record OpenEquipmentPayload() implements CustomPacketPayload {
 

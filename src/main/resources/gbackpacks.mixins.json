@@ -5,7 +5,6 @@
   "plugin": "com.macuguita.backpacks.GuitaBackpacksMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "AbstractContainerScreenAccessor",
     "PlayerMixin",
     "SlotMixin"
   ],
@@ -16,6 +15,7 @@
     "requireAnnotations": true
   },
   "client": [
-    "AvatarRendererMixin"
+    "AvatarRendererMixin",
+    "AvatarRenderStateMixin"
   ]
 }

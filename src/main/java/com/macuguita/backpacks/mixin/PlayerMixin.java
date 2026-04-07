@@ -23,7 +23,7 @@
 package com.macuguita.backpacks.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import com.macuguita.backpacks.GBConfig;
+import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
 import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
@@ -49,7 +49,7 @@ public class PlayerMixin {
 			@Local(argsOnly = true) ServerLevel level
 	) {
 		if (EquipmentUtils.isAccessoriesLoaded()) return;
-		if (Boolean.FALSE.equals(GBConfig.getBackpackDropsOnDeath())) return;
+		if (!GuitaBackpacks.CONFIG.backpackDropsOnDeath) return;
 		Player player = (Player) (Object) this;
 		boolean keepInv = ((ServerLevel) player.level()).getGameRules().get(GameRules.KEEP_INVENTORY);
 

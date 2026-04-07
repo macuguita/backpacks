@@ -31,21 +31,17 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.resources.Identifier;
-
-import net.minecraft.util.Util;
-
 import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.Util;
 import net.minecraft.world.phys.AABB;
-
-import org.joml.Vector3fc;
 
 public class BackpacksResourceReloadListener implements ResourceManagerReloadListener {
 
@@ -74,7 +70,7 @@ public class BackpacksResourceReloadListener implements ResourceManagerReloadLis
 	}
 
 	public record Backpack(Identifier id, String translationKey, Vector2i guiDisplacement, float guiScale,
-						   AABB blockCollisionShape) {
+	                       AABB blockCollisionShape) {
 
 		public static final Codec<Vector2i> VECTOR2I_CODEC =
 				Codec.INT.listOf().comapFlatMap(

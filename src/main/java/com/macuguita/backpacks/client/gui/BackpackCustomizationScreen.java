@@ -33,13 +33,11 @@ import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -103,12 +101,12 @@ public class BackpackCustomizationScreen extends Screen {
 					@Override
 					public void onScroll(int delta) {
 						scrollOffset += delta * 10;
-						scrollOffset = Math.max(0, Math.min(scrollOffset, getMaxScrollOffset()));
+						scrollOffset = Math.clamp(scrollOffset, 0, getMaxScrollOffset());
 					}
 
 					@Override
 					public void scrollTo(int offset) {
-						scrollOffset = Math.max(0, Math.min(offset, getMaxScrollOffset()));
+						scrollOffset = Math.clamp(offset, 0, getMaxScrollOffset());
 					}
 
 					@Override
@@ -204,7 +202,7 @@ public class BackpackCustomizationScreen extends Screen {
 		int renderX1 = renderX0 + playerWidth;
 		int renderY1 = renderY0 + playerHeight;
 
-		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i - playerWidth - playerPadding*2 - spacing, j, playerWidth + playerPadding*2, BACKGROUND_HEIGHT);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND_TEXTURE, i - playerWidth - playerPadding * 2 - spacing, j, playerWidth + playerPadding * 2, BACKGROUND_HEIGHT);
 
 		graphics.fill(renderX0, renderY0, renderX1, renderY1, 0xFF373737);
 
@@ -227,7 +225,7 @@ public class BackpackCustomizationScreen extends Screen {
 		if (scrollBar != null && scrollBar.getCallback().canScroll()) {
 			int scrollDirection = verticalAmount > 0 ? -1 : 1;
 			scrollOffset += scrollDirection * 10;
-			scrollOffset = Math.max(0, Math.min(scrollOffset, scrollBar.getCallback().getMaxScrollOffset()));
+			scrollOffset = Math.clamp(scrollOffset, 0, scrollBar.getCallback().getMaxScrollOffset());
 			scrollBar.updateScrollPercent();
 			return true;
 		}

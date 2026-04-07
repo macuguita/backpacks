@@ -35,9 +35,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class BackpackSlot extends Slot {
 
-	@Nullable private final TagKey<Item> backpackBlacklist;
-	@Nullable private final Predicate<ItemStack> insertPredicate;
-	@Nullable private final ItemStack backpack;
+	@Nullable
+	private final TagKey<Item> backpackBlacklist;
+	@Nullable
+	private final Predicate<ItemStack> insertPredicate;
+	@Nullable
+	private final ItemStack backpack;
 
 	public BackpackSlot(Container inventory, int index, int x, int y, @Nullable Predicate<ItemStack> insertPredicate) {
 		this(inventory, index, x, y, null, null, insertPredicate);

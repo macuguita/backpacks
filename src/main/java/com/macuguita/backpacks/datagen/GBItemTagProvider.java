@@ -27,10 +27,10 @@ import java.util.concurrent.CompletableFuture;
 import com.macuguita.backpacks.common.reg.GBItemTags;
 import com.macuguita.backpacks.common.reg.GBObjects;
 
-import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
-import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.minecraft.core.HolderLookup;
 
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagsProvider;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 
 public class GBItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
@@ -45,6 +45,8 @@ public class GBItemTagProvider extends FabricTagsProvider.ItemTagsProvider {
 				.add(GBObjects.BACKPACK.get())
 				.addOptionalTag(ConventionalItemTags.SHULKER_BOXES);
 		valueLookupBuilder(GBItemTags.ACCESSORIES_CHEST)
+				.add(GBObjects.BACKPACK.get());
+		valueLookupBuilder(GBItemTags.TRINKETS_CHEST)
 				.add(GBObjects.BACKPACK.get());
 	}
 }

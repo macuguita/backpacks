@@ -25,13 +25,13 @@ package com.macuguita.backpacks.common.block;
 import java.util.Map;
 import java.util.UUID;
 
-import com.macuguita.backpacks.common.attachments.BackpacksAttachedData;
 import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
 import com.macuguita.backpacks.common.block.entity.BackpackBlockEntity;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
+import com.macuguita.backpacks.common.saveddata.BackpacksSavedData;
 import com.mojang.serialization.MapCodec;
 import org.jetbrains.annotations.Nullable;
 
@@ -122,7 +122,11 @@ public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 
 	@Override
 	protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
-		return AbstractContainerMenu.getRedstoneSignalFromContainer(getInventory(level, pos, level.getServer()));
+		if (level instanceof ServerLevel serverLevel) {
+			return AbstractContainerMenu.getRedstoneSignalFromContainer(getInventory(serverLevel, pos, serverLevel.getServer()));
+		} else {
+			return 0;
+		}
 	}
 
 	@Override
@@ -134,7 +138,7 @@ public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 		BlockEntity be = level.getBlockEntity(pos);
 		if (be instanceof BackpackBlockEntity backpack) {
 			UUID uuid = backpack.getUuid();
-			return level.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT).getInventory(uuid);
+			return BackpacksSavedData.get(server).getInventory(uuid);
 		}
 		return null;
 	}
@@ -150,13 +154,14 @@ public class BackpackBlock extends BaseEntityBlock implements EntityBlock {
 			BlockEntity be = serverLevel.getBlockEntity(pos);
 			if (be instanceof BackpackBlockEntity backpackBe) {
 				UUID uuid = backpackBe.getUuid();
-				SimpleContainer inventory = getInventory(serverLevel, pos, player.level().getServer());
+				SimpleContainer inventory = getInventory(serverLevel, pos, serverLevel.getServer());
 				if (inventory == null) {
-					BackpacksAttachedData attachedData = serverLevel.getAttachedOrCreate(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, () -> BackpacksAttachedData.DEFAULT);
-					serverLevel.setAttached(GBAttachmentTypes.BACKPACKS_ATTACHMENT_TYPE, attachedData.addInventory(uuid));
-					inventory = getInventory(serverLevel, pos, player.level().getServer());
+					BackpacksSavedData.get(serverLevel.getServer()).addInventory(uuid);
+					inventory = getInventory(serverLevel, pos, serverLevel.getServer());
 				}
-				BackpackItem.openBackpack(player, inventory, -1);
+				if (inventory != null) {
+					BackpackItem.openBackpack(player, inventory, -1);
+				}
 				return InteractionResult.SUCCESS_SERVER;
 			}
 		}

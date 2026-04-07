@@ -105,7 +105,7 @@ public class EquipmentScreenHandler extends AbstractContainerMenu {
 	public void removed(Player player) {
 		super.removed(player);
 
-		if (!player.level().isClientSide() && !EquipmentUtils.isAccessoriesLoaded()) {
+		if (!player.level().isClientSide() && !EquipmentUtils.isCompatibleModLoaded()) {
 			// Save the container contents back to the attachment
 			if (this.inventory instanceof SimpleContainer simpleContainer) {
 				EquipmentAttachedData updatedData = new EquipmentAttachedData(simpleContainer);

@@ -40,38 +40,34 @@ import com.macuguita.backpacks.common.reg.GBItemGroups;
 import com.macuguita.backpacks.common.reg.GBObjects;
 import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadListener;
 import com.macuguita.backpacks.common.utils.BackpackUtils;
-
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import com.macuguita.lib.Platform;
 import com.macuguita.lib.network.NetworkManager;
-
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-
-import net.minecraft.world.item.ItemStack;
-
+import folk.sisby.kaleido.api.WrappedConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 
 public class GuitaBackpacks implements ModInitializer {
 	public static final String MOD_ID = "gbackpacks";
@@ -79,6 +75,8 @@ public class GuitaBackpacks implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static final Identifier DEFAULT_BACKPACK_MODEL_ID = GuitaBackpacks.id("backpacks/backpack");
+
+	public static final GBConfig CONFIG = WrappedConfig.createToml(Platform.INSTANCE.getConfigDir(), "", MOD_ID, GBConfig.class);
 
 	public static Identifier id(String name) {
 		return Identifier.fromNamespaceAndPath(MOD_ID, name);
@@ -89,7 +87,6 @@ public class GuitaBackpacks implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		GBConfig.load();
 		initRegistries();
 		initPayloads();
 		initEvents();
@@ -135,7 +132,7 @@ public class GuitaBackpacks implements ModInitializer {
 			}
 		});
 		NetworkManager.registerC2S(OpenEquipmentPayload.ID, OpenEquipmentPayload.CODEC, (pkt, player) -> {
-			if (EquipmentUtils.isAccessoriesLoaded()) return;
+			if (EquipmentUtils.isCompatibleModLoaded()) return;
 
 			var factory = new MenuProvider() {
 				@Override
@@ -169,7 +166,7 @@ public class GuitaBackpacks implements ModInitializer {
 
 			backpack.set(GBComponents.BACKPACK_MODEL_ID.get(), pkt.newId());
 
-			if (!EquipmentUtils.isAccessoriesLoaded() && pkt.slotIndex() >= 20000) {
+			if (!EquipmentUtils.isCompatibleModLoaded() && pkt.slotIndex() >= EquipmentUtils.CUSTOM_EQUIPMENT_SLOT_OFFSET) {
 				EquipmentAttachedData currentData = player.getAttachedOrCreate(
 						GBAttachmentTypes.EQUIPMENT_ATTACHMENT_TYPE,
 						() -> EquipmentAttachedData.DEFAULT

@@ -14,6 +14,7 @@ object BuildConfig {
 
     val fabricVersion: String = "0.145.3+26.1.1"
     val modMenuVersion: String = "18.0.0-alpha.8"
+    val trinketsVersion: String = "4.0.0-alpha.1+26.1"
     //val emiVersion: String = "1.1.22+" + minecraftVersion
 
     val maculibVersion: String = "2.0.2+26.1"

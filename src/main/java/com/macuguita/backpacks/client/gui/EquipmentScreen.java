@@ -46,7 +46,13 @@ public class EquipmentScreen extends AbstractContainerScreen<EquipmentScreenHand
 	}
 
 	@Override
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		super.extractRenderState(graphics, mouseX, mouseY, a);
+	}
+
+	@Override
 	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		super.extractBackground(graphics, mouseX, mouseY, a);
 		int guiX = (this.width - this.imageWidth) / 2;
 		int guiY = (this.height - this.imageHeight) / 2;
 

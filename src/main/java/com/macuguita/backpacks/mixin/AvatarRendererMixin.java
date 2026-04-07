@@ -22,35 +22,37 @@
 
 package com.macuguita.backpacks.mixin;
 
-import com.macuguita.backpacks.client.render.state.BackpackRenderState;
+import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import com.macuguita.backpacks.pond.AvatarRenderStateDuck;
 
-import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.Mob;
+
+import net.minecraft.world.entity.player.Player;
+
+import net.minecraft.world.item.ItemStack;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.client.entity.ClientAvatarEntity;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.player.AvatarRenderer;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.world.entity.Avatar;
-
 @Mixin(AvatarRenderer.class)
-public abstract class AvatarRendererMixin<AvatarlikeEntity extends Avatar & ClientAvatarEntity>
-		extends LivingEntityRenderer<AvatarlikeEntity, AvatarRenderState, PlayerModel> {
-
-	public AvatarRendererMixin(EntityRendererProvider.Context ctx, PlayerModel model, float shadowRadius) {
-		super(ctx, model, shadowRadius);
-	}
+public class AvatarRendererMixin {
 
 	@Inject(
 			method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V",
 			at = @At("TAIL")
 	)
-	private void gbackpacks$updateBackpackRenderState(AvatarlikeEntity entity, AvatarRenderState state, float tickProgress, CallbackInfo ci) {
-		BackpackRenderState.updateRenderState(entity, state);
+	private void gbackpacks$onExtractRenderState(Avatar entity, AvatarRenderState state, float partialTicks, CallbackInfo ci) {
+		if (state instanceof AvatarRenderStateDuck duck && entity instanceof Player player) {
+			duck.gbackpacks$setBackpack(EquipmentUtils.getEquippedBackpack(player));
+		}
 	}
+
 }

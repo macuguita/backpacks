@@ -40,13 +40,11 @@ public class BackpackRenderState {
 	public static final RenderStateDataKey<BackpackRenderState> KEY = RenderStateDataKey.create(() -> "backpack");
 
 	public ItemStack backpack = ItemStack.EMPTY;
-	public ItemStack chest = ItemStack.EMPTY;
 
 	public static <E extends LivingEntity, S extends LivingEntityRenderState> void updateRenderState(E entity, S state) {
 		BackpackRenderState backpackRenderState = new BackpackRenderState();
 		if (!(entity instanceof Player)) return;
 		backpackRenderState.backpack = EquipmentUtils.getEquippedBackpack((Player) entity);
-		backpackRenderState.chest = entity.getItemBySlot(EquipmentSlot.CHEST);
 		state.setData(KEY, backpackRenderState);
 	}
 }

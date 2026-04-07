@@ -23,21 +23,14 @@
 package com.macuguita.backpacks.common.payload;
 
 import com.macuguita.backpacks.common.GuitaBackpacks;
-import com.macuguita.backpacks.common.attachments.EquipmentAttachedData;
-import com.macuguita.backpacks.common.attachments.GBAttachmentTypes;
-import com.macuguita.backpacks.common.reg.GBComponents;
-import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 public record BackpackCosmeticSyncPayload(int slotIndex, Identifier newId) implements CustomPacketPayload {
 

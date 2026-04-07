@@ -22,57 +22,64 @@
 
 package com.macuguita.backpacks.client.render;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
 import com.macuguita.backpacks.client.render.state.BackpackRenderState;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
+import com.macuguita.backpacks.pond.AvatarRenderStateDuck;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 
-import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Avatar;
 
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
 
 @Environment(EnvType.CLIENT)
 public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
+	private static final Matrix4fc IDENTITY_MATRIX4FC = new Matrix4f();
+	public static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
 
 	public BackpackFeatureRenderer(RenderLayerParent<S, M> context) {
 		super(context);
 	}
 
 	@Override
-	public void submit(PoseStack poseStack, SubmitNodeCollector nodeCollector, int packedLight, S renderState, float yRot, float xRot) {
+	public void submit(PoseStack poseStack, SubmitNodeCollector nodeCollector, int packedLight, S state, float yRot, float xRot) {
 		if (EquipmentUtils.isAccessoriesLoaded())
 			return;
 
-		@Nullable BackpackRenderState backpackRenderState = renderState.getData(BackpackRenderState.KEY);
-
-		if (backpackRenderState == null)
-			return;
-
-		ItemStack chestStack = backpackRenderState.chest;
+		ItemStack chestStack = state.chestEquipment;
 		if (chestStack.getItem() == Items.ELYTRA)
 			return;
 
-		ItemStack backpack = backpackRenderState.backpack;
+		if (!(state instanceof AvatarRenderStateDuck duck))
+			return;
+
+		ItemStack backpack = duck.gbackpacks$backpack();
 		if (backpack.isEmpty()) return;
 
 		if (!backpack.has(GBComponents.VISIBLE.get()) || !backpack.has(GBComponents.BACKPACK_MODEL_ID.get()))
@@ -99,17 +106,21 @@ public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends Hu
 
 		poseStack.translate(-0.5F, -0.5F, -0.5F);
 
-		// FIXME 1.21.9
-		// Fabric had this in their example leaving this to remind me later of when it is fixed
-		// https://github.com/FabricMC/fabric/blob/0.134.1%2B1.21.10/fabric-model-loading-api-v1/src/testmodClient/java/net/fabricmc/fabric/test/model/loading/BakedModelFeatureRenderer.java
-		// FabricBlockModelRenderer.render(matrices.peek(), RenderLayerHelper.entityDelegate(vertexConsumers), modelId, 1, 1, 1, light, OverlayTexture.DEFAULT_UV, EmptyBlockRenderView.INSTANCE, BlockPos.ORIGIN, Blocks.AIR.getDefaultState());
+		// Source for this: https://github.com/FabricMC/fabric-api/blob/26.1.1/fabric-model-loading-api-v1/src/testmodClient/java/net/fabricmc/fabric/test/model/loading/BakedModelRenderLayer.java
+		// if it wasn't for FAPI I probably wouldn't know how to do this
 
-		nodeCollector.order(0).submitBreakingBlockModel(
-				poseStack,
-				maybeModel.get(),
-				0,
-				0
+		BlockStateModel model = maybeModel.get();
+		BlockModelRenderState renderState = new BlockModelRenderState();
+		QuadEmitter emitter = renderState.setupMesh(IDENTITY_MATRIX4FC, model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT));
+		model.emitQuads(
+				emitter,
+				BlockAndTintGetter.EMPTY,
+				BlockPos.ZERO,
+				Blocks.AIR.defaultBlockState(),
+				renderState.scratchRandomSource(42L),
+				_ -> false
 		);
+		renderState.submit(poseStack, nodeCollector, packedLight, OverlayTexture.NO_OVERLAY, 0);
 
 		poseStack.popPose();
 	}

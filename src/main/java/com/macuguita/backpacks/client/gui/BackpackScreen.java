@@ -26,11 +26,8 @@ import com.macuguita.backpacks.client.gui.widgets.CustomizationWidget;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 
-import com.macuguita.backpacks.mixin.AbstractContainerScreenAccessor;
-
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -39,6 +36,8 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
+import org.jspecify.annotations.Nullable;
 
 @Environment(value = EnvType.CLIENT)
 public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandler> {
@@ -74,7 +73,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandle
 	private final int visibleBackpackRows;
 	private final int backpackStartY;
 	private final int playerInventoryStartY;
-	private ScrollBarWidget scrollBar;
+	private @Nullable ScrollBarWidget scrollBar;
 
 	public BackpackScreen(BackpackScreenHandler handler, Inventory inventory, Component title) {
 		super(handler, inventory, title);
@@ -95,7 +94,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandle
 	}
 
 	@Override
-	protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+	protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
 		int backpackTitleY = 3;
 		graphics.text(this.font, this.title, SIDE_PADDING, backpackTitleY, CommonColors.DARK_GRAY, false);
 
@@ -105,6 +104,7 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandle
 
 	@Override
 	public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		super.extractBackground(graphics, mouseX, mouseY, a);
 		int guiX = (this.width - this.imageWidth) / 2;
 		int guiY = (this.height - this.imageHeight) / 2;
 
