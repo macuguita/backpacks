@@ -24,17 +24,15 @@ package com.macuguita.backpacks.mixin.client;
 
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.macuguita.backpacks.pond.AvatarRenderStateDuck;
-
-import net.minecraft.client.renderer.entity.player.AvatarRenderer;
-import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.world.entity.Avatar;
-
-import net.minecraft.world.entity.player.Player;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.player.Player;
 
 @Mixin(AvatarRenderer.class)
 public class AvatarRendererMixin {

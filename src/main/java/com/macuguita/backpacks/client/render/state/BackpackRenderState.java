@@ -25,7 +25,6 @@ package com.macuguita.backpacks.client.render.state;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;

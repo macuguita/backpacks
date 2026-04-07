@@ -44,8 +44,6 @@ import com.macuguita.backpacks.common.resourcereloader.BackpacksResourceReloadLi
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.mojang.blaze3d.platform.InputConstants;
 
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -53,16 +51,16 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.reloader.ResourceReloaderKeys;
-
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 public class GuitaBackpacksClient implements ClientModInitializer {
 

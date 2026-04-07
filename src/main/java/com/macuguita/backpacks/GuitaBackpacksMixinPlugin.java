@@ -39,7 +39,10 @@ public class GuitaBackpacksMixinPlugin implements IMixinConfigPlugin {
 	private static final Supplier<Boolean> TRUE = () -> true;
 
 	private static final Map<String, Supplier<Boolean>> CONDITIONS = ImmutableMap.of(
-			"com.macuguita.backpacks.mixin.PlayerEntityMixin", () -> !FabricLoader.getInstance().isModLoaded("trinkets")
+			"com.macuguita.backpacks.mixin.LivingEntityMixin", () -> !FabricLoader.getInstance().isModLoaded("trinkets"),
+			"com.macuguita.backpacks.mixin.PlayerListMixin", () -> !FabricLoader.getInstance().isModLoaded("trinkets"),
+			"com.macuguita.backpacks.mixin.PlayerMixin", () -> !FabricLoader.getInstance().isModLoaded("trinkets"),
+			"com.macuguita.backpacks.mixin.ServerPlayerMixin", () -> !FabricLoader.getInstance().isModLoaded("trinkets")
 	);
 
 	@Override

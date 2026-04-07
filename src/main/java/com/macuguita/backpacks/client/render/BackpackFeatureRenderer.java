@@ -25,16 +25,11 @@ package com.macuguita.backpacks.client.render;
 import java.util.Optional;
 
 import com.macuguita.backpacks.client.model.GBModelReloadListener;
-import com.macuguita.backpacks.client.render.state.BackpackRenderState;
 import com.macuguita.backpacks.common.reg.GBComponents;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.macuguita.backpacks.pond.AvatarRenderStateDuck;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-
-import net.minecraft.world.entity.Avatar;
-
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 

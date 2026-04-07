@@ -1,3 +1,5 @@
 - Update to 26.1
 - Update macu_lib dependency
 - Change the customization backpack screen to show player
+- Refactor a lot of the storage of backpacks (**might lose data!!!!!** I would recommend emptying your backpacks before updating)
+- Migrate out of fabric api to hopefully support neoforge in the future

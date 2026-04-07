@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.jspecify.annotations.Nullable;
 
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -18,8 +19,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
-
-import org.jspecify.annotations.Nullable;
 
 public class BackpacksSavedData extends SavedData {
 

@@ -27,8 +27,8 @@ import com.macuguita.backpacks.client.GuitaBackpacksClient;
 import com.macuguita.backpacks.client.gui.BackpackScreenHandler;
 import com.macuguita.backpacks.client.gui.EquipmentScreenHandler;
 import com.macuguita.backpacks.client.gui.payload.BackpackInventoryPayload;
-import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
 import com.macuguita.backpacks.client.payload.BackpackAttachmentSyncPayload;
+import com.macuguita.backpacks.client.payload.BackpackListSyncPayload;
 import com.macuguita.backpacks.common.attachments.PlayerBackpackAttachment;
 import com.macuguita.backpacks.common.item.BackpackItem;
 import com.macuguita.backpacks.common.payload.BackpackCosmeticSyncPayload;
@@ -44,18 +44,11 @@ import com.macuguita.backpacks.common.utils.EquipmentUtils;
 import com.macuguita.lib.Platform;
 import com.macuguita.lib.network.NetworkManager;
 import folk.sisby.kaleido.api.WrappedConfig;
-
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
-
-import net.minecraft.client.Minecraft;
-
-import net.minecraft.client.player.LocalPlayer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;

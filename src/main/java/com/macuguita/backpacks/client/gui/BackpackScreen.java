@@ -25,6 +25,7 @@ package com.macuguita.backpacks.client.gui;
 import com.macuguita.backpacks.client.gui.widgets.CustomizationWidget;
 import com.macuguita.backpacks.client.gui.widgets.ScrollBarWidget;
 import com.macuguita.backpacks.common.GuitaBackpacks;
+import org.jspecify.annotations.Nullable;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -36,8 +37,6 @@ import net.minecraft.world.entity.player.Inventory;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-
-import org.jspecify.annotations.Nullable;
 
 @Environment(value = EnvType.CLIENT)
 public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandler> {

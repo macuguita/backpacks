@@ -150,6 +150,7 @@ tasks.register<net.fabricmc.loom.task.FabricModJsonV1Task>("genModJson") {
         depends("macu_lib", ">=${BuildConfig.maculibVersion}")
 
         suggests("trinkets", "*")
+        suggests("mcqoy", "*")
     }
 }
 
@@ -204,6 +205,7 @@ publishMods {
         requires("fabric-api")
         requires("macu-lib")
         optional("trinkets-updated")
+        optional("mcqoy")
     }
     curseforge {
         projectId = "1361094"
@@ -217,6 +219,7 @@ publishMods {
         projectSlug = "guitas-backpacks"
         requires("fabric-api")
         requires("macu-lib")
+        optional("mcqoy")
 //        optional("trinkets-updated")
     }
 }

@@ -22,11 +22,12 @@
 
 package com.macuguita.backpacks.common.utils;
 
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
 import com.macuguita.backpacks.common.attachments.PlayerBackpackAttachment;
 import com.macuguita.backpacks.common.item.BackpackItem;
-
 import eu.pb4.trinkets.api.TrinketAttachment;
 import eu.pb4.trinkets.api.TrinketInventory;
 import eu.pb4.trinkets.api.TrinketsApi;
@@ -36,8 +37,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import net.fabricmc.loader.api.FabricLoader;
-
-import java.util.Map;
 
 //import io.wispforest.accessories.api.AccessoriesCapability;
 //import io.wispforest.accessories.api.slot.SlotEntryReference;

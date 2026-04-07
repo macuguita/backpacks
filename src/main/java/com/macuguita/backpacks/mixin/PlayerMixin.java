@@ -26,11 +26,6 @@ import com.macuguita.backpacks.client.payload.BackpackAttachmentSyncPayload;
 import com.macuguita.backpacks.common.GuitaBackpacks;
 import com.macuguita.backpacks.common.attachments.PlayerBackpackAttachment;
 import com.macuguita.backpacks.common.utils.EquipmentUtils;
-
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-
-import net.minecraft.server.level.ServerPlayer;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,11 +33,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 
 @Mixin(Player.class)
 public class PlayerMixin extends LivingEntityMixin implements PlayerBackpackAttachment.Provider {
@@ -65,6 +63,15 @@ public class PlayerMixin extends LivingEntityMixin implements PlayerBackpackAtta
 	private void gbackpacks$readBackpackAttachment(ValueInput input, CallbackInfo ci) {
 		if (input.contains("gbackpacks")) {
 			this.playerBackpackAttachment.readData(input.childOrEmpty("gbackpacks"));
+		} else {
+			// Migrates from old version to the best of my abilities
+			input.child("fabric:attachments")
+					.filter(a -> a.contains("gbackpacks:equipment"))
+					.flatMap(a -> a.child("gbackpacks:equipment"))
+					.flatMap(e -> e.child("equipment"))
+					.flatMap(inv -> inv.read("items", ItemStack.CODEC.listOf())
+							.filter(list -> !list.isEmpty())).ifPresent(list ->
+							this.playerBackpackAttachment.getInventory().setItem(0, list.getFirst()));
 		}
 	}
 
