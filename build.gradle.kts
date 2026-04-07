@@ -189,7 +189,7 @@ publishMods {
     file = tasks.jar.map { it.archiveFile.get() }
     additionalFiles.from(tasks.named<org.gradle.jvm.tasks.Jar>("sourcesJar").map { it.archiveFile.get() })
     displayName = "${BuildConfig.modName} ${BuildConfig.modVersion} for ${BuildConfig.minecraftVersion}"
-    version = "${BuildConfig.modVersion}+${BuildConfig.minecraftVersion}"
+    version = "${BuildConfig.modVersion}"
     type = if (BuildConfig.modVersion.contains("beta")) {
         BETA
     } else {
