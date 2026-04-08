@@ -20,20 +20,119 @@
   ~ OR OTHER DEALINGS IN THE SOFTWARE.
   -->
 
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="X-UA-Compatible" content="ie=edge">
-      <title>guita's Backpacks</title>
-      <link rel="stylesheet" href="./style.css">
-      <link rel="icon" href="./favicon.ico" type="image/x-icon">
-  </head>
-  <body>
-  <main>
-      <h1>guita's Backpacks wiki</h1>
-  </main>
-  <script src="script.js"></script>
-  </body>
-  </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backpacks Mod Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <img src="media/gbackpacks_icon.png" alt="GBackpacks Icon"
+         style="height:50px; vertical-align:middle; margin-right:10px;">
+    <h1 style="display:inline; vertical-align:middle;">Backpacks Mod Tutorial</h1>
+    <p>Step-by-step guide to adding backpacks to your mod with datapacks and resourcepacks</p>
+</header>
+
+<nav>
+    <a href="#overview">Overview</a>
+    <a href="#datapack">Create Datapack</a>
+    <a href="#resourcepack">Create Resourcepack</a>
+    <a href="#example-json">Example JSON</a>
+    <a href="#folder-structure">Folder Structure</a>
+</nav>
+
+<main>
+
+    <section id="overview">
+        <h2>Overview</h2>
+        <p>
+            This tutorial will show you how to add backpacks to your mod using a datapack for definitions and a
+            resourcepack for the models.
+            Each backpack requires:
+        </p>
+        <ul>
+            <li>A JSON definition in the datapack</li>
+            <li>Models for worn backpacks (<code>assets/&lt;modid&gt;/models/backpacks/</code>)</li>
+            <li>Models for placed backpacks (<code>assets/&lt;modid&gt;/models/backpacks/blocks/</code>)</li>
+        </ul>
+        <p>
+            The Java record used for backpacks is already implemented in the mod. You can find a reference <a
+                href="https://github.com/macuguita/backpacks/blob/26.1/src/main/java/com/macuguita/backpacks/common/resourcereloader/BackpacksResourceReloadListener.java#L72"
+                class="reference" target="_blank" rel="noopener noreferrer">here</a>.
+        </p>
+    </section>
+
+    <section id="datapack">
+        <h2>Step 1: Create the Datapack</h2>
+        <p>
+            1. Create a folder called <code>data/&lt;modid&gt;/backpacks/</code> in your mod or datapack directory.<br>
+            2. Each backpack is defined as a JSON file in this folder.
+        </p>
+        <p>Example path:</p>
+        <pre class="folder-structure">data/gbackpacks/backpacks/my_backpack.json</pre>
+        <p>Each JSON file defines the backpack ID, translation key, GUI displacement/scale, and block collision
+            shape.</p>
+    </section>
+
+    <section id="resourcepack">
+        <h2>Step 2: Create the Resourcepack</h2>
+        <p>1. Create a folder structure for your models:</p>
+        <pre class="folder-structure">
+assets/&lt;modid&gt;/models/backpacks/         ← worn backpacks
+assets/&lt;modid&gt;/models/backpacks/blocks/  ← placed backpacks
+  </pre>
+        <p>
+            2. Models must use the same name as your backpack JSON ID for consistency.<br>
+            3. Place your <code>.json</code> model files here. For example:
+        </p>
+        <pre class="folder-structure">
+assets/gbackpacks/models/backpacks/my_backpack.json
+assets/gbackpacks/models/backpacks/blocks/my_backpack.json
+  </pre>
+    </section>
+
+    <section id="example-json">
+        <h2>Step 3: Example JSON</h2>
+        <p>Here is a sample backpack JSON:</p>
+        <pre><code>{
+  "id": "gbackpacks:backpacks/my_backpack",
+  "translation_key": "backpack.gbackpacks.my_backpack",
+  "gui_displacement": [0, 0],
+  "gui_scale": 1.0,
+  "block_collision_shape": [
+    [5, 0, 6],
+    [11, 9, 10]
+  ]
+}</code></pre>
+        <p><em>Note:</em> Collision coordinates are relative to the block facing north.</p>
+    </section>
+
+    <section id="folder-structure">
+        <h2>Folder Structure Summary</h2>
+        <div class="folder-structure">
+            my_mod/
+            ├─ data/
+            │ └─ gbackpacks/
+            │ └─ backpacks/
+            │ └─ my_backpack.json
+            └─ assets/
+            └─ gbackpacks/
+            └─ models/
+            ├─ backpacks/
+            │ └─ my_backpack.json
+            └─ backpacks/blocks/
+            └─ my_backpack.json
+        </div>
+        <p>Follow this structure to ensure your backpacks load correctly in-game.</p>
+        <p>If you need help understanding this, you can contect me through any method I have mentioned on <a href="https://macuguita.com"
+                class="reference" target="_blank" rel="noopener noreferrer">macuguita.com</a>.</p>
+    </section>
+
+</main>
+
+</body>
+</html>
