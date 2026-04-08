@@ -76,6 +76,8 @@
         <pre class="folder-structure">data/gbackpacks/backpacks/my_backpack.json</pre>
         <p>Each JSON file defines the backpack ID, translation key, GUI displacement/scale, and block collision
             shape.</p>
+        <p><em>Note:</em> GUI displacement and scale will not work for versions over 26.1,
+            will be re-added down the line when I figure out how to render blocks in a gui.</p>
     </section>
 
     <section id="resourcepack">
@@ -109,6 +111,7 @@ assets/gbackpacks/models/backpacks/blocks/my_backpack.json
   ]
 }</code></pre>
         <p><em>Note:</em> Collision coordinates are relative to the block facing north.</p>
+        <p><em>Note:</em> "<code>gui_displacement</code>" and "<code>gui_scale</code>" are not available yet on versions over 26.1.</p>
     </section>
 
     <section id="folder-structure">
