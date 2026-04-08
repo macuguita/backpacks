@@ -72,14 +72,13 @@ public class BackpacksResourceReloadListener implements ResourceManagerReloadLis
 	public record Backpack(Identifier id, String translationKey, Vector2i guiDisplacement, float guiScale,
 	                       AABB blockCollisionShape) {
 
-		public static final Codec<Vector2i> VECTOR2I_CODEC =
-				Codec.INT.listOf().comapFlatMap(
-						list -> Util.fixedSize(list, 2)
-								.map(listi -> new Vector2i(listi.getFirst(), listi.get(1))),
-						vector2i -> List.of(vector2i.x, vector2i.y)
+		public static final Codec<Vector2i> VECTOR2I_CODEC = Codec.INT
+				.listOf()
+				.comapFlatMap(
+						input -> Util.fixedSize(input, 2).map(d -> new Vector2i(d.get(0), d.get(1))), vec -> List.of(vec.x(), vec.y())
 				);
 
-		public static final Codec<AABB> BOX_CODEC =
+		public static final Codec<AABB> AABB_CODEC =
 				ExtraCodecs.VECTOR3F.listOf().comapFlatMap(
 						list -> Util.fixedSize(list, 2)
 								.map(listv3f -> {
@@ -107,7 +106,7 @@ public class BackpacksResourceReloadListener implements ResourceManagerReloadLis
 								: DataResult.error(() -> "gui_scale must be higher than 0 " + scale),
 						DataResult::success
 				).forGetter(Backpack::guiScale),
-				BOX_CODEC.optionalFieldOf("block_collision_shape", new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0))
+				AABB_CODEC.optionalFieldOf("block_collision_shape", new AABB(0.0, 0.0, 0.0, 1.0, 1.0, 1.0))
 						.forGetter(Backpack::blockCollisionShape)
 		).apply(i, Backpack::new));
 	}
