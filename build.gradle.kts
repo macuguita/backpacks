@@ -1,5 +1,5 @@
 plugins {
-    id("net.fabricmc.fabric-loom").version("1.15-SNAPSHOT")
+    id("net.fabricmc.fabric-loom").version("1.16-SNAPSHOT")
     id("co.uzzu.dotenv.gradle").version("4.0.0")
     id("maven-publish")
     id("me.modmuss50.mod-publish-plugin").version("1.0.0")
