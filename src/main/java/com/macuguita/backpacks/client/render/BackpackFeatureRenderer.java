@@ -56,7 +56,6 @@ import net.fabricmc.fabric.api.client.renderer.v1.mesh.QuadEmitter;
 @Environment(EnvType.CLIENT)
 public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
 	private static final Matrix4fc IDENTITY_MATRIX4FC = new Matrix4f();
-	public static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
 
 	public BackpackFeatureRenderer(RenderLayerParent<S, M> context) {
 		super(context);
@@ -75,7 +74,7 @@ public class BackpackFeatureRenderer<S extends HumanoidRenderState, M extends Hu
 			return;
 
 		ItemStack backpack = duck.gbackpacks$backpack();
-		if (backpack.isEmpty()) return;
+		if (backpack == null || backpack.isEmpty()) return;
 
 		if (!backpack.has(GBComponents.VISIBLE.get()) || !backpack.has(GBComponents.BACKPACK_MODEL_ID.get()))
 			return;

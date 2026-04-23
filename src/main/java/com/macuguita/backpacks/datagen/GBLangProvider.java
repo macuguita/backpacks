@@ -56,7 +56,7 @@ public class GBLangProvider extends FabricLanguageProvider {
 		translationBuilder.add("backpack.gbackpacks.big_backpack", "Big backpack");
 		translationBuilder.add("key.gbackpacks.open_backpack", "Open backpack");
 		translationBuilder.add("key.gbackpacks.open_equipment", "Open equipment inventory");
-		translationBuilder.add("key.categories.gbackpacks", "guita's Backpacks");
+		translationBuilder.add("key.category.gbackpacks.backpacks", "guita's Backpacks");
 		translationBuilder.add("narration.gbackpacks.customization_widget", "Backpack customization widget");
 		translationBuilder.add("narration.gbackpacks.scroll_bar", "Scroll bar widget");
 		translationBuilder.add("tag.item.gbackpacks.backpack_blacklist", "Backpack blacklist");

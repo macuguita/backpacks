@@ -10,7 +10,7 @@
   "item.gbackpacks.backpack.tooltip.uuid": "UUID of backpack: %s",
   "item.gbackpacks.backpack.tooltip.uuid.hidden": "Press [SHIFT] to show",
   "itemGroup.gbackpacks.gbackpacks": "guita's Backpack",
-  "key.categories.gbackpacks": "guita's Backpacks",
+  "key.category.gbackpacks.backpacks": "guita's Backpacks",
   "key.gbackpacks.open_backpack": "Open backpack",
   "key.gbackpacks.open_equipment": "Open equipment inventory",
   "narration.gbackpacks.customization_widget": "Backpack customization widget",
