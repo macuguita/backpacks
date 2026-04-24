@@ -1,2 +1,1 @@
-- fixed a null check in the feature renderer
-- fixed translation keys for the keybind category
+- Added config to make backpacks unburnable

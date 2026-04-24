@@ -34,5 +34,6 @@ public class GBConfig extends WrappedConfig {
 	@Comment("If the backpack remains on you even after death")
 	@Comment("(Only works when a compatible accessories mod is not in the modpack)")
 	public boolean backpackDropsOnDeath = true;
-
+	@Comment("If the backpack burns")
+	public boolean backpackBurns = true;
 }

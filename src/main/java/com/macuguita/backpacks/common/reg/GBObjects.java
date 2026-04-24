@@ -35,6 +35,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
@@ -47,7 +48,12 @@ public class GBObjects {
 			.noOcclusion()
 			.noTerrainParticles());
 
-	public static final GuitaRegistryEntry<BackpackItem> BACKPACK = registerItem("backpack", setting -> new BackpackItem(GBObjects.BACKPACK_BLOCK.get(), setting), new Item.Properties()
+	public static final GuitaRegistryEntry<BackpackItem> BACKPACK = registerItem("backpack", p -> {
+		if (!GuitaBackpacks.CONFIG.backpackBurns) {
+			p = p.fireResistant();
+		}
+		return new BackpackItem(GBObjects.BACKPACK_BLOCK.get(), p);
+	}, new Item.Properties()
 			.stacksTo(1).component(GBComponents.VISIBLE.get(), true).component(GBComponents.BACKPACK_MODEL_ID.get(), GuitaBackpacks.DEFAULT_BACKPACK_MODEL_ID));
 
 	public static <T extends Block> GuitaRegistryEntry<T> registerBlock(String name, Function<BlockBehaviour.Properties, T> blockFactory, BlockBehaviour.Properties settings) {
