@@ -1,1 +1,1 @@
-- Added config to make backpacks unburnable
+- Added config to offset the paintbrush customization icon
