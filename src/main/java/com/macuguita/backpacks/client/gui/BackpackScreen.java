@@ -154,8 +154,8 @@ public class BackpackScreen extends AbstractContainerScreen<BackpackScreenHandle
 		int guiX = (this.width - this.imageWidth) / 2;
 		int guiY = (this.height - this.imageHeight) / 2;
 
-		int widgetX = guiX + this.imageWidth - 18;
-		int widgetY = guiY + 2;
+		int widgetX = guiX + this.imageWidth - 18 + GuitaBackpacks.CONFIG.clientConfig.xPainthBrushOffset;
+		int widgetY = guiY + 2 + GuitaBackpacks.CONFIG.clientConfig.yPainthBrushOffset;
 		CustomizationWidget customizationWidget = new CustomizationWidget(widgetX, widgetY, 10, 10, null, this, menu.slotIndex);
 		if (!menu.backpack.isEmpty())
 			this.addRenderableWidget(customizationWidget);

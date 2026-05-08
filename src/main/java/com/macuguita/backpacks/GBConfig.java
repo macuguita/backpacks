@@ -36,4 +36,13 @@ public class GBConfig extends WrappedConfig {
 	public boolean backpackDropsOnDeath = true;
 	@Comment("If the backpack burns")
 	public boolean backpackBurns = true;
+
+	public ClientConfig clientConfig = new ClientConfig();
+	public static class ClientConfig implements Section {
+
+		@Comment("The offset along the x axis of the customization widget in the backpack screen")
+		public int xPainthBrushOffset = 0;
+		@Comment("The offset along the y axis of the customization widget in the backpack screen")
+		public int yPainthBrushOffset = 0;
+	}
 }
